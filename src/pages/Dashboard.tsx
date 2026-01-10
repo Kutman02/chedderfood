@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useGetProductsQuery, useGetProductCategoriesQuery, useUpdateOrderStatusMutation, useUpdateProductOrderMutation } from '../app/services/api';
-import { useGetWooOrdersQuery, useGetWooCustomersQuery } from '../app/services/wooCommerceApi';
+import { useGetWooOrdersQuery } from '../app/services/wooCommerceApi';
 import { useAppSelector } from '../app/hooks';
 import { useAuth } from '../hooks/useAuth';
 import { FaBell, FaUserTie, FaCheckCircle, FaTimes, FaBox, FaUsers, FaShoppingBag, FaPlus, FaGripVertical, FaArrowUp, FaArrowDown, FaEye, FaEyeSlash } from 'react-icons/fa';
-import type { TabConfig, Product, Customer, Order } from '../types/types';
+import type { TabConfig, Product, Order } from '../types/types';
 import { filterOrders } from '../utils/utils';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { SerializedError } from '@reduxjs/toolkit';
@@ -74,10 +74,10 @@ const Dashboard = () => {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'publish' | 'draft'>('all');
   const [draggedProductId, setDraggedProductId] = useState<number | null>(null);
-  const [customerSortBy] = useState<'orders' | 'spent'>('orders');
   
   const { data: categories } = useGetProductCategoriesQuery({ per_page: 100 }, { skip: mainSection !== 'products' });
   const [updateProductOrder] = useUpdateProductOrderMutation();
+  const [updateStatus] = useUpdateOrderStatusMutation();
 
   // Запросы данных
   const { data: ordersData, isLoading: ordersLoading, error: ordersError } = useGetWooOrdersQuery(
@@ -88,22 +88,6 @@ const Dashboard = () => {
     { search: searchQuery, per_page: 100, status: selectedStatusFilter === 'all' ? undefined : selectedStatusFilter },
     { skip: mainSection !== 'products' }
   );
-  const { data: customersData, isLoading: customersLoading, error: customersError } = useGetWooCustomersQuery(
-    { per_page: 100 },
-    { skip: mainSection !== 'customers' }
-  );
-
-  // Debug logging for customers
-  console.log('Customers Debug:', {
-    mainSection,
-    customersLoading,
-    customersData,
-    customersError,
-    customersCount: customersData?.length || 0
-  });
-
-  const [updateStatus] = useUpdateOrderStatusMutation();
-
   const orders = filterOrders(ordersData, searchQuery);
   
   // Фильтрация товаров по категории и статусу
@@ -129,51 +113,6 @@ const Dashboard = () => {
       return orderA - orderB;
     });
   }, [products]);
-  
-  const customers = useMemo(() => {
-    if (!customersData) return [];
-    
-    if (!searchQuery.trim()) return customersData;
-    
-    const query = searchQuery.toLowerCase().trim();
-    
-    return customersData.filter((customer: Customer) => {
-      const fullName = `${customer.first_name} ${customer.last_name}`.toLowerCase();
-      const phone = customer.billing?.phone?.toLowerCase() || '';
-      const address = customer.billing?.address_1?.toLowerCase() || '';
-      const city = customer.billing?.city?.toLowerCase() || '';
-      const username = customer.username?.toLowerCase() || '';
-      
-      // Умный поиск: ищем по имени, телефону, адресу, нику
-      return (
-        fullName.includes(query) ||
-        phone.includes(query) ||
-        address.includes(query) ||
-        city.includes(query) ||
-        username.includes(query) ||
-        // Частичное совпадение для имен (кут найдет кутман, кутманбек)
-        query.split(' ').some((word: string) => 
-          word.length > 2 && (
-            fullName.includes(word) ||
-            word.includes(fullName.substring(0, Math.min(word.length, fullName.length))) ||
-            fullName.includes(word.substring(0, Math.min(word.length, fullName.length)))
-          )
-        )
-      );
-    });
-  }, [customersData, searchQuery]);
-  
-  const filteredCustomers = useMemo(() => {
-    return [...customers].sort((a: Customer, b: Customer) => {
-      if (customerSortBy === 'orders') {
-        return (b.orders_count || 0) - (a.orders_count || 0);
-      } else {
-        const spentA = parseFloat(a.total_spent || '0');
-        const spentB = parseFloat(b.total_spent || '0');
-        return spentB - spentA;
-      }
-    });
-  }, [customers, customerSortBy]);
   
   const activeTabData = ORDER_TABS.find(t => t.id === activeTab);
 
@@ -294,7 +233,7 @@ const Dashboard = () => {
     }
   };
 
-  const isLoading = ordersLoading || productsLoading || customersLoading || authLoading;
+  const isLoading = ordersLoading || productsLoading || authLoading;
 
   // Check for authentication status
   if (!isAuthenticated && !authLoading) {
@@ -313,9 +252,8 @@ const Dashboard = () => {
   }
 
   // Check for authentication errors
-  const hasAuthError = ordersError || customersError;
-  const isAuthErrorDetected = hasAuthError && 
-    (isAuthenticationError(ordersError) || isAuthenticationError(customersError));
+  const hasAuthError = ordersError;
+  const isAuthErrorDetected = hasAuthError && isAuthenticationError(ordersError);
 
   return (
     <div className="min-h-screen bg-slate-50">
