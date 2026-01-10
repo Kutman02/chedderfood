@@ -8,6 +8,7 @@ import type { TabConfig, Product, Customer, Order } from '../types/types';
 import { filterOrders } from '../utils/utils';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { SerializedError } from '@reduxjs/toolkit';
+import { Clients } from '../components/Dashboard/Clients';
 
 // Type guard function to check if error is FetchBaseQueryError with status 401
 const isAuthenticationError = (error: FetchBaseQueryError | SerializedError | undefined): boolean => {
@@ -587,61 +588,14 @@ const Dashboard = () => {
                 </>
               )}
 
-              {mainSection === 'customers' && (
-                <>
-                  {customersError && (
-                    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6">
-                      <p className="text-red-600 font-bold">Ошибка загрузки клиентов:</p>
-                      <p className="text-red-500 text-sm">{JSON.stringify(customersError, null, 2)}</p>
-                    </div>
-                  )}
-                  
-                  {/* Кнопки сортировки клиентов */}
-                  <div className="flex items-center gap-2 mb-6">
-                    <span className="text-sm font-bold text-slate-600">Сортировка:</span>
-                    <button
-                      onClick={() => setCustomerSortBy('orders')}
-                      className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-                        customerSortBy === 'orders'
-                          ? 'bg-linear-to-r from-purple-500 to-purple-600 text-white shadow-lg'
-                          : 'bg-white border-2 border-slate-200 text-slate-600 active:bg-slate-50'
-                      }`}
-                    >
-                      <FaShoppingCart className="inline mr-2" size={12} />
-                      По заказам
-                    </button>
-                    <button
-                      onClick={() => setCustomerSortBy('spent')}
-                      className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-                        customerSortBy === 'spent'
-                          ? 'bg-linear-to-r from-green-500 to-green-600 text-white shadow-lg'
-                          : 'bg-white border-2 border-slate-200 text-slate-600 active:bg-slate-50'
-                      }`}
-                    >
-                      <FaDollarSign className="inline mr-2" size={12} />
-                      По потраченному
-                    </button>
-                  </div>
+            {mainSection === 'customers' && (
+  <>
+    <Clients searchQuery={searchQuery} />
+  </>
+)}
 
-                  {customersLoading ? (
-                    <div className="text-center py-10">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                      <p className="text-slate-500">Загрузка клиентов...</p>
-                    </div>
-                  ) : filteredCustomers.length === 0 ? (
-                    <p className="text-center py-10 text-slate-500">Клиенты не найдены</p>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {filteredCustomers.map((customer: Customer) => (
-                        <CustomerCard key={customer.id} customer={customer} />
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </main>
+          
+</main>
       </div>
 
       {/* Модальное окно деталей заказа */}
