@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+/* Essential base styles */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Only essential custom utilities that can't be replaced by Tailwind */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="tel"],
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
