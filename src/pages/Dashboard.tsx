@@ -3,7 +3,7 @@ import { useGetProductsQuery, useGetProductCategoriesQuery, useUpdateOrderStatus
 import { useGetWooOrdersQuery, useGetWooCustomersQuery } from '../app/services/wooCommerceApi';
 import { useAppSelector } from '../app/hooks';
 import { useAuth } from '../hooks/useAuth';
-import { FaBell, FaUserTie, FaCheckCircle, FaTimes, FaBox, FaUsers, FaShoppingBag, FaShoppingCart, FaPlus, FaGripVertical, FaArrowUp, FaArrowDown, FaEye, FaEyeSlash, FaDollarSign } from 'react-icons/fa';
+import { FaBell, FaUserTie, FaCheckCircle, FaTimes, FaBox, FaUsers, FaShoppingBag, FaPlus, FaGripVertical, FaArrowUp, FaArrowDown, FaEye, FaEyeSlash } from 'react-icons/fa';
 import type { TabConfig, Product, Customer, Order } from '../types/types';
 import { filterOrders } from '../utils/utils';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -22,7 +22,6 @@ const isAuthenticationError = (error: FetchBaseQueryError | SerializedError | un
 import { Header } from '../components/Dashboard/Header';
 import { OrderCard } from '../components/Dashboard/OrderCard';
 import { ProductCard } from '../components/Dashboard/ProductCard';
-import { CustomerCard } from '../components/Dashboard/CustomerCard';
 import { OrderDetailsModal } from '../components/Dashboard/OrderDetailsModal';
 import { AddProductModal } from '../components/Dashboard/AddProductModal';
 import { EditProductModal } from '../components/Dashboard/EditProductModal';
@@ -75,7 +74,7 @@ const Dashboard = () => {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'publish' | 'draft'>('all');
   const [draggedProductId, setDraggedProductId] = useState<number | null>(null);
-  const [customerSortBy, setCustomerSortBy] = useState<'orders' | 'spent'>('orders');
+  const [customerSortBy] = useState<'orders' | 'spent'>('orders');
   
   const { data: categories } = useGetProductCategoriesQuery({ per_page: 100 }, { skip: mainSection !== 'products' });
   const [updateProductOrder] = useUpdateProductOrderMutation();
@@ -588,14 +587,14 @@ const Dashboard = () => {
                 </>
               )}
 
-            {mainSection === 'customers' && (
-  <>
-    <Clients searchQuery={searchQuery} />
-  </>
-)}
-
-          
-</main>
+              {mainSection === 'customers' && (
+                <>
+                  <Clients searchQuery={searchQuery} />
+                </>
+              )}
+            </>
+          )}
+        </main>
       </div>
 
       {/* Модальное окно деталей заказа */}
