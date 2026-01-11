@@ -1,4 +1,5 @@
 import React, { useState, useLayoutEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FaTimes, FaMinus, FaPlus, FaTrash, FaShoppingBag } from 'react-icons/fa';
 import { useGetProductsQuery } from '../app/services/api';
 import { Checkout } from './Checkout';
@@ -10,6 +11,7 @@ import { useScrollLockStore } from '../stores/scrollLockStore';
 
 export const Cart: React.FC = () => {
   const dispatch = useAppDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
   const cart = useAppSelector((s) => s.cart.items);
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
   const lockScroll = useScrollLockStore((s) => s.lock);
@@ -61,12 +63,17 @@ export const Cart: React.FC = () => {
     setShowCheckoutForm(false);
   };
 
+  const handleCloseCart = () => {
+    dispatch(closeCart());
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('modal');
+    setSearchParams(newParams);
+  };
+
   if (showCheckoutForm) {
     return (
       <Checkout
-        onClose={() => {
-          dispatch(closeCart());
-        }}
+        onClose={handleCloseCart}
         onBack={handleCheckoutBack}
         onSuccess={handleCheckoutSuccess}
       />
@@ -77,7 +84,7 @@ export const Cart: React.FC = () => {
     <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-screen">
       {/* Кнопка закрытия вверху справа */}
       <button
-        onClick={() => dispatch(closeCart())}
+        onClick={handleCloseCart}
         className="fixed top-4 right-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-all duration-300 ease-out active:scale-95"
       >
         <FaTimes size={20} />
@@ -119,7 +126,7 @@ export const Cart: React.FC = () => {
               <h3 className="text-2xl font-bold text-slate-800 mb-3">Корзина пуста</h3>
               <p className="text-slate-600 mb-8 text-lg">Добавьте товары для оформления заказа</p>
               <button
-                onClick={() => dispatch(closeCart())}
+                onClick={handleCloseCart}
                 className="bg-orange-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-orange-700 transition-all duration-300 ease-out text-lg active:scale-95 shadow-lg hover:shadow-xl"
               >
                 Перейти к покупкам

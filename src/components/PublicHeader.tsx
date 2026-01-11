@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useGetPublicProductCategoriesQuery } from '../app/services/publicApi';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { HamburgerMenu } from './HamburgerMenu';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { openCart, openReceipts } from '../app/slices/uiSlice';
@@ -10,6 +10,7 @@ import { FaReceipt, FaFire } from 'react-icons/fa';
 
 export const PublicHeader = () => {
   const dispatch = useAppDispatch();
+  const [, setSearchParams] = useSearchParams();
   const { data: categories, isLoading } = useGetPublicProductCategoriesQuery({ per_page: 100 });
   const isScrollLocked = useScrollLockStore((s) => s.isLocked);
   const receipts = useAppSelector((s) => s.receipts.receipts);
@@ -25,6 +26,7 @@ export const PublicHeader = () => {
 
   const handleOpenReceipts = () => {
     dispatch(openReceipts());
+    setSearchParams({ modal: 'mycheks' });
   };
 
   // Отслеживаем прокрутку для подсветки активной категории
@@ -101,6 +103,7 @@ export const PublicHeader = () => {
             <HamburgerMenu 
               onCartOpen={() => {
                 dispatch(openCart());
+                setSearchParams({ modal: 'cart' });
               }} 
             />
           </div>
