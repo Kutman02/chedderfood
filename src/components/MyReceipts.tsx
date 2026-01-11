@@ -22,7 +22,11 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
   });
   const [clearAllConfirm, setClearAllConfirm] = useState(false);
 
-  const handleDeleteReceipt = (receiptId: number) => {
+  const handleDeleteReceipt = (receiptId: number, status: string) => {
+    // Разрешаем удаление только для завершенных или отмененных заказов
+    if (status !== 'completed' && status !== 'cancelled') {
+      return;
+    }
     setDeleteConfirm({ isOpen: true, receiptId });
   };
 
@@ -111,6 +115,9 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
       }
     };
 
+    // Проверяем, можно ли удалить чек (только для завершенных или отмененных)
+    const canDeleteReceipt = currentOrderData.status === 'completed' || currentOrderData.status === 'cancelled';
+
     return (
       <div
         className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 ease-out hover:-translate-y-1"
@@ -142,13 +149,15 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
                 <FaSync size={12} />
               </button>
             )}
-            <button
-              onClick={() => handleDeleteReceipt(receipt.id)}
-              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-              title="Удалить чек"
-            >
-              <FaTrash size={14} />
-            </button>
+            {canDeleteReceipt && (
+              <button
+                onClick={() => handleDeleteReceipt(receipt.id, currentOrderData.status)}
+                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                title="Удалить чек"
+              >
+                <FaTrash size={14} />
+              </button>
+            )}
           </div>
         </div>
 
