@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useAppSelector } from './app/hooks';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ModalRedirectWrapper } from './components/ModalRedirectWrapper';
+import { Toast } from './components/Toast';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Home from './pages/Home';
@@ -31,6 +32,7 @@ const ModalRedirect = ({ modal }: { modal: string }) => {
 function App() {
   return (
     <ErrorBoundary>
+      <Toast />
       <Router>
         <Routes>
           {/* Публичный роут: Главная страница */}

@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
-import { FaTimes, FaShoppingCart, FaPlus, FaMinus } from 'react-icons/fa';
+import { FaTimes, FaShoppingCart } from 'react-icons/fa';
 import type { Product } from '../types/types';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { addToCart, removeFromCart } from '../app/slices/cartSlice';
+import { useAppDispatch } from '../app/hooks';
+import { addToCart } from '../app/slices/cartSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
+import { useToastStore } from '../stores/toastStore';
 
 interface ProductModalProps {
   product: Product | null;
@@ -17,9 +18,9 @@ export const ProductModalSwipe: React.FC<ProductModalProps> = ({
   onClose,
 }) => {
   const dispatch = useAppDispatch();
-  const cart = useAppSelector((s) => s.cart.items);
   const lockScroll = useScrollLockStore((s) => s.lock);
   const unlockScroll = useScrollLockStore((s) => s.unlock);
+  const showToast = useToastStore((state) => state.showToast);
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [currentY, setCurrentY] = useState(0);
@@ -59,7 +60,6 @@ export const ProductModalSwipe: React.FC<ProductModalProps> = ({
   const currentImage = productImages[currentImageIndex];
   const productImage = currentImage?.src || '/placeholder-image.jpg';
   const productPrice = product.sale_price || product.price || '0';
-  const cartCount = cart[product.id] || 0;
 
   const handlePrevImage = () => {
     if (currentImageIndex > 0) {
@@ -276,42 +276,17 @@ export const ProductModalSwipe: React.FC<ProductModalProps> = ({
 
             {/* Кнопка добавления в корзину */}
             <div className="pt-4">
-              {cartCount === 0 ? (
-                <button
-                  onClick={() => dispatch(addToCart(product.id))}
-                  className="w-full bg-orange-600 text-white py-4 rounded-xl font-black hover:bg-orange-700 transition-colors flex items-center justify-center gap-3 text-lg"
-                  disabled={product.stock_status !== 'instock'}
-                >
-                  <FaShoppingCart /> В корзину за {productPrice} сом
-                </button>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-orange-50 p-3 rounded-xl">
-                    <button
-                      onClick={() => dispatch(removeFromCart(product.id))}
-                      className="w-12 h-12 flex items-center justify-center bg-orange-600 text-white hover:bg-orange-700 transition-colors rounded-lg"
-                    >
-                      <FaMinus />
-                    </button>
-                    <span className="font-bold text-xl text-slate-800">
-                      {cartCount}
-                    </span>
-                    <button
-                      onClick={() => dispatch(addToCart(product.id))}
-                      className="w-12 h-12 flex items-center justify-center bg-orange-600 text-white hover:bg-orange-700 transition-colors rounded-lg"
-                    >
-                      <FaPlus />
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => dispatch(addToCart(product.id))}
-                    className="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors"
-                    disabled={product.stock_status !== 'instock'}
-                  >
-                    Добавить еще один
-                  </button>
-                </div>
-              )}
+              <button
+                onClick={() => {
+                  dispatch(addToCart(product.id));
+                  showToast(`Вы добавили "${product.name}" в корзину`, 'success');
+                  onClose();
+                }}
+                className="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold hover:bg-orange-700 transition-colors flex items-center justify-center gap-2 text-base"
+                disabled={product.stock_status !== 'instock'}
+              >
+                <FaShoppingCart size={16} /> В корзину
+              </button>
             </div>
           </div>
         </div>
