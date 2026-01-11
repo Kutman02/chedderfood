@@ -1,17 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGetPublicProductCategoriesQuery } from '../app/services/publicApi';
 import { Link } from 'react-router-dom';
 import { HamburgerMenu } from './HamburgerMenu';
-import { useAppDispatch } from '../app/hooks';
-import { openCart } from '../app/slices/uiSlice';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { openCart, openReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
+import { FaReceipt, FaFire } from 'react-icons/fa';
 
 export const PublicHeader = () => {
   const dispatch = useAppDispatch();
   const { data: categories, isLoading } = useGetPublicProductCategoriesQuery({ per_page: 100 });
   const isScrollLocked = useScrollLockStore((s) => s.isLocked);
+  const receipts = useAppSelector((s) => s.receipts.receipts);
   
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+
+  // Проверяем, есть ли активные заказы (не завершенные и не отмененные)
+  const hasActiveOrders = useMemo(() => {
+    return receipts.some(
+      (receipt) => receipt.status !== 'completed' && receipt.status !== 'cancelled'
+    );
+  }, [receipts]);
+
+  const handleOpenReceipts = () => {
+    dispatch(openReceipts());
+  };
 
   // Отслеживаем прокрутку для подсветки активной категории
   useEffect(() => {
@@ -61,7 +74,29 @@ export const PublicHeader = () => {
             <div className="text-2xl font-black text-orange-600">BurgerFood</div>
           </Link>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {/* Кнопка чеков с огненным эффектом при активных заказах */}
+            <button
+              onClick={handleOpenReceipts}
+              className={`relative p-2 hover:bg-orange-50 rounded-lg transition-colors ${
+                hasActiveOrders ? 'text-red-600' : 'text-orange-600'
+              }`}
+              title="Мои чеки"
+            >
+              <FaReceipt size={20} />
+              {hasActiveOrders && (
+                <div className="absolute -top-1 -right-1 animate-pulse">
+                  <FaFire 
+                    className="text-red-500 drop-shadow-lg" 
+                    size={14}
+                    style={{
+                      filter: 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.9))'
+                    }}
+                  />
+                </div>
+              )}
+            </button>
+            
             <HamburgerMenu 
               onCartOpen={() => {
                 dispatch(openCart());
