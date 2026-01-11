@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { FaShoppingCart, FaDollarSign, FaUsers } from 'react-icons/fa';
-import { useGetWooCustomersQuery } from '../../app/services/wooCommerceApi';
+import { useGetAllWooCustomersQuery } from '../../app/services/wooCommerceApi';
 import type { Customer } from '../../types/types';
 import { CustomerCard } from './CustomerCard';
 
@@ -15,7 +15,7 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
     data: customersData,
     isLoading: customersLoading,
     error: customersError,
-  } = useGetWooCustomersQuery({ per_page: 100 });
+  } = useGetAllWooCustomersQuery({ per_page: 100 });
 
   // Фильтрация по поиску
   const customers = useMemo(() => {

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { useGetProductsQuery, useGetProductCategoriesQuery, useUpdateOrderStatusMutation, useUpdateProductOrderMutation } from '../app/services/api';
-import { useGetWooOrdersQuery } from '../app/services/wooCommerceApi';
+import { useGetProductsQuery, useGetProductCategoriesQuery, useUpdateProductOrderMutation } from '../app/services/api';
+import { useGetWooOrdersQuery, useUpdateWooOrderStatusMutation } from '../app/services/wooCommerceApi';
 import { useAppSelector } from '../app/hooks';
 import { useAuth } from '../hooks/useAuth';
 import { FaBell, FaUserTie, FaCheckCircle, FaTimes, FaBox, FaUsers, FaShoppingBag, FaPlus, FaGripVertical, FaArrowUp, FaArrowDown, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -77,7 +77,7 @@ const Dashboard = () => {
   
   const { data: categories } = useGetProductCategoriesQuery({ per_page: 100 }, { skip: mainSection !== 'products' });
   const [updateProductOrder] = useUpdateProductOrderMutation();
-  const [updateStatus] = useUpdateOrderStatusMutation();
+  const [updateStatus] = useUpdateWooOrderStatusMutation();
 
   // Запросы данных
   const { data: ordersData, isLoading: ordersLoading, error: ordersError } = useGetWooOrdersQuery(
@@ -215,13 +215,8 @@ const Dashboard = () => {
     }
   };
 
-  const handleConfirmStatusUpdate = (orderId: number, status: string) => {
-    handleStatusUpdate(orderId, status);
-    // Закрываем подтверждение после выполнения действия
-    setExpandedConfirmation({
-      orderId: null,
-      action: null,
-    });
+  const handleConfirmStatusUpdate = async (orderId: number, status: string) => {
+    await handleStatusUpdate(orderId, status);
   };
 
   const getPlaceholder = () => {

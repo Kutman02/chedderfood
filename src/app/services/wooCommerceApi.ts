@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { Order, Customer } from '../../types/types';
 
 // WooCommerce API with only Basic Auth (no WordPress nonce)
 export const wooCommerceApi = createApi({
@@ -77,11 +78,117 @@ export const wooCommerceApi = createApi({
       },
       providesTags: ['WooCustomers'],
     }),
+    // Метод для получения всех клиентов (включая гостевых из заказов)
+    getAllWooCustomers: builder.query({
+      query: ({ per_page = 100 }) => {
+        return `wc/v3/orders?per_page=${per_page}`;
+      },
+      transformResponse: (orders: Order[]) => {
+        // Создаем уникальных клиентов из заказов
+        const customersMap = new Map<string, Customer>();
+        
+        orders.forEach(order => {
+          const billing = order.billing;
+          if (billing && billing.email) {
+            const customerKey = billing.email;
+            
+            if (!customersMap.has(customerKey)) {
+              // Считаем общие заказы и потраченную сумму для этого клиента
+              let totalOrders = 0;
+              let totalSpent = 0;
+              let firstOrderDate = order.date_created;
+              let lastOrderDate = order.date_modified;
+              
+              orders.forEach(o => {
+                if (o.billing && o.billing.email === billing.email) {
+                  totalOrders++;
+                  totalSpent += parseFloat(o.total || '0');
+                  // Находим самую раннюю и самую позднюю дату заказов
+                  if (o.date_created < firstOrderDate) {
+                    firstOrderDate = o.date_created;
+                  }
+                  if (o.date_modified > lastOrderDate) {
+                    lastOrderDate = o.date_modified;
+                  }
+                }
+              });
+              
+              // Генерируем простой числовой ID из email
+              let emailHash = 0;
+              for (let i = 0; i < billing.email.length; i++) {
+                const char = billing.email.charCodeAt(i);
+                emailHash = ((emailHash << 5) - emailHash) + char;
+                emailHash = emailHash & emailHash; // Конвертируем в 32-битное число
+              }
+              const uniqueId = Math.abs(emailHash);
+              
+              customersMap.set(customerKey, {
+                id: uniqueId,
+                first_name: billing.first_name || '',
+                last_name: billing.last_name || '',
+                email: billing.email,
+                username: billing.email.split('@')[0],
+                date_created: firstOrderDate,
+                date_modified: lastOrderDate,
+                billing: {
+                  first_name: billing.first_name || '',
+                  last_name: billing.last_name || '',
+                  company: '',
+                  address_1: billing.address_1 || '',
+                  address_2: billing.address_2 || '',
+                  city: billing.city || '',
+                  postcode: '',
+                  country: '',
+                  email: billing.email || '',
+                  phone: billing.phone || '',
+                },
+                shipping: order.shipping ? {
+                  first_name: order.shipping.first_name || '',
+                  last_name: order.shipping.last_name || '',
+                  company: '',
+                  address_1: order.shipping.address_1 || '',
+                  address_2: order.shipping.address_2 || '',
+                  city: order.shipping.city || '',
+                  postcode: order.shipping.postcode || '',
+                  country: '',
+                } : {
+                  first_name: '',
+                  last_name: '',
+                  company: '',
+                  address_1: '',
+                  address_2: '',
+                  city: '',
+                  postcode: '',
+                  country: '',
+                },
+                orders_count: totalOrders,
+                total_spent: totalSpent.toString(),
+                role: 'customer',
+              });
+            }
+          }
+        });
+        
+        return Array.from(customersMap.values());
+      },
+      providesTags: ['WooCustomers'],
+    }),
+    // Метод для смены статуса заказа
+    updateWooOrderStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `wc/v3/orders/${id}`,
+        method: 'PUT',
+        body: { status },
+      }),
+      invalidatesTags: ['WooOrders'],
+    }),
   }),
 });
 
 export const { 
   useGetWooOrdersQuery,
   useGetWooProductsQuery,
-  useGetWooCustomersQuery
+  useGetWooCustomersQuery,
+  useGetAllWooCustomersQuery,
+  useUpdateWooOrderStatusMutation
 } = wooCommerceApi;
