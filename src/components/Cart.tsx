@@ -85,66 +85,66 @@ export const Cart: React.FC = () => {
       {/* Кнопка закрытия вверху справа */}
       <button
         onClick={handleCloseCart}
-        className="fixed top-4 right-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-all duration-300 ease-out active:scale-95"
+        className="fixed top-3 right-3 md:top-4 md:right-4 z-10 w-9 h-9 md:w-10 md:h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-all duration-300 ease-out active:scale-95"
       >
-        <FaTimes size={20} />
+        <FaTimes size={18} />
       </button>
 
       {/* Заголовок корзины */}
-      <div className="shrink-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-            <FaShoppingBag className="text-orange-600" size={24} />
+      <div className="shrink-0 bg-white border-b border-slate-200 px-4 py-3 md:p-6 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-100 rounded-full flex items-center justify-center shrink-0">
+            <FaShoppingBag className="text-orange-600" size={20} />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-slate-800">
+            <h2 className="text-xl md:text-2xl font-black text-slate-800">
               Корзина ({totalItems})
             </h2>
-            <p className="text-sm text-slate-600">Ваши выбранные товары</p>
+            <p className="text-xs md:text-sm text-slate-600 hidden sm:block">Ваши выбранные товары</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {cartItems.length > 0 && (
             <button
               onClick={() => dispatch(clearCart())}
-              className="p-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              className="p-2 md:p-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
               title="Очистить корзину"
             >
-              <FaTrash size={18} />
+              <FaTrash size={16} />
             </button>
           )}
         </div>
       </div>
 
         {/* Контент корзины */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6">
           {cartItems.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="w-32 h-32 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-                <FaShoppingBag className="text-slate-400" size={48} />
+            <div className="text-center py-12 md:py-20">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 animate-pulse">
+                <FaShoppingBag className="text-slate-400" size={36} />
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-3">Корзина пуста</h3>
-              <p className="text-slate-600 mb-8 text-lg">Добавьте товары для оформления заказа</p>
+              <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-2 md:mb-3">Корзина пуста</h3>
+              <p className="text-slate-600 mb-6 md:mb-8 text-base md:text-lg">Добавьте товары для оформления заказа</p>
               <button
                 onClick={handleCloseCart}
-                className="bg-orange-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-orange-700 transition-all duration-300 ease-out text-lg active:scale-95 shadow-lg hover:shadow-xl"
+                className="bg-orange-600 text-white px-6 py-2.5 md:px-8 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-orange-700 transition-all duration-300 ease-out text-base md:text-lg active:scale-95 shadow-lg hover:shadow-xl"
               >
                 Перейти к покупкам
               </button>
             </div>
           ) : (
-            <div className="space-y-6 max-w-4xl mx-auto">
+            <div className="space-y-3 md:space-y-4 max-w-4xl mx-auto">
               {cartItems.map((item: Product & { quantity: number; totalPrice: string }) => (
                 <div
                   key={item.id}
-                  className="bg-white border border-slate-200 rounded-2xl p-6 flex gap-6 hover:shadow-lg transition-all duration-300 ease-out hover:-translate-y-1"
+                  className="bg-white border border-slate-200 rounded-xl md:rounded-2xl p-3 md:p-4 flex gap-3 md:gap-4 hover:shadow-lg transition-all duration-300 ease-out"
                 >
                   {/* Изображение товара */}
-                  <div className="w-24 h-24 bg-slate-100 rounded-xl overflow-hidden shrink-0">
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-100 rounded-lg md:rounded-xl overflow-hidden shrink-0">
                     <img
                       src={item.images?.[0]?.src || '/placeholder-image.jpg'}
                       alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96x96?text=No+Image';
                       }}
@@ -152,42 +152,42 @@ export const Cart: React.FC = () => {
                   </div>
 
                   {/* Информация о товаре */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg text-slate-800 mb-2 line-clamp-2 transition-colors hover:text-slate-700">
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <h3 className="font-bold text-base md:text-lg text-slate-800 mb-1 md:mb-2 line-clamp-2">
                       {item.name}
                     </h3>
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-xl font-bold text-orange-600">
+                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                      <span className="text-lg md:text-xl font-bold text-orange-600">
                         {item.sale_price || item.price} сом
                       </span>
                       {item.sale_price && item.regular_price && (
-                        <span className="text-sm text-slate-400 line-through">
+                        <span className="text-xs md:text-sm text-slate-400 line-through">
                           {item.regular_price} сом
                         </span>
                       )}
                     </div>
 
-                    {/* Управление количеством */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 bg-orange-50 rounded-lg p-2">
+                    {/* Управление количеством и итоговая цена */}
+                    <div className="flex items-center justify-between mt-auto gap-2">
+                      <div className="flex items-center gap-1.5 md:gap-2 bg-orange-50 rounded-lg p-1 md:p-1.5">
                         <button
                           onClick={() => dispatch(removeFromCart(item.id))}
-                          className="w-10 h-10 flex items-center justify-center bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200 active:scale-95"
+                          className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-orange-600 text-white rounded-md md:rounded-lg hover:bg-orange-700 transition-colors duration-200 active:scale-95"
                         >
-                          <FaMinus size={14} />
+                          <FaMinus size={12} />
                         </button>
-                        <span className="font-bold text-lg text-slate-800 min-w-10 text-center">
+                        <span className="font-bold text-base md:text-lg text-slate-800 min-w-[24px] md:min-w-[28px] text-center">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => dispatch(addToCart(item.id))}
-                          className="w-10 h-10 flex items-center justify-center bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200 active:scale-95"
+                          className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-orange-600 text-white rounded-md md:rounded-lg hover:bg-orange-700 transition-colors duration-200 active:scale-95"
                         >
-                          <FaPlus size={14} />
+                          <FaPlus size={12} />
                         </button>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-xl text-slate-800">
+                        <div className="font-bold text-base md:text-lg text-slate-800 whitespace-nowrap">
                           {item.totalPrice} сом
                         </div>
                       </div>
@@ -201,18 +201,18 @@ export const Cart: React.FC = () => {
 
         {/* Футер с итоговой суммой */}
         {cartItems.length > 0 && (
-          <div className="shrink-0 border-t border-slate-200 p-6 bg-white shadow-lg">
+          <div className="shrink-0 border-t border-slate-200 px-4 py-4 md:p-6 bg-white shadow-lg">
             <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xl font-bold text-slate-800">Итого:</span>
-                <span className="text-3xl font-black text-orange-600">{totalAmount} сом</span>
+              <div className="flex items-center justify-between mb-3 md:mb-4">
+                <span className="text-lg md:text-xl font-bold text-slate-800">Итого:</span>
+                <span className="text-2xl md:text-3xl font-black text-orange-600">{totalAmount} сом</span>
               </div>
               <button
                 onClick={handleCheckout}
-                className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-all duration-300 ease-out flex items-center justify-center gap-3 text-lg active:scale-95 shadow-lg hover:shadow-xl"
+                className="w-full bg-orange-600 text-white py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-orange-700 transition-all duration-300 ease-out flex items-center justify-center gap-2 md:gap-3 text-base md:text-lg active:scale-95 shadow-lg hover:shadow-xl"
               >
-                <FaShoppingBag size={20} />
-                Оформить заказ
+                <FaShoppingBag size={18} />
+                Далее
               </button>
             </div>
           </div>
