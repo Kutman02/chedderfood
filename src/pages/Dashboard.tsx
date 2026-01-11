@@ -3,7 +3,7 @@ import { useGetProductsQuery, useGetProductCategoriesQuery, useUpdateProductOrde
 import { useGetWooOrdersQuery, useUpdateWooOrderStatusMutation } from '../app/services/wooCommerceApi';
 import { useAppSelector } from '../app/hooks';
 import { useAuth } from '../hooks/useAuth';
-import { FaBell, FaUserTie, FaCheckCircle, FaTimes, FaBox, FaUsers, FaShoppingBag, FaPlus, FaGripVertical, FaArrowUp, FaArrowDown, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaBell, FaUserTie, FaCheckCircle, FaTimes, FaBox, FaUsers, FaShoppingBag, FaPlus, FaEye, FaEyeSlash } from 'react-icons/fa';
 import type { TabConfig, Product, Order } from '../types/types';
 import { filterOrders } from '../utils/utils';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -201,19 +201,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleMoveUp = async (productId: number) => {
-    const currentIndex = sortedProducts.findIndex((p: Product) => p.id === productId);
-    if (currentIndex > 0) {
-      await updateProductsOrder(currentIndex, currentIndex - 1);
-    }
-  };
-
-  const handleMoveDown = async (productId: number) => {
-    const currentIndex = sortedProducts.findIndex((p: Product) => p.id === productId);
-    if (currentIndex < sortedProducts.length - 1) {
-      await updateProductsOrder(currentIndex, currentIndex + 1);
-    }
-  };
 
   const handleConfirmStatusUpdate = async (orderId: number, status: string) => {
     await handleStatusUpdate(orderId, status);
@@ -457,63 +444,28 @@ const Dashboard = () => {
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-3 md:space-y-4">
-                      {sortedProducts.map((product: Product, index: number) => (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-4">
+                      {sortedProducts.map((product: Product) => (
                         <div
                           key={product.id}
                           draggable
                           onDragStart={(e) => handleDragStart(e, product.id)}
                           onDragOver={handleDragOver}
                           onDrop={(e) => handleDrop(e, product.id)}
-                          className={`relative group ${
+                          className={`relative ${
                             draggedProductId === product.id ? 'opacity-50' : ''
                           }`}
                         >
-                          <div className="flex items-start gap-2 md:gap-3">
-                            {/* Кнопки перемещения для мобильных */}
-                            <div className="flex flex-col gap-2 md:hidden pt-1">
-                              <button
-                                onClick={() => handleMoveUp(product.id)}
-                                disabled={index === 0}
-                                className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed active:bg-slate-200 active:scale-95 transition-all shadow-sm"
-                                title="Вверх"
-                              >
-                                <FaArrowUp size={16} />
-                              </button>
-                              <button
-                                onClick={() => handleMoveDown(product.id)}
-                                disabled={index === sortedProducts.length - 1}
-                                className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed active:bg-slate-200 active:scale-95 transition-all shadow-sm"
-                                title="Вниз"
-                              >
-                                <FaArrowDown size={16} />
-                              </button>
-                            </div>
-
-                            {/* Иконка перетаскивания для десктопа */}
-                            <div className="hidden md:flex shrink-0 w-10 h-10 items-center justify-center text-slate-400 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                              <FaGripVertical size={18} />
-                            </div>
-
-                            {/* Номер позиции */}
-                            <div className="shrink-0 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-linear-to-br from-slate-100 to-slate-200 rounded-xl font-black text-slate-700 text-sm md:text-base shadow-sm">
-                              {index + 1}
-                            </div>
-
-                            {/* Карточка товара */}
-                            <div className="flex-1 min-w-0">
-                              <ProductCard 
-                                product={product} 
-                                onEdit={handleEditProduct}
-                                isDragging={draggedProductId === product.id}
-                              />
-                            </div>
-                          </div>
+                          <ProductCard 
+                            product={product} 
+                            onEdit={handleEditProduct}
+                            isDragging={draggedProductId === product.id}
+                          />
                         </div>
                       ))}
-                      <div className="text-xs md:text-sm text-slate-400 text-center mt-6 space-y-1">
+                      <div className="col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-5 2xl:col-span-6 text-xs md:text-sm text-slate-400 text-center mt-6 space-y-1">
                         <p className="hidden md:block">💡 Перетащите товары для изменения порядка отображения</p>
-                        <p className="md:hidden">💡 Используйте кнопки ↑↓ для изменения порядка</p>
+                        <p className="md:hidden">💡 Перетащите товары для изменения порядка</p>
                       </div>
                     </div>
                   )}
