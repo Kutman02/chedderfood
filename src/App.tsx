@@ -5,6 +5,8 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Home from './pages/Home';
+import AboutUs from './pages/AboutUs';
+import Contacts from './pages/Contacts';
 import AuthTest from './components/AuthTest';
 import WooCommerceTest from './components/WooCommerceTest';
 import NotFound from './pages/NotFound';
@@ -25,6 +27,12 @@ function App() {
 
           {/* Публичный роут: Вход */}
           <Route path="/login" element={<Login />} />
+
+          {/* Публичный роут: О нас */}
+          <Route path="/about" element={<AboutUs />} />
+
+          {/* Публичный роут: Контакты */}
+          <Route path="/contacts" element={<Contacts />} />
 
           {/* Тестовый роут: Проверка авторизации */}
           <Route path="/auth-test" element={<AuthTest />} />

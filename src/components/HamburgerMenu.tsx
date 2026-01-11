@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { FaTimes, FaBars, FaReceipt, FaUser, FaPhone, FaMapMarkerAlt, FaShoppingCart } from 'react-icons/fa';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { FaTimes, FaBars, FaReceipt, FaUser, FaPhone, FaMapMarkerAlt, FaShoppingCart, FaInfoCircle, FaAddressBook } from 'react-icons/fa';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { clearCustomerData } from '../app/slices/receiptsSlice';
 import { openReceipts } from '../app/slices/uiSlice';
+import { useScrollLockStore } from '../stores/scrollLockStore';
 
 interface HamburgerMenuProps {
   onCustomerDataSelect?: (data: { first_name: string; phone: string; address: string }) => void;
@@ -15,8 +17,20 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const customerData = useAppSelector((s) => s.receipts.customerData);
+  const lockScroll = useScrollLockStore((s) => s.lock);
+  const unlockScroll = useScrollLockStore((s) => s.unlock);
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Блокируем прокрутку при открытии меню
+  useLayoutEffect(() => {
+    if (isOpen) {
+      lockScroll();
+      return () => {
+        unlockScroll();
+      };
+    }
+  }, [isOpen, lockScroll, unlockScroll]);
 
   // Определяем мобильное ли устройство
   useEffect(() => {
@@ -62,6 +76,20 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             <FaReceipt size={14} />
             <span className="text-sm font-medium">Мои чеки</span>
           </button>
+          <Link
+            to="/about"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+          >
+            <FaInfoCircle size={14} />
+            <span className="text-sm font-medium">О нас</span>
+          </Link>
+          <Link
+            to="/contacts"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+          >
+            <FaAddressBook size={14} />
+            <span className="text-sm font-medium">Контакты</span>
+          </Link>
           <button
             onClick={onCartOpen}
             className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
@@ -95,9 +123,9 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           />
 
           {/* Панель меню - полноэкранная на мобильных с анимацией */}
-          <div className="relative bg-white w-full h-full shadow-2xl animate-in slide-in-from-right duration-300 max-w-md">
+          <div className="relative bg-white w-full h-full shadow-2xl animate-in slide-in-from-right duration-300 max-w-md flex flex-col">
             {/* Заголовок */}
-            <div className="sticky top-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+            <div className="shrink-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
               <h2 className="text-lg font-black text-slate-800">Меню</h2>
               <button
                 onClick={handleCloseMenu}
@@ -170,8 +198,42 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                 )}
               </div>
 
-              {/* Информация */}
+              {/* Ссылки на страницы */}
               <div className="border-t border-slate-200 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-300">
+                <h3 className="font-bold text-slate-800 mb-4 text-base">Информация</h3>
+                <div className="space-y-3">
+                  <Link
+                    to="/about"
+                    onClick={handleCloseMenu}
+                    className="flex items-center gap-4 p-4 bg-white hover:bg-orange-50 rounded-2xl transition-all duration-200 text-left active:scale-[0.98] shadow-sm hover:shadow-md border border-slate-200"
+                  >
+                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                      <FaInfoCircle className="text-orange-600" size={18} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-800 text-base">О нас</h3>
+                      <p className="text-sm text-slate-600">Узнайте больше о BurgerFood</p>
+                    </div>
+                  </Link>
+
+                  <Link
+                    to="/contacts"
+                    onClick={handleCloseMenu}
+                    className="flex items-center gap-4 p-4 bg-white hover:bg-orange-50 rounded-2xl transition-all duration-200 text-left active:scale-[0.98] shadow-sm hover:shadow-md border border-slate-200"
+                  >
+                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                      <FaAddressBook className="text-orange-600" size={18} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-800 text-base">Контакты</h3>
+                      <p className="text-sm text-slate-600">Свяжитесь с нами</p>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+
+              {/* О приложении */}
+              <div className="border-t border-slate-200 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-400">
                 <h3 className="font-bold text-slate-800 mb-4 text-base">О приложении</h3>
                 <div className="space-y-2 text-sm text-slate-600 bg-slate-50 rounded-2xl p-5">
                   <p className="font-medium text-slate-700">BurgerFood - доставка вкусной еды</p>
