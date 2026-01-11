@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FaTimes, FaBars, FaReceipt, FaUser, FaPhone, FaMapMarkerAlt, FaShoppingCart, FaInfoCircle, FaAddressBook } from 'react-icons/fa';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { clearCustomerData } from '../app/slices/receiptsSlice';
-import { openReceipts } from '../app/slices/uiSlice';
+import { openReceipts, closeReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
 
 interface HamburgerMenuProps {
@@ -16,6 +16,8 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onCartOpen 
 }) => {
   const dispatch = useAppDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isReceiptsOpen = useAppSelector((s) => s.ui.isReceiptsOpen);
   const customerData = useAppSelector((s) => s.receipts.customerData);
   const lockScroll = useScrollLockStore((s) => s.lock);
   const unlockScroll = useScrollLockStore((s) => s.unlock);
@@ -45,7 +47,19 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   const handleOpenMenu = () => setIsOpen(true);
   const handleCloseMenu = () => setIsOpen(false);
   const handleOpenReceipts = () => {
-    dispatch(openReceipts());
+    if (isReceiptsOpen) {
+      // Если модальное окно уже открыто, закрываем его
+      dispatch(closeReceipts());
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('modal');
+      setSearchParams(newParams);
+    } else {
+      // Если модальное окно закрыто, открываем его
+      dispatch(openReceipts());
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('modal', 'mycheks');
+      setSearchParams(newParams);
+    }
     handleCloseMenu();
   };
 

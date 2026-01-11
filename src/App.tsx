@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { useAppSelector } from './app/hooks';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ModalRedirectWrapper } from './components/ModalRedirectWrapper';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Home from './pages/Home';
@@ -36,13 +37,34 @@ function App() {
           <Route path="/" element={<Home />} />
 
           {/* Публичный роут: Вход */}
-          <Route path="/login" element={<Login />} />
+          <Route 
+            path="/login" 
+            element={
+              <ModalRedirectWrapper>
+                <Login />
+              </ModalRedirectWrapper>
+            } 
+          />
 
           {/* Публичный роут: О нас */}
-          <Route path="/about" element={<AboutUs />} />
+          <Route 
+            path="/about" 
+            element={
+              <ModalRedirectWrapper>
+                <AboutUs />
+              </ModalRedirectWrapper>
+            } 
+          />
 
           {/* Публичный роут: Контакты */}
-          <Route path="/contacts" element={<Contacts />} />
+          <Route 
+            path="/contacts" 
+            element={
+              <ModalRedirectWrapper>
+                <Contacts />
+              </ModalRedirectWrapper>
+            } 
+          />
 
           {/* Маршруты для модальных окон */}
           <Route path="/cart" element={<ModalRedirect modal="cart" />} />

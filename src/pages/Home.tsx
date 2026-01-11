@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useGetPublicProductsQuery, useGetPublicProductCategoriesQuery } from '../app/services/publicApi';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addToCart as addToCartAction, removeFromCart as removeFromCartAction } from '../app/slices/cartSlice';
-import { closeReceipts, openCart, openReceipts } from '../app/slices/uiSlice';
+import { closeReceipts, openCart, openReceipts, closeCart } from '../app/slices/uiSlice';
 import { PublicHeader } from '../components/PublicHeader';
 import { PublicFooter } from '../components/PublicFooter';
 import { Cart } from '../components/Cart';
@@ -106,14 +106,28 @@ const Home = () => {
         setSelectedProduct(product);
         setIsModalOpen(true);
       }
+    } else {
+      // Закрываем модальные окна, если соответствующий параметр отсутствует в URL
+      if ((!modal || (modal !== 'receipts' && modal !== 'mycheks')) && isReceiptsOpen) {
+        dispatch(closeReceipts());
+      }
+      if ((!modal || modal !== 'product') && isModalOpen && selectedProduct) {
+        setIsModalOpen(false);
+        setSelectedProduct(null);
+      }
+      if ((!modal || modal !== 'cart') && isCartOpen) {
+        dispatch(closeCart());
+      }
     }
-    // Закрытие модальных окон происходит только через действия пользователя (onClose)
-  }, [searchParams, dispatch, isCartOpen, isReceiptsOpen, selectedProduct, products]);
+  }, [searchParams, dispatch, isCartOpen, isReceiptsOpen, isModalOpen, selectedProduct, products]);
 
   const openProductModal = (product: Product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
-    setSearchParams({ modal: 'product', productId: product.id.toString() });
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('modal', 'product');
+    newParams.set('productId', product.id.toString());
+    setSearchParams(newParams);
   };
 
   const closeProductModal = () => {
@@ -313,8 +327,17 @@ const Home = () => {
         <div className="fixed bottom-6 right-6 z-40 animate-in zoom-in-95 duration-400">
           <button 
             onClick={() => {
-              dispatch(openCart());
-              setSearchParams({ modal: 'cart' });
+              if (isCartOpen) {
+                dispatch(closeCart());
+                const newParams = new URLSearchParams(searchParams);
+                newParams.delete('modal');
+                setSearchParams(newParams);
+              } else {
+                dispatch(openCart());
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('modal', 'cart');
+                setSearchParams(newParams);
+              }
             }}
             className="bg-orange-600 text-white px-6 py-4 rounded-full shadow-xl hover:bg-orange-700 hover:shadow-2xl transition-all duration-300 ease-out flex items-center gap-3 font-bold active:scale-95 border-2 border-white"
           >

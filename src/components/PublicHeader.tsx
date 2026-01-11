@@ -3,14 +3,16 @@ import { useGetPublicProductCategoriesQuery } from '../app/services/publicApi';
 import { Link, useSearchParams } from 'react-router-dom';
 import { HamburgerMenu } from './HamburgerMenu';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { openCart, openReceipts } from '../app/slices/uiSlice';
+import { openCart, openReceipts, closeCart, closeReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
 import { CategorySkeleton } from './Skeleton';
 import { FaReceipt, FaFire } from 'react-icons/fa';
 
 export const PublicHeader = () => {
   const dispatch = useAppDispatch();
-  const [, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isReceiptsOpen = useAppSelector((s) => s.ui.isReceiptsOpen);
+  const isCartOpen = useAppSelector((s) => s.ui.isCartOpen);
   const { data: categories, isLoading } = useGetPublicProductCategoriesQuery({ per_page: 100 });
   const isScrollLocked = useScrollLockStore((s) => s.isLocked);
   const receipts = useAppSelector((s) => s.receipts.receipts);
@@ -25,8 +27,19 @@ export const PublicHeader = () => {
   }, [receipts]);
 
   const handleOpenReceipts = () => {
-    dispatch(openReceipts());
-    setSearchParams({ modal: 'mycheks' });
+    if (isReceiptsOpen) {
+      // Если модальное окно уже открыто, закрываем его
+      dispatch(closeReceipts());
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('modal');
+      setSearchParams(newParams);
+    } else {
+      // Если модальное окно закрыто, открываем его
+      dispatch(openReceipts());
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('modal', 'mycheks');
+      setSearchParams(newParams);
+    }
   };
 
   // Отслеживаем прокрутку для подсветки активной категории
@@ -102,8 +115,17 @@ export const PublicHeader = () => {
             
             <HamburgerMenu 
               onCartOpen={() => {
-                dispatch(openCart());
-                setSearchParams({ modal: 'cart' });
+                if (isCartOpen) {
+                  dispatch(closeCart());
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.delete('modal');
+                  setSearchParams(newParams);
+                } else {
+                  dispatch(openCart());
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.set('modal', 'cart');
+                  setSearchParams(newParams);
+                }
               }} 
             />
           </div>
