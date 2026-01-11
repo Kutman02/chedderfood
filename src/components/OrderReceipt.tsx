@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { FaTimes, FaCheckCircle, FaPrint, FaShare, FaSync } from 'react-icons/fa';
 import { useGetPublicOrderQuery } from '../app/services/publicApi';
 import type { Product, OrderItem, PublicOrder } from '../types/types';
+import { useScrollLockStore } from '../stores/scrollLockStore';
 
 interface OrderReceiptProps {
   orderData: PublicOrder;
@@ -16,10 +17,20 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
   onClose,
   onNewOrder,
 }) => {
+  const lockScroll = useScrollLockStore((s) => s.lock);
+  const unlockScroll = useScrollLockStore((s) => s.unlock);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { data: latestOrder, refetch } = useGetPublicOrderQuery(orderData.id.toString(), {
     pollingInterval: 30000,
   });
+
+  // Блокируем прокрутку при открытии чека
+  useLayoutEffect(() => {
+    lockScroll();
+    return () => {
+      unlockScroll();
+    };
+  }, [lockScroll, unlockScroll]);
 
   const currentOrderData = latestOrder || orderData;
 

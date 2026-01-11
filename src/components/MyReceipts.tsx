@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { FaTimes, FaTrash, FaReceipt, FaCalendarAlt, FaUser, FaPhone, FaMapMarkerAlt, FaEye, FaSync } from 'react-icons/fa';
 import { OrderReceipt } from './OrderReceipt';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -6,6 +6,7 @@ import { useGetPublicOrderQuery } from '../app/services/publicApi';
 import type { OrderItem, Product, ReceiptData } from '../types/types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { clearReceipts, deleteReceipt } from '../app/slices/receiptsSlice';
+import { useScrollLockStore } from '../stores/scrollLockStore';
 
 interface MyReceiptsProps {
   products: Product[];
@@ -15,12 +16,24 @@ interface MyReceiptsProps {
 export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => {
   const dispatch = useAppDispatch();
   const receipts = useAppSelector((s) => s.receipts.receipts);
+  const lockScroll = useScrollLockStore((s) => s.lock);
+  const unlockScroll = useScrollLockStore((s) => s.unlock);
   const [selectedReceipt, setSelectedReceipt] = useState<ReceiptData | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; receiptId: number | null }>({
     isOpen: false,
     receiptId: null,
   });
   const [clearAllConfirm, setClearAllConfirm] = useState(false);
+
+  // Блокируем прокрутку при открытии списка чеков
+  useLayoutEffect(() => {
+    if (!selectedReceipt) {
+      lockScroll();
+      return () => {
+        unlockScroll();
+      };
+    }
+  }, [selectedReceipt, lockScroll, unlockScroll]);
 
   const handleDeleteReceipt = (receiptId: number, status: string) => {
     // Разрешаем удаление только для завершенных или отмененных заказов

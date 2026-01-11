@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { FaTimes, FaMinus, FaPlus, FaTrash, FaShoppingBag } from 'react-icons/fa';
 import { useGetProductsQuery } from '../app/services/api';
 import { Checkout } from './Checkout';
@@ -6,15 +6,30 @@ import type { Product } from '../types/types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addToCart, clearCart, removeFromCart } from '../app/slices/cartSlice';
 import { closeCart, openReceipts } from '../app/slices/uiSlice';
+import { useScrollLockStore } from '../stores/scrollLockStore';
 
 export const Cart: React.FC = () => {
   const dispatch = useAppDispatch();
   const cart = useAppSelector((s) => s.cart.items);
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const lockScroll = useScrollLockStore((s) => s.lock);
+  const unlockScroll = useScrollLockStore((s) => s.unlock);
   const { data: products } = useGetProductsQuery({
     per_page: 100,
     status: 'publish',
   });
+
+  // Блокируем прокрутку при открытии корзины (когда форма Checkout не открыта)
+  useLayoutEffect(() => {
+    if (!showCheckoutForm) {
+      lockScroll();
+      return () => {
+        unlockScroll();
+      };
+    }
+    // Когда открыта форма Checkout, блокировку контролирует сам Checkout
+    return undefined;
+  }, [showCheckoutForm, lockScroll, unlockScroll]);
 
   // Получаем товары в корзине с их данными
   const cartItems = products

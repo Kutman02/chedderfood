@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { FaTimes, FaArrowLeft, FaUser, FaPhone, FaMapMarkerAlt, FaNotesMedical, FaShoppingBag, FaChevronDown } from 'react-icons/fa';
 import { useCreateOrderMutation, useGetProductsQuery } from '../app/services/api';
 import type { Product, CheckoutFormData } from '../types/types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addReceipt, setCustomerData } from '../app/slices/receiptsSlice';
+import { useScrollLockStore } from '../stores/scrollLockStore';
 
 // Страны СНГ с кодами и форматами номеров
 const CIS_COUNTRIES = [
@@ -35,12 +36,22 @@ export const Checkout: React.FC<CheckoutProps> = ({
   const dispatch = useAppDispatch();
   const cart = useAppSelector((s) => s.cart.items);
   const savedCustomerData = useAppSelector((s) => s.receipts.customerData);
+  const lockScroll = useScrollLockStore((s) => s.lock);
+  const unlockScroll = useScrollLockStore((s) => s.unlock);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
   const { data: products } = useGetProductsQuery({
     per_page: 100,
     status: 'publish',
   });
+
+  // Блокируем прокрутку при открытии формы оформления заказа
+  useLayoutEffect(() => {
+    lockScroll();
+    return () => {
+      unlockScroll();
+    };
+  }, [lockScroll, unlockScroll]);
 
   // Парсим сохраненный номер телефона, если есть
   const parseSavedPhone = (phone: string) => {
