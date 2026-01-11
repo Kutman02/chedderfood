@@ -22,7 +22,7 @@ export const Header = ({ showSettings, setShowSettings, showStats, setShowStats,
             <FaHamburger className="text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-slate-900">CHEDDER <span className="text-orange-500">FOOD</span></h1>
+            <h1 className="text-xl font-black text-slate-900">BURGER<span className="text-orange-500">FOOD</span></h1>
             <p className="text-xs text-slate-500">Панель управления</p>
           </div>
         </div>

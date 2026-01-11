@@ -7,7 +7,7 @@ export const PublicFooter = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* О компании */}
           <div>
-            <h3 className="text-xl font-black mb-4 text-orange-500">ChedderFood</h3>
+            <h3 className="text-xl font-black mb-4 text-orange-500">BurgerFood</h3>
             <p className="text-slate-400 text-sm">
               Лучшая еда с доставкой на дом. Свежие ингредиенты, быстрая доставка, отличный сервис.
             </p>
@@ -17,9 +17,9 @@ export const PublicFooter = () => {
           <div>
             <h3 className="text-lg font-bold mb-4">Контакты</h3>
             <ul className="space-y-2 text-slate-400 text-sm">
-              <li>📞 +996 (XXX) XXX-XXX</li>
-              <li>✉️ info@chedderfood.kg</li>
-              <li>📍 Бишкек, Кыргызстан</li>
+              <li>📞 +996 770 51 11 11</li>
+              <li>✉️ kutmank9@gmail.com</li>
+              <li>📍 Ош, Кыргызстан</li>
             </ul>
           </div>
 
@@ -42,7 +42,7 @@ export const PublicFooter = () => {
         </div>
 
         <div className="border-t border-slate-800 mt-8 pt-8 text-center text-slate-500 text-sm">
-          <p>© {new Date().getFullYear()} ChedderFood. Все права защищены.</p>
+          <p>© {new Date().getFullYear()} BurgerFood. Все права защищены.</p>
         </div>
       </div>
     </footer>

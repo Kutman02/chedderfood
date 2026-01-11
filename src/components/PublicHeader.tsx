@@ -58,7 +58,7 @@ export const PublicHeader = () => {
         {/* Верхняя часть хедера */}
         <div className="flex items-center justify-between py-4">
           <Link to="/" className="flex items-center gap-2">
-            <div className="text-2xl font-black text-orange-600">ChedderFood</div>
+            <div className="text-2xl font-black text-orange-600">BurgerFood</div>
           </Link>
           
           <div className="flex items-center gap-4">

@@ -54,7 +54,7 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Заказ #${currentOrderData.id} - ChedderFood`,
+          title: `Заказ #${currentOrderData.id} - BurgerFood`,
           text: `Мой заказ #${currentOrderData.id} на сумму ${total} сом`,
           url: window.location.href,
         });
@@ -150,7 +150,7 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
 
         <div className="flex-1 overflow-y-auto p-6" id="receipt-content">
           <div className="text-center mb-8 border-b-2 border-slate-200 pb-6">
-            <h1 className="text-2xl font-black text-slate-800 mb-2">CHEDDERFOOD</h1>
+            <h1 className="text-2xl font-black text-slate-800 mb-2">BURGERFOOD</h1>
             <p className="text-slate-600">Курманжан датка 12, Ош, Кыргызстан</p>
             <p className="text-lg font-bold text-orange-600 mt-2">СЧЕТ</p>
           </div>

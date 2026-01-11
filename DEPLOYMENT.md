@@ -1,4 +1,4 @@
-# Deployment Guide for ChedderFood Frontend
+# Deployment Guide for BurgerFood Frontend
 
 ## Fixed Issues
 - ✅ 404 errors on page reload
