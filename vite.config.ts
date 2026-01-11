@@ -16,6 +16,18 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path,
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            // Убеждаемся, что все заголовки передаются
+            console.log('Proxy Request to:', proxyReq.path);
+          });
+          proxy.on('error', (err, _req, _res) => {
+            console.error('Proxy error:', err);
+          });
+        },
+        // КРИТИЧНО: передаем cookies через прокси
+        cookieDomainRewrite: '',
+        cookiePathRewrite: '/',
       },
     },
   },

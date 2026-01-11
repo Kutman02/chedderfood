@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { Product, Customer, Order, AnalyticsResponse } from '../../types/types';
 import { format, subDays } from 'date-fns';
+import { WORDPRESS_APP_PASSWORD, WORDPRESS_USERNAME } from './apiConfig';
 
 export const api = createApi({
   reducerPath: 'api',
@@ -9,30 +10,70 @@ export const api = createApi({
       ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
       : '/wp-json/',
     credentials: 'include', // ✅ MANDATORY for cross-domain cookies
-    prepareHeaders: (headers) => {
+    prepareHeaders: (headers, { extra, endpoint }) => {
       console.log('=== API Request Headers Debug ===');
+      console.log('Endpoint:', endpoint);
+      console.log('Endpoint type:', typeof endpoint);
+      console.log('Endpoint string:', String(endpoint));
       
-      // ✅ WooCommerce Basic Auth for API authentication
-      const consumerKey = 'ck_0cae419a8938564cd19a80fd72c31fc15b30c6d6';
-      const consumerSecret = 'cs_82f076acfa6a7009482cfe16bd9c3f10b6e39846';
+      // Определяем, нужна ли WooCommerce Basic Auth
+      // endpoint может быть строкой 'uploadImage' или объектом
+      // Для WordPress REST API (wp/v2/*) НЕ используем Basic Auth
+      const endpointStr = String(endpoint || '');
+      const isWordPressMediaUpload = endpointStr === 'uploadImage' || endpointStr.includes('uploadImage');
       
-      if (consumerKey && consumerSecret) {
-        const credentials = `${consumerKey}:${consumerSecret}`;
-        const basicAuth = btoa(credentials);
-        headers.set('Authorization', `Basic ${basicAuth}`);
-        console.log('✅ WooCommerce Basic Auth: SET');
+      console.log('Is WordPress Media Upload:', isWordPressMediaUpload);
+      
+      // ✅ WooCommerce Basic Auth - только для WooCommerce API (wc/v3/*)
+      // НЕ используем для WordPress REST API (wp/v2/*), так как это конфликтует с Cookie auth
+      if (!isWordPressMediaUpload) {
+        const consumerKey = 'ck_0cae419a8938564cd19a80fd72c31fc15b30c6d6';
+        const consumerSecret = 'cs_82f076acfa6a7009482cfe16bd9c3f10b6e39846';
+        
+        if (consumerKey && consumerSecret) {
+          const credentials = `${consumerKey}:${consumerSecret}`;
+          const basicAuth = btoa(credentials);
+          headers.set('Authorization', `Basic ${basicAuth}`);
+          console.log('✅ WooCommerce Basic Auth: SET');
+        }
+      } else {
+        console.log('ℹ️ WordPress REST API Media Upload - using Cookie auth ONLY (no Basic Auth)');
+        // Явно удаляем Authorization header, если он был установлен ранее
+        headers.delete('Authorization');
+        
+        // Если есть Application Password, используем его для медиа загрузки
+        // Это работает даже без cookie сессии
+        if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+          const appCredentials = `${WORDPRESS_USERNAME}:${WORDPRESS_APP_PASSWORD}`;
+          const appAuth = btoa(appCredentials);
+          headers.set('Authorization', `Basic ${appAuth}`);
+          console.log('✅ WordPress Application Password: SET (for media upload)');
+        } else {
+          console.log('⚠️ No Application Password configured - using nonce only');
+          console.log('💡 Tip: Set VITE_WP_USERNAME and VITE_WP_APP_PASSWORD for better auth');
+        }
       }
       
       // ✅ X-WP-Nonce from localStorage for WordPress authentication
+      // КРИТИЧНО для загрузки медиа через WordPress REST API
       const nonce = localStorage.getItem('wp_nonce');
       if (nonce) {
         headers.set('X-WP-Nonce', nonce);
         console.log('✅ X-WP-Nonce:', nonce.substring(0, 10) + '...');
+        console.log('✅ X-WP-Nonce length:', nonce.length);
       } else {
-        console.log('⚠️ No nonce in localStorage - user may not be logged in');
+        console.error('❌ No nonce in localStorage - user may not be logged in');
+        console.error('❌ Media upload requires valid WordPress nonce!');
+        console.error('❌ Please login as admin first!');
       }
       
-      console.log('🌐 BaseUrl: https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/');
+      // Для FormData (uploadImage) RTK Query автоматически не устанавливает Content-Type
+      // Браузер установит Content-Type автоматически с правильным boundary
+      // Важно: не устанавливаем Content-Type вручную для FormData
+      
+      console.log('🌐 BaseUrl:', import.meta.env.PROD 
+        ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
+        : '/wp-json/ (proxied)');
       console.log('🍪 Credentials: include');
       console.log('=== End Debug ===');
       
@@ -321,12 +362,67 @@ export const api = createApi({
     }),
     // Метод для загрузки изображения
     uploadImage: builder.mutation({
-      query: (formData) => ({
-        url: 'wp/v2/media',
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      }),
+      query: (formData) => {
+        // Для FormData нужно, чтобы браузер установил Content-Type автоматически с boundary
+        // RTK Query автоматически не устанавливает Content-Type для FormData
+        console.log('Upload Image - FormData:', formData);
+        console.log('Upload Image - URL:', 'wp/v2/media');
+        
+        // Проверяем наличие nonce перед загрузкой
+        const nonce = localStorage.getItem('wp_nonce');
+        if (!nonce) {
+          console.error('❌ CRITICAL: No nonce found! Media upload will fail.');
+          console.error('Please make sure you are logged in as admin.');
+        }
+        
+        return {
+          url: 'wp/v2/media',
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+          // FormData автоматически установит правильный Content-Type с boundary
+          // fetchBaseQuery не должен устанавливать Content-Type для FormData
+        };
+      },
+      transformResponse: (response: { id?: number; source_url?: string; [key: string]: unknown }) => {
+        console.log('Image Upload Success Response:', response);
+        // Убеждаемся, что ответ содержит ID
+        if (!response.id) {
+          console.error('Response does not contain id:', response);
+        }
+        return response;
+      },
+      transformErrorResponse: (response: { status: number; data?: unknown }, meta, arg) => {
+        console.error('=== Image Upload Error Details ===');
+        console.error('Status:', response.status);
+        console.error('Response data:', response.data);
+        console.error('Full response:', response);
+        
+        // Выводим полную информацию об ошибке
+        if (response.data && typeof response.data === 'object') {
+          console.error('Error details JSON:', JSON.stringify(response.data, null, 2));
+          const errorData = response.data as Record<string, unknown>;
+          if ('message' in errorData) {
+            console.error('Error message:', errorData.message);
+          }
+          if ('code' in errorData) {
+            console.error('Error code:', errorData.code);
+          }
+          if ('data' in errorData && typeof errorData.data === 'object') {
+            console.error('Error data object:', errorData.data);
+          }
+        }
+        
+        // Проверяем, есть ли информация о запросе
+        if (meta && 'request' in meta) {
+          console.error('Request URL:', (meta.request as { url?: string })?.url);
+          console.error('Request method:', (meta.request as { method?: string })?.method);
+        }
+        
+        console.error('=== End Error Details ===');
+        
+        return response;
+      },
     }),
   }),
 });

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { FaTimes, FaImage, FaTag, FaDollarSign, FaFileAlt, FaPlus, FaTrash, FaBox } from 'react-icons/fa';
 import { useGetProductCategoriesQuery, useCreateProductMutation, useUploadImageMutation } from '../../app/services/api';
+import { userService } from '../../app/services/userService';
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -65,16 +66,65 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
 
     setIsSubmitting(true);
     try {
+      // Проверяем и обновляем nonce перед загрузкой
+      // Примечание: cookie auth может не работать через прокси в dev, но nonce должен работать
+      let nonce = localStorage.getItem('wp_nonce');
+      if (!nonce) {
+        console.warn('⚠️ No nonce found, attempting to fetch fresh nonce...');
+        const freshNonce = await userService.fetchNonce();
+        if (!freshNonce) {
+          alert('Не удалось получить nonce. Убедитесь, что вы залогинены как администратор через страницу входа React приложения.');
+          setIsSubmitting(false);
+          return;
+        }
+        nonce = freshNonce;
+      }
+      
+      console.log('✅ Using nonce for media upload:', nonce.substring(0, 10) + '...');
+      
       // Загружаем изображения
       const imageIds: number[] = [];
       for (const image of images) {
         const formData = new FormData();
-        formData.append('file', image.file);
+        // WordPress REST API требует, чтобы файл был передан с правильным именем
+        formData.append('file', image.file, image.file.name);
+        
         try {
+          console.log('Загрузка изображения:', image.file.name, 'Размер:', image.file.size);
           const uploadResult = await uploadImage(formData).unwrap();
-          imageIds.push(uploadResult.id);
-        } catch (error) {
+          console.log('Изображение загружено успешно:', uploadResult);
+          
+          if (uploadResult && uploadResult.id) {
+            imageIds.push(uploadResult.id);
+          } else {
+            throw new Error('Ответ сервера не содержит ID изображения');
+          }
+        } catch (error: unknown) {
           console.error('Ошибка загрузки изображения:', error);
+          
+          // Если получили 401, попробуем обновить nonce и повторить
+          if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
+            console.warn('⚠️ Got 401, trying to refresh nonce and retry...');
+            const freshNonce = await userService.fetchNonce();
+            if (freshNonce) {
+              console.log('🔄 Retrying with fresh nonce...');
+              try {
+                const retryResult = await uploadImage(formData).unwrap();
+                if (retryResult && retryResult.id) {
+                  imageIds.push(retryResult.id);
+                  continue; // Успешно после повтора, переходим к следующему изображению
+                }
+              } catch (retryError) {
+                console.error('Retry also failed:', retryError);
+              }
+            }
+          }
+          
+          const errorMessage = error && typeof error === 'object' && 'data' in error
+            ? (error as { data?: { message?: string } }).data?.message || 'Неизвестная ошибка'
+            : 'Ошибка загрузки изображения';
+          alert(`Ошибка загрузки изображения "${image.file.name}": ${errorMessage}`);
+          throw error; // Прерываем процесс, если загрузка не удалась
         }
       }
 

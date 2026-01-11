@@ -9,7 +9,7 @@ const AboutUs = () => {
       
       <main className="flex-1">
         {/* Герой секция */}
-        <section className="bg-gradient-to-br from-orange-500 to-orange-600 text-white py-20">
+        <section className="bg-linear-to-br from-orange-500 to-orange-600 text-white py-20">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-300">
               <h1 className="text-5xl md:text-6xl font-black mb-6">О нас</h1>
@@ -81,7 +81,7 @@ const AboutUs = () => {
           </section>
 
           {/* Ценности */}
-          <section className="bg-gradient-to-br from-orange-50 to-slate-50 rounded-2xl p-8 md:p-12 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-200">
+          <section className="bg-linear-to-br from-orange-50 to-slate-50 rounded-2xl p-8 md:p-12 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-200">
             <h2 className="text-3xl font-black text-slate-800 mb-8 text-center">Наши ценности</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>

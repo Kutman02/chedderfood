@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FaCheckCircle, FaTimesCircle, FaInfoCircle, FaTimes } from 'react-icons/fa';
-import { useToastStore, type Toast } from '../stores/toastStore';
+import { useToastStore, type Toast as ToastType } from '../stores/toastStore';
 
-const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
+const ToastItem: React.FC<{ toast: ToastType }> = ({ toast }) => {
   const removeToast = useToastStore((state) => state.removeToast);
 
   const iconMap = {
@@ -39,7 +39,7 @@ export const Toast: React.FC = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2">
+    <div className="fixed top-4 right-4 z-100 flex flex-col gap-2">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} />
       ))}

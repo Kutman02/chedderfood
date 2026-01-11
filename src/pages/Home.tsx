@@ -102,9 +102,12 @@ const Home = () => {
     } else if (modal === 'product' && productId && products) {
       const product = products.find((p: Product) => p.id === Number(productId));
       if (product && (!selectedProduct || selectedProduct.id !== product.id)) {
-        // Синхронизация состояния с URL параметрами - это правильный паттерн
-        setSelectedProduct(product);
-        setIsModalOpen(true);
+        // Синхронизация состояния с URL параметрами - откладываем обновление состояния
+        // чтобы избежать каскадных рендеров в эффекте
+        queueMicrotask(() => {
+          setSelectedProduct(product);
+          setIsModalOpen(true);
+        });
       }
     } else {
       // Закрываем модальные окна, если соответствующий параметр отсутствует в URL
@@ -112,8 +115,11 @@ const Home = () => {
         dispatch(closeReceipts());
       }
       if ((!modal || modal !== 'product') && isModalOpen && selectedProduct) {
-        setIsModalOpen(false);
-        setSelectedProduct(null);
+        // Откладываем обновление состояния для избежания каскадных рендеров
+        queueMicrotask(() => {
+          setIsModalOpen(false);
+          setSelectedProduct(null);
+        });
       }
       if ((!modal || modal !== 'cart') && isCartOpen) {
         dispatch(closeCart());
