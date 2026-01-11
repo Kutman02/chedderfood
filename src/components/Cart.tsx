@@ -16,7 +16,7 @@ export const Cart: React.FC = () => {
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
   const lockScroll = useScrollLockStore((s) => s.lock);
   const unlockScroll = useScrollLockStore((s) => s.unlock);
-  const { data: products } = useGetProductsQuery({
+  const { data: products, isLoading: productsLoading } = useGetProductsQuery({
     per_page: 100,
     status: 'publish',
   });
@@ -118,7 +118,16 @@ export const Cart: React.FC = () => {
 
         {/* Контент корзины */}
         <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6">
-          {cartItems.length === 0 ? (
+          {productsLoading ? (
+            <div className="text-center py-12 md:py-20">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 relative">
+                <FaShoppingBag className="text-orange-600" size={36} />
+                <div className="absolute inset-0 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-2 md:mb-3">Загрузка...</h3>
+              <p className="text-slate-600 text-base md:text-lg">Загружаем товары из корзины</p>
+            </div>
+          ) : cartItems.length === 0 ? (
             <div className="text-center py-12 md:py-20">
               <div className="w-24 h-24 md:w-32 md:h-32 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 animate-pulse">
                 <FaShoppingBag className="text-slate-400" size={36} />
