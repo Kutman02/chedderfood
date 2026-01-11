@@ -8,6 +8,7 @@ import { PublicFooter } from '../components/PublicFooter';
 import { Cart } from '../components/Cart';
 import { ProductModalSwipe } from '../components/ProductModalSwipe';
 import { MyReceipts } from '../components/MyReceipts';
+import { ProductSkeleton } from '../components/Skeleton';
 import type { Product, Category } from '../types/types';
 import { FaShoppingCart, FaPlus, FaMinus, FaFire, FaStar, FaGift } from 'react-icons/fa';
 
@@ -106,13 +107,8 @@ const Home = () => {
         {/* Секция товаров по категориям */}
         <div className="max-w-7xl mx-auto px-4 py-12">
           {categoriesLoading || productsLoading ? (
-            <div className="text-center py-20">
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <div className="inline-block">
-                  <div className="w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-                </div>
-                <div className="text-slate-400 text-lg animate-in fade-in slide-in-from-bottom-4 duration-300 delay-100">Загрузка товаров...</div>
-              </div>
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <ProductSkeleton count={8} />
             </div>
           ) : !categories || categories.length === 0 ? (
             <div className="text-center py-20">

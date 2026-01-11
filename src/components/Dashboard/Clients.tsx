@@ -3,6 +3,7 @@ import { FaShoppingCart, FaDollarSign, FaUsers } from 'react-icons/fa';
 import { useGetAllWooCustomersQuery } from '../../app/services/wooCommerceApi';
 import type { Customer } from '../../types/types';
 import { CustomerCard } from './CustomerCard';
+import { CustomerSkeleton } from '../Skeleton';
 
 interface ClientsProps {
   searchQuery: string;
@@ -57,9 +58,8 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
   // Loading
   if (customersLoading) {
     return (
-      <div className="text-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-        <p className="text-slate-500">Загрузка клиентов...</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CustomerSkeleton count={6} />
       </div>
     );
   }

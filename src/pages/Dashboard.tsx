@@ -26,6 +26,7 @@ import { OrderDetailsModal } from '../components/Dashboard/OrderDetailsModal';
 import { AddProductModal } from '../components/Dashboard/AddProductModal';
 import { EditProductModal } from '../components/Dashboard/EditProductModal';
 import { StatsModal } from '../components/Dashboard/StatsModal';
+import { OrderSkeleton, ProductSkeleton } from '../components/Skeleton';
 
 const ORDER_TABS: TabConfig[] = [
   { id: 'on-hold', label: 'Новые', icon: FaBell, color: 'from-amber-500 to-orange-500', bgColor: 'bg-amber-50', textColor: 'text-amber-700', borderColor: 'border-amber-200' },
@@ -215,7 +216,10 @@ const Dashboard = () => {
     }
   };
 
-  const isLoading = ordersLoading || productsLoading || authLoading;
+  // Определяем загрузку для текущей секции
+  const isCurrentSectionLoading = 
+    (mainSection === 'orders' && ordersLoading) ||
+    (mainSection === 'products' && productsLoading);
 
   // Check for authentication status
   if (!isAuthenticated && !authLoading) {
@@ -318,8 +322,15 @@ const Dashboard = () => {
 
         {/* Content */}
         <main className="mt-6 space-y-4">
-          {isLoading ? (
-            <p className="text-center py-10">Загрузка...</p>
+          {isCurrentSectionLoading ? (
+            <>
+              {mainSection === 'orders' && <OrderSkeleton count={5} />}
+              {mainSection === 'products' && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-4">
+                  <ProductSkeleton count={12} />
+                </div>
+              )}
+            </>
           ) : (
             <>
               {mainSection === 'orders' && (

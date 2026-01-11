@@ -5,6 +5,7 @@ import { HamburgerMenu } from './HamburgerMenu';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { openCart, openReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
+import { CategorySkeleton } from './Skeleton';
 import { FaReceipt, FaFire } from 'react-icons/fa';
 
 export const PublicHeader = () => {
@@ -109,7 +110,7 @@ export const PublicHeader = () => {
         <div className="border-t border-slate-200 py-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             {isLoading ? (
-              <div className="px-4 py-2 text-slate-400">Загрузка категорий...</div>
+              <CategorySkeleton count={8} />
             ) : (
               categories?.filter((category: { id: number; name: string; slug: string }) => 
                 category.name !== 'Без категории'
