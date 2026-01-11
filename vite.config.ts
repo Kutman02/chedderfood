@@ -10,5 +10,13 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    proxy: {
+      '/wp-json': {
+        target: 'https://cd444351-wordpress-zdtv5.tw1.ru',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path,
+      },
+    },
   },
 })

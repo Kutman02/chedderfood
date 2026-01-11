@@ -74,7 +74,7 @@ export const Cart: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-screen">
       {/* Кнопка закрытия вверху справа */}
       <button
         onClick={() => dispatch(closeCart())}
@@ -84,7 +84,7 @@ export const Cart: React.FC = () => {
       </button>
 
       {/* Заголовок корзины */}
-      <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+      <div className="shrink-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
             <FaShoppingBag className="text-orange-600" size={24} />
@@ -110,7 +110,7 @@ export const Cart: React.FC = () => {
       </div>
 
         {/* Контент корзины */}
-        <div className="flex-1 overflow-y-auto p-6 pb-32">
+        <div className="flex-1 overflow-y-auto p-6">
           {cartItems.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-32 h-32 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
@@ -194,7 +194,7 @@ export const Cart: React.FC = () => {
 
         {/* Футер с итоговой суммой */}
         {cartItems.length > 0 && (
-          <div className="fixed bottom-0 left-0 right-0 border-t border-slate-200 p-6 bg-white shadow-lg">
+          <div className="shrink-0 border-t border-slate-200 p-6 bg-white shadow-lg">
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xl font-bold text-slate-800">Итого:</span>

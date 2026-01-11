@@ -231,8 +231,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
   // Показываем индикатор загрузки
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div className="flex flex-col items-center justify-center h-full">
+      <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-screen">
+        <div className="flex flex-col items-center justify-center flex-1">
           <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mb-6 animate-pulse">
             <FaShoppingBag className="text-orange-600 animate-pulse" size={48} />
           </div>
@@ -244,7 +244,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-screen">
       {/* Кнопка закрытия вверху справа */}
       <button
         onClick={onClose}
@@ -254,7 +254,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
       </button>
 
       {/* Заголовок */}
-      <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+      <div className="shrink-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
@@ -278,7 +278,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
       </div>
 
         {/* Контент формы */}
-        <div className="flex-1 overflow-y-auto p-6 pb-32">
+        <div className="flex-1 overflow-y-auto p-6">
           <div className="max-w-2xl mx-auto">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -422,7 +422,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
         </div>
 
         {/* Футер с итоговой суммой и кнопкой */}
-        <div className="fixed bottom-0 left-0 right-0 border-t border-slate-200 p-6 bg-white shadow-lg">
+        <div className="shrink-0 border-t border-slate-200 p-6 bg-white shadow-lg">
           <div className="max-w-2xl mx-auto">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xl font-bold text-slate-800">Итого:</span>

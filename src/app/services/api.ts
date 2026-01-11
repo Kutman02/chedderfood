@@ -5,7 +5,9 @@ import { format, subDays } from 'date-fns';
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/',
+    baseUrl: import.meta.env.PROD 
+      ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
+      : '/wp-json/',
     credentials: 'include', // ✅ MANDATORY for cross-domain cookies
     prepareHeaders: (headers) => {
       console.log('=== API Request Headers Debug ===');

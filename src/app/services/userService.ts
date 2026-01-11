@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './apiConfig';
+
 // Сервис для работы с пользователем WordPress
 
 interface User {
@@ -29,7 +31,7 @@ export const userService = {
   async fetchNonce(): Promise<string | null> {
     try {
       console.log('🔍 Debug: Fetching fresh nonce from WordPress');
-      const res = await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/custom/v1/nonce', {
+      const res = await fetch(`${API_BASE_URL}custom/v1/nonce`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -83,9 +85,9 @@ export const userService = {
       };
       
       console.log('🔍 Debug: Request headers:', requestHeaders);
-      console.log('🔍 Debug: Request URL:', 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/wp/v2/users/me');
+      console.log('🔍 Debug: Request URL:', `${API_BASE_URL}wp/v2/users/me`);
       
-      const res = await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/wp/v2/users/me', {
+      const res = await fetch(`${API_BASE_URL}wp/v2/users/me`, {
         method: 'GET',
         credentials: 'include', // КЛЮЧЕВОЙ параметр для передачи cookies
         headers: requestHeaders,
@@ -110,7 +112,7 @@ export const userService = {
           
           if (freshNonce) {
             console.log('🔍 Debug: Retrying with fresh nonce');
-            const retryRes = await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/wp/v2/users/me', {
+            const retryRes = await fetch(`${API_BASE_URL}wp/v2/users/me`, {
               method: 'GET',
               credentials: 'include',
               headers: {
@@ -168,7 +170,7 @@ export const userService = {
       
       if (nonce) {
         try {
-          await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/custom/v1/logout', {
+          await fetch(`${API_BASE_URL}custom/v1/logout`, {
             method: 'POST',
             credentials: 'include',
             headers: {

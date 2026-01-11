@@ -131,7 +131,7 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="sticky top-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+        <div className="shrink-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
               <FaCheckCircle className="text-green-600" size={20} />
@@ -293,7 +293,7 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
           </div>
         </div>
 
-        <div className="border-t border-slate-200 p-4 bg-white">
+        <div className="shrink-0 border-t border-slate-200 p-4 bg-white">
           <div className="flex gap-3">
             <button
               onClick={handlePrint}

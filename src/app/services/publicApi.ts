@@ -4,7 +4,9 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const publicApi = createApi({
   reducerPath: 'publicApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/',
+    baseUrl: import.meta.env.PROD 
+      ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
+      : '/wp-json/',
     credentials: 'include', // Важно для cookies и сессий WordPress
     prepareHeaders: (headers) => {
       // WooCommerce Basic Auth for API authentication

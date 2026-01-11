@@ -5,7 +5,9 @@ import type { Order, Customer } from '../../types/types';
 export const wooCommerceApi = createApi({
   reducerPath: 'wooCommerceApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/',
+    baseUrl: import.meta.env.PROD 
+      ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
+      : '/wp-json/',
     credentials: 'omit', // Явно отключаем cookies для Basic Auth
     prepareHeaders: (headers) => {
       console.log('=== WooCommerce API Headers Debug ===');

@@ -246,7 +246,7 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-screen">
       {/* Кнопка закрытия вверху справа */}
       <button
         onClick={onClose}
@@ -256,7 +256,7 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
       </button>
 
       {/* Заголовок */}
-      <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+      <div className="shrink-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
             <FaReceipt className="text-orange-600" size={24} />
@@ -280,7 +280,7 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
       </div>
 
         {/* Контент */}
-        <div className="flex-1 overflow-y-auto p-6 pb-20">
+        <div className="flex-1 overflow-y-auto p-6">
           {receipts.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-32 h-32 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">

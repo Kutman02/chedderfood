@@ -5,7 +5,9 @@ import type { RootState } from '../store';
 export const customAuthApi = createApi({
   reducerPath: 'customAuthApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/',
+    baseUrl: import.meta.env.PROD 
+      ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
+      : '/wp-json/',
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       const nonce = localStorage.getItem('wp_nonce');

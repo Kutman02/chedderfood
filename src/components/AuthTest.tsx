@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { authService } from '../app/services/authService';
 import { userService } from '../app/services/userService';
+import { API_BASE_URL } from '../app/services/apiConfig';
 
 interface AuthResult {
   success?: boolean;
@@ -60,7 +61,7 @@ const AuthTest = () => {
       const consumerSecret = 'cs_82f076acfa6a7009482cfe16bd9c3f10b6e39846';
       const credentials = btoa(`${consumerKey}:${consumerSecret}`);
       
-      const response = await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/wc/v3/orders?status=on-hold&per_page=10', {
+      const response = await fetch(`${API_BASE_URL}wc/v3/orders?status=on-hold&per_page=10`, {
         method: 'GET',
         headers: {
           'Authorization': `Basic ${credentials}`,

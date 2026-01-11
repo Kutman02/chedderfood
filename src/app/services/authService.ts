@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './apiConfig';
+
 // Сервис для прямой авторизации через fetch
 export interface LoginCredentials {
   username: string;
@@ -41,9 +43,9 @@ export const authService = {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
       console.log('🔐 Attempting login with:', credentials.username);
-      console.log('🌐 Login URL:', 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/custom/v1/login');
+      console.log('🌐 Login URL:', `${API_BASE_URL}custom/v1/login`);
       
-      const res = await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/custom/v1/login', {
+      const res = await fetch(`${API_BASE_URL}custom/v1/login`, {
         method: 'POST',
         credentials: 'include', // обязательно для cross-domain!
         headers: {
@@ -84,7 +86,7 @@ export const authService = {
   async fetchNonce(): Promise<string | null> {
     try {
       console.log('🔍 Debug: Fetching fresh nonce from WordPress');
-      const res = await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/custom/v1/nonce', {
+      const res = await fetch(`${API_BASE_URL}custom/v1/nonce`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -124,7 +126,7 @@ export const authService = {
         }
       }
       
-      const res = await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/wp/v2/users/me', {
+      const res = await fetch(`${API_BASE_URL}wp/v2/users/me`, {
         method: 'GET',
         credentials: 'include', // обязательно!
         headers: {
@@ -144,7 +146,7 @@ export const authService = {
           
           if (freshNonce) {
             console.log('🔍 Debug: Retrying with fresh nonce');
-            const retryRes = await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/wp/v2/users/me', {
+            const retryRes = await fetch(`${API_BASE_URL}wp/v2/users/me`, {
               method: 'GET',
               credentials: 'include',
               headers: {
@@ -183,7 +185,7 @@ export const authService = {
   async logout(): Promise<void> {
     try {
       const nonce = localStorage.getItem('wp_nonce');
-      await fetch('https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/custom/v1/logout', {
+      await fetch(`${API_BASE_URL}custom/v1/logout`, {
         method: 'POST',
         credentials: 'include',
         headers: {
