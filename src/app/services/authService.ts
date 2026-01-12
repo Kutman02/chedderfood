@@ -1,4 +1,5 @@
 import { API_BASE_URL } from './apiConfig';
+import { clearWordPressCookies } from '../../utils/cookieUtils';
 
 // Сервис для прямой авторизации через fetch
 export interface LoginCredentials {
@@ -44,6 +45,14 @@ export const authService = {
     try {
       console.log('🔐 Attempting login with:', credentials.username);
       console.log('🌐 Login URL:', `${API_BASE_URL}custom/v1/login`);
+      
+      // ✅ КРИТИЧНО: Очищаем старые WordPress куки перед логином
+      // Это решает проблему с конфликтующими сессиями в обычном браузере
+      clearWordPressCookies();
+      
+      // Также очищаем старый nonce перед новым логином
+      localStorage.removeItem('wp_nonce');
+      console.log('🧹 Cleared old nonce and cookies before login');
       
       const res = await fetch(`${API_BASE_URL}custom/v1/login`, {
         method: 'POST',
@@ -185,20 +194,32 @@ export const authService = {
   async logout(): Promise<void> {
     try {
       const nonce = localStorage.getItem('wp_nonce');
-      await fetch(`${API_BASE_URL}custom/v1/logout`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-WP-Nonce': nonce || '', // Добавляем nonce
-        },
-      });
+      
+      // Отправляем запрос на сервер для очистки сессии
+      try {
+        await fetch(`${API_BASE_URL}custom/v1/logout`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': nonce || '', // Добавляем nonce
+          },
+        });
+        console.log('✅ Logout request sent to server');
+      } catch (logoutError) {
+        console.log('⚠️ Logout request failed, but continuing with cleanup:', logoutError);
+      }
+      
+      // ✅ Очищаем куки на клиенте
+      clearWordPressCookies();
       
       // Очищаем nonce при выходе
       localStorage.removeItem('wp_nonce');
+      console.log('✅ Logout completed - cookies and nonce cleared');
     } catch (error) {
       console.error('Logout error:', error);
-      // Все равно очищаем nonce при ошибке
+      // Все равно очищаем куки и nonce при ошибке
+      clearWordPressCookies();
       localStorage.removeItem('wp_nonce');
     }
   },

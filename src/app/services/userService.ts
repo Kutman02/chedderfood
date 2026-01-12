@@ -1,4 +1,5 @@
 import { API_BASE_URL } from './apiConfig';
+import { clearWordPressCookies } from '../../utils/cookieUtils';
 
 // Сервис для работы с пользователем WordPress
 
@@ -103,7 +104,10 @@ export const userService = {
         console.log('🔍 Debug: Error status:', res.status);
         
         if (errorText.includes('rest_cookie_invalid_nonce') || errorText.includes('rest_forbidden') || res.status === 401) {
-          console.log('🔍 Debug: Invalid nonce/auth detected, fetching fresh nonce and retrying');
+          console.log('🔍 Debug: Invalid nonce/auth detected, clearing cookies and fetching fresh nonce');
+          
+          // ✅ Очищаем невалидные куки при ошибке аутентификации
+          clearWordPressCookies();
           
           // Clear existing nonce first
           localStorage.removeItem('wp_nonce');
@@ -184,14 +188,18 @@ export const userService = {
         }
       }
       
+      // ✅ Очищаем WordPress куки при выходе
+      clearWordPressCookies();
+      
       // Очищаем nonce при выходе
       localStorage.removeItem('wp_nonce');
-      console.log('🔍 Debug: Nonce cleared from localStorage');
+      console.log('🔍 Debug: Nonce and cookies cleared from localStorage');
     } catch (error) {
       console.error('Logout error:', error);
-      // Все равно очищаем nonce при ошибке
+      // Все равно очищаем куки и nonce при ошибке
+      clearWordPressCookies();
       localStorage.removeItem('wp_nonce');
-      console.log('🔍 Debug: Nonce cleared due to error');
+      console.log('🔍 Debug: Nonce and cookies cleared due to error');
     }
   },
 

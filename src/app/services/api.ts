@@ -10,7 +10,7 @@ export const api = createApi({
       ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
       : '/wp-json/',
     credentials: 'include', // ✅ MANDATORY for cross-domain cookies
-    prepareHeaders: (headers, { extra, endpoint }) => {
+    prepareHeaders: (headers, { endpoint }) => {
       console.log('=== API Request Headers Debug ===');
       console.log('Endpoint:', endpoint);
       console.log('Endpoint type:', typeof endpoint);
@@ -392,7 +392,7 @@ export const api = createApi({
         }
         return response;
       },
-      transformErrorResponse: (response: { status: number; data?: unknown }, meta, arg) => {
+      transformErrorResponse: (response: { status: number; data?: unknown }, meta) => {
         console.error('=== Image Upload Error Details ===');
         console.error('Status:', response.status);
         console.error('Response data:', response.data);
