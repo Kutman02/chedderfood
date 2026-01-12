@@ -10,25 +10,6 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    proxy: {
-      '/wp-json': {
-        target: 'https://cd444351-wordpress-zdtv5.tw1.ru',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path,
-        configure: (proxy, _options) => {
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            // Убеждаемся, что все заголовки передаются
-            console.log('Proxy Request to:', proxyReq.path);
-          });
-          proxy.on('error', (err, _req, _res) => {
-            console.error('Proxy error:', err);
-          });
-        },
-        // КРИТИЧНО: передаем cookies через прокси
-        cookieDomainRewrite: '',
-        cookiePathRewrite: '/',
-      },
-    },
+    // Прокси удален - используется прямое подключение через VITE_API_BASE_URL
   },
 })

@@ -162,21 +162,100 @@ export const EditProductModal = ({ isOpen, product, onClose }: EditProductModalP
           } catch (error: unknown) {
             console.error('Ошибка загрузки изображения:', error);
             
-            // Если получили 401, попробуем обновить nonce и повторить
-            if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
-              console.warn('⚠️ Got 401, trying to refresh nonce and retry...');
+            // Проверяем, является ли это ошибкой невалидного nonce или прав доступа (403 или 401)
+            const isInvalidNonceError = error && typeof error === 'object' && 'status' in error && 
+              (error.status === 403 || error.status === 401) &&
+              'data' in error && 
+              typeof error.data === 'object' && 
+              error.data !== null &&
+              'code' in error.data &&
+              (error.data.code === 'rest_cookie_invalid_nonce' || 
+               error.data.code === 'rest_cannot_create' || 
+               error.data.code === 'rest_forbidden' || 
+               error.status === 401);
+            
+            if (isInvalidNonceError) {
+              console.warn('⚠️ Got invalid nonce error (403/401), trying to refresh nonce and retry...');
+              
+              // Проверяем, настроен ли Application Password
+              const { WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD } = await import('../../app/services/apiConfig');
+              const hasAppPassword = WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD;
+              
+              if (hasAppPassword) {
+                console.log('💡 Application Password is configured - it should be used automatically');
+                console.log('💡 If this error persists, check Application Password configuration');
+              }
+              
+              // ⚠️ ВАЖНО: НЕ очищаем куки перед обновлением nonce!
+              // Nonce должен соответствовать активной сессии WordPress (куки)
+              // Если очистить куки, новый nonce не будет работать с несуществующей сессией
+              
+              // Очищаем только старый nonce из localStorage
+              localStorage.removeItem('wp_nonce');
+              
+              // Получаем новый nonce (он будет соответствовать текущей сессии в куках)
               const freshNonce = await userService.fetchNonce();
               if (freshNonce) {
-                console.log('🔄 Retrying with fresh nonce...');
+                console.log('✅ Fresh nonce obtained:', freshNonce.substring(0, 10) + '...');
+                console.log('🔄 Retrying upload with fresh nonce...');
+                
+                // Небольшая задержка, чтобы убедиться, что nonce сохранен
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
                 try {
                   const retryResult = await uploadImage(formData).unwrap();
                   if (retryResult && retryResult.id) {
                     imageIds.push(retryResult.id);
+                    console.log('✅ Image uploaded successfully after nonce refresh');
                     return; // Успешно после повтора
                   }
                 } catch (retryError) {
-                  console.error('Retry also failed:', retryError);
+                  console.error('❌ Retry also failed after nonce refresh:', retryError);
+                  
+                  // Проверяем, является ли это ошибкой прав доступа (401/403)
+                  const isPermissionError = retryError && typeof retryError === 'object' && 'status' in retryError && 
+                    (retryError.status === 401 || retryError.status === 403) &&
+                    'data' in retryError && 
+                    typeof retryError.data === 'object' && 
+                    retryError.data !== null &&
+                    'code' in retryError.data &&
+                    (retryError.data.code === 'rest_cannot_create' || retryError.data.code === 'rest_forbidden');
+                  
+                  if (isPermissionError && !hasAppPassword) {
+                    const errorMsg = 'Ошибка аутентификации: куки не передаются при прямом подключении к бэкенду.\n\n' +
+                      'РЕШЕНИЕ: Настройте Application Password в WordPress:\n' +
+                      '1. Перейдите в WordPress: Users > Your Profile > Application Passwords\n' +
+                      '2. Создайте новый Application Password\n' +
+                      '3. Добавьте в .env файл:\n' +
+                      '   VITE_WP_USERNAME=your_username\n' +
+                      '   VITE_WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx\n' +
+                      '4. Перезапустите dev сервер';
+                    throw new Error(errorMsg);
+                  } else {
+                    // Если retry тоже не удался, возможно сессия истекла
+                    // Предлагаем пользователю перелогиниться или проверить Application Password
+                    const errorMessage = retryError && typeof retryError === 'object' && 'data' in retryError
+                      ? (retryError as { data?: { message?: string } }).data?.message || 'Ошибка загрузки'
+                      : 'Ошибка загрузки изображения';
+                    
+                    let finalErrorMessage = `${errorMessage}. `;
+                    if (hasAppPassword) {
+                      finalErrorMessage += 'Application Password настроен, но загрузка не удалась. Проверьте правильность Application Password в .env файле.';
+                    } else {
+                      finalErrorMessage += 'Возможно, сессия истекла. Попробуйте выйти и войти снова.';
+                    }
+                    
+                    throw new Error(finalErrorMessage);
+                  }
                 }
+              } else {
+                console.error('❌ Failed to fetch fresh nonce - session may have expired');
+                let errorMsg = 'Не удалось получить свежий nonce. ';
+                if (hasAppPassword) {
+                  errorMsg += 'Application Password настроен, но nonce не работает. ';
+                }
+                errorMsg += 'Возможно, сессия истекла. Попробуйте выйти и войти снова.';
+                throw new Error(errorMsg);
               }
             }
             

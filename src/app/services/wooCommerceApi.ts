@@ -1,31 +1,37 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { Order, Customer } from '../../types/types';
+import { API_BASE_URL, WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET } from './apiConfig';
 
 // WooCommerce API with only Basic Auth (no WordPress nonce)
 export const wooCommerceApi = createApi({
   reducerPath: 'wooCommerceApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.PROD 
-      ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
-      : '/wp-json/',
+    baseUrl: API_BASE_URL,
     credentials: 'omit', // Явно отключаем cookies для Basic Auth
     prepareHeaders: (headers) => {
-      console.log('=== WooCommerce API Headers Debug ===');
-      
-      // WooCommerce Basic Auth ONLY
-      const consumerKey = 'ck_0cae419a8938564cd19a80fd72c31fc15b30c6d6';
-      const consumerSecret = 'cs_82f076acfa6a7009482cfe16bd9c3f10b6e39846';
-      
-      if (consumerKey && consumerSecret) {
-        const credentials = `${consumerKey}:${consumerSecret}`;
-        const basicAuth = btoa(credentials);
-        headers.set('Authorization', `Basic ${basicAuth}`);
-        console.log('✅ WooCommerce Basic Auth: SET');
-      console.log('🚫 WooCommerce Cookies: OMITTED (using Basic Auth only)');
+      if (import.meta.env.DEV) {
+        console.log('=== WooCommerce API Headers Debug ===');
       }
       
-      console.log('🌐 BaseUrl: https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/');
-      console.log('=== End WooCommerce Debug ===');
+      // WooCommerce Basic Auth ONLY
+      if (WOOCOMMERCE_CONSUMER_KEY && WOOCOMMERCE_CONSUMER_SECRET) {
+        const credentials = `${WOOCOMMERCE_CONSUMER_KEY}:${WOOCOMMERCE_CONSUMER_SECRET}`;
+        const basicAuth = btoa(credentials);
+        headers.set('Authorization', `Basic ${basicAuth}`);
+        if (import.meta.env.DEV) {
+          console.log('✅ WooCommerce Basic Auth: SET');
+          console.log('🚫 WooCommerce Cookies: OMITTED (using Basic Auth only)');
+        }
+      } else {
+        if (import.meta.env.DEV) {
+          console.error('❌ WooCommerce API ключи не настроены! Установите VITE_WC_CONSUMER_KEY и VITE_WC_CONSUMER_SECRET');
+        }
+      }
+      
+      if (import.meta.env.DEV) {
+        console.log('🌐 BaseUrl:', API_BASE_URL);
+        console.log('=== End WooCommerce Debug ===');
+      }
       
       return headers;
     },

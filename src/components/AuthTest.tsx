@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { authService } from '../app/services/authService';
 import { userService } from '../app/services/userService';
-import { API_BASE_URL } from '../app/services/apiConfig';
+import { API_BASE_URL, WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET } from '../app/services/apiConfig';
 
 interface AuthResult {
   success?: boolean;
@@ -57,9 +57,14 @@ const AuthTest = () => {
     try {
       console.log('🔍 Testing WooCommerce API...');
       // Direct fetch test for WooCommerce API
-      const consumerKey = 'ck_0cae419a8938564cd19a80fd72c31fc15b30c6d6';
-      const consumerSecret = 'cs_82f076acfa6a7009482cfe16bd9c3f10b6e39846';
-      const credentials = btoa(`${consumerKey}:${consumerSecret}`);
+      if (!WOOCOMMERCE_CONSUMER_KEY || !WOOCOMMERCE_CONSUMER_SECRET) {
+        setResult({ 
+          error: 'WooCommerce API ключи не настроены. Установите VITE_WC_CONSUMER_KEY и VITE_WC_CONSUMER_SECRET в .env файле',
+          message: 'WooCommerce API keys not configured'
+        });
+        return;
+      }
+      const credentials = btoa(`${WOOCOMMERCE_CONSUMER_KEY}:${WOOCOMMERCE_CONSUMER_SECRET}`);
       
       const response = await fetch(`${API_BASE_URL}wc/v3/orders?status=on-hold&per_page=10`, {
         method: 'GET',

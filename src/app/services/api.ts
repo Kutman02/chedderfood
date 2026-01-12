@@ -1,81 +1,119 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { Product, Customer, Order, AnalyticsResponse } from '../../types/types';
 import { format, subDays } from 'date-fns';
-import { WORDPRESS_APP_PASSWORD, WORDPRESS_USERNAME } from './apiConfig';
+import { WORDPRESS_APP_PASSWORD, WORDPRESS_USERNAME, API_BASE_URL, WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET } from './apiConfig';
+// checkAppPasswordConfig автоматически вызывается при импорте apiConfig в dev режиме
 
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.PROD 
-      ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
-      : '/wp-json/',
+    baseUrl: API_BASE_URL,
     credentials: 'include', // ✅ MANDATORY for cross-domain cookies
     prepareHeaders: (headers, { endpoint }) => {
-      console.log('=== API Request Headers Debug ===');
-      console.log('Endpoint:', endpoint);
-      console.log('Endpoint type:', typeof endpoint);
-      console.log('Endpoint string:', String(endpoint));
-      
-      // Определяем, нужна ли WooCommerce Basic Auth
-      // endpoint может быть строкой 'uploadImage' или объектом
-      // Для WordPress REST API (wp/v2/*) НЕ используем Basic Auth
-      const endpointStr = String(endpoint || '');
-      const isWordPressMediaUpload = endpointStr === 'uploadImage' || endpointStr.includes('uploadImage');
-      
-      console.log('Is WordPress Media Upload:', isWordPressMediaUpload);
-      
-      // ✅ WooCommerce Basic Auth - только для WooCommerce API (wc/v3/*)
-      // НЕ используем для WordPress REST API (wp/v2/*), так как это конфликтует с Cookie auth
-      if (!isWordPressMediaUpload) {
-        const consumerKey = 'ck_0cae419a8938564cd19a80fd72c31fc15b30c6d6';
-        const consumerSecret = 'cs_82f076acfa6a7009482cfe16bd9c3f10b6e39846';
-        
-        if (consumerKey && consumerSecret) {
-          const credentials = `${consumerKey}:${consumerSecret}`;
-          const basicAuth = btoa(credentials);
-          headers.set('Authorization', `Basic ${basicAuth}`);
-          console.log('✅ WooCommerce Basic Auth: SET');
-        }
-      } else {
-        console.log('ℹ️ WordPress REST API Media Upload - using Cookie auth ONLY (no Basic Auth)');
-        // Явно удаляем Authorization header, если он был установлен ранее
-        headers.delete('Authorization');
-        
-        // Если есть Application Password, используем его для медиа загрузки
-        // Это работает даже без cookie сессии
-        if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
-          const appCredentials = `${WORDPRESS_USERNAME}:${WORDPRESS_APP_PASSWORD}`;
-          const appAuth = btoa(appCredentials);
-          headers.set('Authorization', `Basic ${appAuth}`);
-          console.log('✅ WordPress Application Password: SET (for media upload)');
-        } else {
-          console.log('⚠️ No Application Password configured - using nonce only');
-          console.log('💡 Tip: Set VITE_WP_USERNAME and VITE_WP_APP_PASSWORD for better auth');
-        }
+      if (import.meta.env.DEV) {
+        console.log('=== API Request Headers Debug ===');
+        console.log('Endpoint:', endpoint);
+        console.log('Endpoint type:', typeof endpoint);
+        console.log('Endpoint string:', String(endpoint));
       }
       
-      // ✅ X-WP-Nonce from localStorage for WordPress authentication
-      // КРИТИЧНО для загрузки медиа через WordPress REST API
-      const nonce = localStorage.getItem('wp_nonce');
-      if (nonce) {
-        headers.set('X-WP-Nonce', nonce);
-        console.log('✅ X-WP-Nonce:', nonce.substring(0, 10) + '...');
-        console.log('✅ X-WP-Nonce length:', nonce.length);
+      // Определяем тип запроса по имени endpoint
+      // WooCommerce API endpoints: getProducts, getOrders, getCustomers, etc.
+      // WordPress REST API endpoints: uploadImage
+      const endpointStr = String(endpoint || '').toLowerCase();
+      const isWordPressMediaUpload = endpointStr === 'uploadimage' || endpointStr.includes('uploadimage');
+      const isWooCommerceAPI = !isWordPressMediaUpload; // Все остальные - WooCommerce API
+      
+      if (import.meta.env.DEV) {
+        console.log('Is WordPress Media Upload:', isWordPressMediaUpload);
+        console.log('Is WooCommerce API:', isWooCommerceAPI);
+      }
+      
+      if (isWooCommerceAPI) {
+        // ✅ WooCommerce API: ТОЛЬКО Basic Auth, БЕЗ nonce, БЕЗ куки
+        // credentials: 'omit' установлен в каждом endpoint для предотвращения конфликтов
+        if (WOOCOMMERCE_CONSUMER_KEY && WOOCOMMERCE_CONSUMER_SECRET) {
+          const credentials = `${WOOCOMMERCE_CONSUMER_KEY}:${WOOCOMMERCE_CONSUMER_SECRET}`;
+          const basicAuth = btoa(credentials);
+          headers.set('Authorization', `Basic ${basicAuth}`);
+          if (import.meta.env.DEV) {
+            console.log('✅ WooCommerce Basic Auth: SET');
+            console.log('🚫 Nonce: NOT SET (not needed for WooCommerce API)');
+            console.log('🚫 Cookies: OMITTED (using Basic Auth only)');
+          }
+        } else {
+          if (import.meta.env.DEV) {
+            console.error('❌ WooCommerce API ключи не настроены! Установите VITE_WC_CONSUMER_KEY и VITE_WC_CONSUMER_SECRET');
+          }
+        }
       } else {
-        console.error('❌ No nonce in localStorage - user may not be logged in');
-        console.error('❌ Media upload requires valid WordPress nonce!');
-        console.error('❌ Please login as admin first!');
+        // ✅ WordPress REST API: Application Password ИЛИ nonce + куки
+        if (import.meta.env.DEV) {
+          console.log('ℹ️ WordPress REST API - choosing auth method');
+        }
+        
+        // Удаляем WooCommerce Basic Auth, если был установлен
+        headers.delete('Authorization');
+        
+        // Приоритет 1: Application Password (работает без куки и nonce)
+        if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+          // Убираем пробелы из Application Password (WordPress генерирует с пробелами, но для Basic Auth нужны без пробелов)
+          const cleanPassword = WORDPRESS_APP_PASSWORD.replace(/\s+/g, '');
+          const appCredentials = `${WORDPRESS_USERNAME}:${cleanPassword}`;
+          const appAuth = btoa(appCredentials);
+          headers.set('Authorization', `Basic ${appAuth}`);
+          if (import.meta.env.DEV) {
+            console.log('✅ WordPress Application Password: SET (for media upload)');
+            console.log('✅ Username:', WORDPRESS_USERNAME);
+            console.log('✅ App Password length:', cleanPassword.length, 'characters');
+            console.log('✅ App Password (last 4): ***' + (cleanPassword.slice(-4) || ''));
+            console.log('✅ Basic Auth header: Basic ' + appAuth.substring(0, 20) + '...');
+            console.log('💡 Using Application Password ONLY - nonce and cookies NOT used');
+          }
+          // НЕ добавляем nonce при использовании Application Password
+          // WordPress может отклонить запрос, если оба метода используются одновременно
+          // Явно удаляем X-WP-Nonce header, если он был установлен ранее
+          headers.delete('X-WP-Nonce');
+          if (import.meta.env.DEV) {
+            console.log('🚫 X-WP-Nonce header: REMOVED (not needed with Application Password)');
+          }
+        } else {
+          if (import.meta.env.DEV) {
+            console.log('⚠️ Application Password NOT configured');
+            console.log('⚠️ WORDPRESS_USERNAME:', WORDPRESS_USERNAME ? 'SET' : 'NOT SET');
+            console.log('⚠️ WORDPRESS_APP_PASSWORD:', WORDPRESS_APP_PASSWORD ? 'SET' : 'NOT SET');
+            console.log('⚠️ No Application Password - using nonce + cookies');
+            console.log('💡 Tip: Set VITE_WP_USERNAME and VITE_WP_APP_PASSWORD for better auth');
+          }
+          
+          const nonce = localStorage.getItem('wp_nonce');
+          
+          if (!nonce) {
+            if (import.meta.env.DEV) {
+              console.warn('⚠️ No nonce in localStorage');
+              console.error('❌ Media upload requires either Application Password or valid WordPress nonce!');
+              console.error('❌ Please login as admin first or configure Application Password!');
+            }
+          } else {
+            headers.set('X-WP-Nonce', nonce);
+            if (import.meta.env.DEV) {
+              console.log('✅ X-WP-Nonce:', nonce.substring(0, 10) + '...');
+              console.log('✅ X-WP-Nonce length:', nonce.length);
+              console.log('🍪 Cookies will be sent with credentials: include');
+            }
+          }
+        }
       }
       
       // Для FormData (uploadImage) RTK Query автоматически не устанавливает Content-Type
       // Браузер установит Content-Type автоматически с правильным boundary
       // Важно: не устанавливаем Content-Type вручную для FormData
       
-      console.log('🌐 BaseUrl:', import.meta.env.PROD 
-        ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
-        : '/wp-json/ (proxied)');
-      console.log('🍪 Credentials: include');
-      console.log('=== End Debug ===');
+      if (import.meta.env.DEV) {
+        console.log('🌐 BaseUrl:', API_BASE_URL);
+        console.log('🍪 Credentials: include');
+        console.log('=== End Debug ===');
+      }
       
       return headers;
     },
@@ -92,7 +130,7 @@ export const api = createApi({
           ...(status !== 'all' && { status }),
           ...(search && { search })
         }).toString()}`,
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       transformErrorResponse: (response: { status: number; data: unknown }) => {
         console.error('Orders API Error:', {
@@ -113,7 +151,7 @@ export const api = createApi({
     getOrder: builder.query({
       query: (id) => ({
         url: `wc/v3/orders/${id}`,
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       providesTags: (_result, _error, id) => [{ type: 'Order', id }],
     }),
@@ -125,7 +163,7 @@ export const api = createApi({
           ...(after && { after }),
           ...(before && { before })
         }).toString()}`,
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       providesTags: ['Orders'],
     }),
@@ -135,7 +173,7 @@ export const api = createApi({
         url: `wc/v3/orders/${id}`,
         method: 'PUT',
         body: { status },
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       invalidatesTags: ['Orders', 'Order'],
     }),
@@ -145,7 +183,7 @@ export const api = createApi({
         url: `wc/v3/orders/${id}`,
         method: 'PUT',
         body,
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       invalidatesTags: ['Orders', 'Order'],
     }),
@@ -159,7 +197,7 @@ export const api = createApi({
           status,
           ...(search && { search })
         }).toString()}`,
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       transformResponse: (response: Product[]) => {
         // Добавляем логирование для проверки полей
@@ -177,7 +215,7 @@ export const api = createApi({
     getProduct: builder.query({
       query: (id) => ({
         url: `wc/v3/products/${id}`,
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       providesTags: (_result, _error, id) => [{ type: 'Product', id }],
     }),
@@ -190,7 +228,7 @@ export const api = createApi({
           order,
           ...(search && { search })
         }).toString()}`,
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       transformResponse: (response: Customer[]) => {
         console.log('Customers API Response:', response);
@@ -291,7 +329,10 @@ export const api = createApi({
         if (before) params.append('before', before + 'T23:59:59');
         const url = `wc-analytics/orders?${params.toString()}`;
         console.log('Analytics Orders URL:', url);
-        return url;
+        return {
+          url,
+          credentials: 'omit', // ✅ WooCommerce Analytics API использует только Basic Auth, без куки
+        };
       },
       transformResponse: (orders: Order[]) => {
         console.log('Analytics Orders Response:', orders.length, 'orders');
@@ -305,7 +346,10 @@ export const api = createApi({
       query: ({ per_page = 100 }) => {
         const url = `wc-analytics/products?per_page=${per_page}`;
         console.log('Analytics Products URL:', url);
-        return url;
+        return {
+          url,
+          credentials: 'omit', // ✅ WooCommerce Analytics API использует только Basic Auth, без куки
+        };
       },
       transformResponse: (products: Product[]) => {
         console.log('Analytics Products Response:', products.length);
@@ -319,7 +363,7 @@ export const api = createApi({
         url: `wc/v3/products/categories?${new URLSearchParams({
           per_page: per_page.toString(),
         }).toString()}`,
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       providesTags: ['Products'],
     }),
@@ -329,7 +373,7 @@ export const api = createApi({
         url: 'wc/v3/products',
         method: 'POST',
         body: productData,
-        credentials: 'include',
+        credentials: 'omit', // ✅ WooCommerce API использует только Basic Auth, без куки
       }),
       invalidatesTags: ['Products'],
     }),

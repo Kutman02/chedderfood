@@ -1,22 +1,20 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { API_BASE_URL, WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET } from './apiConfig';
 
 // Отдельный API для публичных запросов без авторизации
 export const publicApi = createApi({
   reducerPath: 'publicApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.PROD 
-      ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
-      : '/wp-json/',
+    baseUrl: API_BASE_URL,
     credentials: 'include', // Важно для cookies и сессий WordPress
     prepareHeaders: (headers) => {
       // WooCommerce Basic Auth for API authentication
-      const consumerKey = 'ck_0cae419a8938564cd19a80fd72c31fc15b30c6d6';
-      const consumerSecret = 'cs_82f076acfa6a7009482cfe16bd9c3f10b6e39846';
-      
-      if (consumerKey && consumerSecret) {
-        const credentials = `${consumerKey}:${consumerSecret}`;
+      if (WOOCOMMERCE_CONSUMER_KEY && WOOCOMMERCE_CONSUMER_SECRET) {
+        const credentials = `${WOOCOMMERCE_CONSUMER_KEY}:${WOOCOMMERCE_CONSUMER_SECRET}`;
         const basicAuth = btoa(credentials);
         headers.set('Authorization', `Basic ${basicAuth}`);
+      } else if (import.meta.env.DEV) {
+        console.error('❌ WooCommerce API ключи не настроены! Установите VITE_WC_CONSUMER_KEY и VITE_WC_CONSUMER_SECRET');
       }
       
       return headers;

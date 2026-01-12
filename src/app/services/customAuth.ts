@@ -1,13 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from '../store';
+import { API_BASE_URL } from './apiConfig';
 
 // API с кастомной аутентификацией WordPress
 export const customAuthApi = createApi({
   reducerPath: 'customAuthApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.PROD 
-      ? 'https://cd444351-wordpress-zdtv5.tw1.ru/wp-json/'
-      : '/wp-json/',
+    baseUrl: API_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       const nonce = localStorage.getItem('wp_nonce');

@@ -102,21 +102,87 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
         } catch (error: unknown) {
           console.error('Ошибка загрузки изображения:', error);
           
-          // Если получили 401, попробуем обновить nonce и повторить
-          if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
-            console.warn('⚠️ Got 401, trying to refresh nonce and retry...');
+          // Проверяем, является ли это ошибкой невалидного nonce или прав доступа (403 или 401)
+          const isInvalidNonceError = error && typeof error === 'object' && 'status' in error && 
+            (error.status === 403 || error.status === 401) &&
+            'data' in error && 
+            typeof error.data === 'object' && 
+            error.data !== null &&
+            'code' in error.data &&
+            (error.data.code === 'rest_cookie_invalid_nonce' || 
+             error.data.code === 'rest_cannot_create' || 
+             error.data.code === 'rest_forbidden' || 
+             error.status === 401);
+          
+          if (isInvalidNonceError) {
+            console.warn('⚠️ Got invalid nonce error (403/401), trying to refresh nonce and retry...');
+            
+            // ✅ Очищаем старые куки перед обновлением nonce
+            const { clearWordPressCookies } = await import('../../utils/cookieUtils');
+            clearWordPressCookies();
+            console.log('🧹 Cleared WordPress cookies before nonce refresh');
+            
+            // Очищаем старый nonce
+            localStorage.removeItem('wp_nonce');
+            
             const freshNonce = await userService.fetchNonce();
             if (freshNonce) {
-              console.log('🔄 Retrying with fresh nonce...');
+              console.log('✅ Fresh nonce obtained:', freshNonce.substring(0, 10) + '...');
+              console.log('🔄 Retrying upload with fresh nonce...');
+              
+              // Небольшая задержка, чтобы убедиться, что nonce сохранен
+              await new Promise(resolve => setTimeout(resolve, 100));
+              
               try {
                 const retryResult = await uploadImage(formData).unwrap();
                 if (retryResult && retryResult.id) {
                   imageIds.push(retryResult.id);
+                  console.log('✅ Image uploaded successfully after nonce refresh');
                   continue; // Успешно после повтора, переходим к следующему изображению
                 }
               } catch (retryError) {
-                console.error('Retry also failed:', retryError);
+                console.error('❌ Retry also failed after nonce refresh:', retryError);
+                
+                // Проверяем, является ли это ошибкой прав доступа (401/403)
+                const isPermissionError = retryError && typeof retryError === 'object' && 'status' in retryError && 
+                  (retryError.status === 401 || retryError.status === 403) &&
+                  'data' in retryError && 
+                  typeof retryError.data === 'object' && 
+                  retryError.data !== null &&
+                  'code' in retryError.data &&
+                  (retryError.data.code === 'rest_cannot_create' || retryError.data.code === 'rest_forbidden');
+                
+                if (isPermissionError) {
+                  // Проверяем, настроен ли Application Password
+                  const { WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD } = await import('../../app/services/apiConfig');
+                  const hasAppPassword = WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD;
+                  
+                  if (!hasAppPassword) {
+                    const errorMsg = 'Ошибка аутентификации: куки не передаются при прямом подключении к бэкенду.\n\n' +
+                      'РЕШЕНИЕ: Настройте Application Password в WordPress:\n' +
+                      '1. Перейдите в WordPress: Users > Your Profile > Application Passwords\n' +
+                      '2. Создайте новый Application Password\n' +
+                      '3. Добавьте в .env файл:\n' +
+                      '   VITE_WP_USERNAME=your_username\n' +
+                      '   VITE_WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx\n' +
+                      '4. Перезапустите dev сервер';
+                    throw new Error(errorMsg);
+                  } else {
+                    const errorMessage = retryError && typeof retryError === 'object' && 'data' in retryError
+                      ? (retryError as { data?: { message?: string } }).data?.message || 'Ошибка загрузки'
+                      : 'Ошибка загрузки изображения';
+                    throw new Error(`${errorMessage}. Проверьте правильность Application Password в .env файле.`);
+                  }
+                } else {
+                  const errorMessage = retryError && typeof retryError === 'object' && 'data' in retryError
+                    ? (retryError as { data?: { message?: string } }).data?.message || 'Ошибка загрузки'
+                    : 'Ошибка загрузки изображения';
+                  throw new Error(`${errorMessage}. Попробуйте выйти и войти снова.`);
+                }
               }
+            } else {
+              console.error('❌ Failed to fetch fresh nonce');
+              throw new Error('Не удалось получить свежий nonce. Убедитесь, что вы залогинены как администратор.');
             }
           }
           
