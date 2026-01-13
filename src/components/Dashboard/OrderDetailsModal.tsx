@@ -1,5 +1,7 @@
-import { FaTimes, FaPhone, FaMapMarkerAlt, FaCalendar, FaCreditCard, FaTruck } from 'react-icons/fa';
+import { useState, useRef, useEffect } from 'react';
+import { FaTimes, FaPhone, FaMapMarkerAlt, FaCalendar, FaCreditCard, FaTruck, FaShare, FaWhatsapp, FaTelegram, FaCopy } from 'react-icons/fa';
 import type { Order } from '../../types/types';
+import { useToastStore } from '../../stores/toastStore';
 
 interface OrderDetailsModalProps {
   isOpen: boolean;
@@ -8,6 +10,27 @@ interface OrderDetailsModalProps {
 }
 
 export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalProps) => {
+  const showToast = useToastStore((state) => state.showToast);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const shareMenuRef = useRef<HTMLDivElement>(null);
+  
+  // Закрываем меню при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) {
+        setShowShareMenu(false);
+      }
+    };
+
+    if (showShareMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showShareMenu]);
+  
   if (!isOpen || !order) return null;
 
   const formatDate = (dateString: string) => {
@@ -21,6 +44,87 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
     });
   };
 
+  const generateShareText = () => {
+    const itemsText = order.line_items
+      .map((item) => `• ${item.name} - ${item.quantity} шт. × ${item.price} ${order.currency} = ${item.total} ${order.currency}`)
+      .join('\n');
+
+    let text = `Заказ #${order.number}\n\n`;
+    text += `Клиент: ${order.billing.first_name} ${order.billing.last_name}\n`;
+    text += `Телефон: ${order.billing.phone}\n`;
+    text += `Дата: ${formatDate(order.date_created)}\n\n`;
+    text += `Адрес доставки:\n${order.billing.address_1}`;
+    if (order.billing.address_2) {
+      text += `\n${order.billing.address_2}`;
+    }
+    text += `\n${order.billing.city}, ${order.billing.postcode}\n\n`;
+    text += `Товары:\n${itemsText}\n\n`;
+    if (order.shipping_total && parseFloat(order.shipping_total) > 0) {
+      text += `Доставка: ${order.shipping_total} ${order.currency}\n`;
+    }
+    text += `Итого: ${order.total} ${order.currency}`;
+    if (order.payment_method_title) {
+      text += `\nСпособ оплаты: ${order.payment_method_title}`;
+    }
+    if (order.customer_note) {
+      text += `\n\nПримечание: ${order.customer_note}`;
+    }
+    return text;
+  };
+
+  const handleShare = async () => {
+    const shareText = generateShareText();
+    const shareTitle = `Заказ #${order.number}`;
+
+    // Используем Web Share API, если доступен
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+        });
+        setShowShareMenu(false);
+        showToast('Детали заказа успешно отправлены', 'success');
+      } catch (err: any) {
+        // Пользователь отменил шаринг - не показываем ошибку
+        if (err.name !== 'AbortError') {
+          console.error('Share failed:', err);
+        }
+      }
+    } else {
+      // Fallback: показываем меню с опциями
+      setShowShareMenu(true);
+    }
+  };
+
+  const handleWhatsAppShare = () => {
+    const shareText = generateShareText();
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    window.open(whatsappUrl, '_blank');
+    setShowShareMenu(false);
+    showToast('Открыт WhatsApp для отправки', 'success');
+  };
+
+  const handleTelegramShare = () => {
+    const shareText = generateShareText();
+    const telegramUrl = `https://t.me/share/url?url=&text=${encodeURIComponent(shareText)}`;
+    window.open(telegramUrl, '_blank');
+    setShowShareMenu(false);
+    showToast('Открыт Telegram для отправки', 'success');
+  };
+
+  const handleCopyToClipboard = async () => {
+    const shareText = generateShareText();
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShowShareMenu(false);
+      showToast('Детали заказа скопированы в буфер обмена', 'success');
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      showToast('Не удалось скопировать детали заказа', 'error');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm overflow-hidden">
       <div className="bg-white w-full h-screen flex flex-col overflow-hidden">
@@ -30,12 +134,64 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
             <h2 className="text-xl md:text-2xl font-black text-slate-900">Заказ #{order.number}</h2>
             <p className="text-sm text-slate-500 mt-1">Детали заказа</p>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-          >
-            <FaTimes />
-          </button>
+          <div className="flex items-center gap-2 relative">
+            <div className="relative" ref={shareMenuRef}>
+              <button
+                onClick={() => {
+                  if (navigator.share) {
+                    handleShare();
+                  } else {
+                    setShowShareMenu(!showShareMenu);
+                  }
+                }}
+                className="w-10 h-10 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-600 flex items-center justify-center transition-colors"
+                title="Поделиться деталями заказа"
+              >
+                <FaShare />
+              </button>
+              
+              {showShareMenu && (
+                <div className="absolute right-0 top-12 bg-white shadow-2xl border-2 border-slate-200 rounded-xl p-2 z-50 min-w-[200px] animate-in slide-in-from-top-2 duration-200">
+                  {navigator.share && (
+                    <button
+                      onClick={handleShare}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left"
+                    >
+                      <FaShare className="text-blue-600" />
+                      <span className="font-semibold text-sm text-slate-900">Нативное меню</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={handleWhatsAppShare}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-green-50 transition-colors text-left"
+                  >
+                    <FaWhatsapp className="text-green-600 text-lg" />
+                    <span className="font-semibold text-sm text-slate-900">WhatsApp</span>
+                  </button>
+                  <button
+                    onClick={handleTelegramShare}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors text-left"
+                  >
+                    <FaTelegram className="text-blue-500 text-lg" />
+                    <span className="font-semibold text-sm text-slate-900">Telegram</span>
+                  </button>
+                  <button
+                    onClick={handleCopyToClipboard}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left"
+                  >
+                    <FaCopy className="text-slate-600" />
+                    <span className="font-semibold text-sm text-slate-900">Копировать</span>
+                  </button>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+            >
+              <FaTimes />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
