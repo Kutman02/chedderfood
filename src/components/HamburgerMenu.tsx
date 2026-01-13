@@ -140,7 +140,6 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           <div 
             className="absolute top-0 right-0 bottom-0 bg-white w-full shadow-2xl animate-in slide-in-from-right duration-300 max-w-md flex flex-col"
             style={{ 
-              height: '100vh',
               height: '100dvh', // Dynamic viewport height для мобильных
               paddingTop: 'env(safe-area-inset-top)',
               paddingBottom: 'env(safe-area-inset-bottom)'
