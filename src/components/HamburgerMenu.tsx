@@ -129,7 +129,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 
       {/* Меню */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-[100]">
           {/* Фон с анимацией появления */}
           <div
             className="absolute inset-0 bg-black/50 animate-in fade-in duration-300"
@@ -137,7 +137,15 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           />
 
           {/* Панель меню - полноэкранная на мобильных с анимацией */}
-          <div className="relative bg-white w-full h-full shadow-2xl animate-in slide-in-from-right duration-300 max-w-md flex flex-col">
+          <div 
+            className="absolute top-0 right-0 bottom-0 bg-white w-full shadow-2xl animate-in slide-in-from-right duration-300 max-w-md flex flex-col"
+            style={{ 
+              height: '100vh',
+              height: '100dvh', // Dynamic viewport height для мобильных
+              paddingTop: 'env(safe-area-inset-top)',
+              paddingBottom: 'env(safe-area-inset-bottom)'
+            }}
+          >
             {/* Заголовок */}
             <div className="shrink-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
               <h2 className="text-lg font-black text-slate-800">Меню</h2>
@@ -150,7 +158,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             </div>
 
             {/* Контент меню */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-6" style={{ WebkitOverflowScrolling: 'touch' }}>
               {/* Мои чеки */}
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-100">
                 <button

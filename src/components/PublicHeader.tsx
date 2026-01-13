@@ -82,31 +82,31 @@ export const PublicHeader = () => {
   };
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Верхняя часть хедера */}
-        <div className="flex items-center justify-between py-4">
+        {/* Верхняя часть хедера - компактная */}
+        <div className="flex items-center justify-between py-2.5">
           <Link to="/" className="flex items-center gap-2">
-            <div className="text-2xl font-black text-orange-600">BurgerFood</div>
+            <div className="text-xl font-black text-orange-600">BurgerFood</div>
           </Link>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {/* Кнопка чеков с огненным эффектом при активных заказах */}
             <button
               onClick={handleOpenReceipts}
-              className={`relative p-2 hover:bg-orange-50 rounded-lg transition-colors ${
+              className={`relative p-1.5 hover:bg-orange-50/80 rounded-lg transition-all ${
                 hasActiveOrders ? 'text-red-600' : 'text-orange-600'
               }`}
               title="Мои чеки"
             >
-              <FaReceipt size={20} />
+              <FaReceipt size={18} />
               {hasActiveOrders && (
-                <div className="absolute -top-1 -right-1 animate-pulse">
+                <div className="absolute -top-0.5 -right-0.5 animate-pulse">
                   <FaFire 
                     className="text-red-500 drop-shadow-lg" 
-                    size={14}
+                    size={12}
                     style={{
-                      filter: 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.9))'
+                      filter: 'drop-shadow(0 0 4px rgba(239, 68, 68, 0.9))'
                     }}
                   />
                 </div>
@@ -131,9 +131,9 @@ export const PublicHeader = () => {
           </div>
         </div>
 
-        {/* Категории товаров */}
-        <div className="border-t border-slate-200 py-3">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+        {/* Категории товаров - прозрачные */}
+        <div className="border-t border-slate-200/50 py-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {isLoading ? (
               <CategorySkeleton count={8} />
             ) : (
@@ -143,10 +143,10 @@ export const PublicHeader = () => {
                 <button
                   key={category.id}
                   onClick={() => handleCategoryClick(category.id)}
-                  className={`px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all shrink-0 ${
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-sm whitespace-nowrap transition-all shrink-0 ${
                     selectedCategory === category.id
-                      ? 'bg-orange-600 text-white shadow-md'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      ? 'bg-orange-600 text-white shadow-md shadow-orange-600/30'
+                      : 'bg-white/60 text-slate-700 hover:bg-white/80 backdrop-blur-sm border border-slate-200/50'
                   }`}
                 >
                   {category.name}
