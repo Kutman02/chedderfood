@@ -9,7 +9,7 @@ const Contacts = () => {
       
       <main className="flex-1">
         {/* Герой секция */}
-        <section className="bg-gradient-to-br from-orange-500 to-orange-600 text-white py-20">
+        <section className="bg-linear-to-br from-orange-500 to-orange-600 text-white py-20">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-300">
               <h1 className="text-5xl md:text-6xl font-black mb-6">Контакты</h1>
@@ -107,7 +107,7 @@ const Contacts = () => {
               </div>
 
               {/* Мессенджеры */}
-              <div className="bg-gradient-to-br from-orange-50 to-slate-50 rounded-2xl p-6">
+              <div className="bg-linear-to-br from-orange-50 to-slate-50 rounded-2xl p-6">
                 <h3 className="text-xl font-bold text-slate-800 mb-4">Мессенджеры</h3>
                 <div className="flex gap-4">
                   <a

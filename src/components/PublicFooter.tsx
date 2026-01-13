@@ -3,16 +3,16 @@ import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaHome, FaInfoCircle, FaAddressBoo
 
 export const PublicFooter = () => {
   return (
-    <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white mt-20 relative overflow-hidden">
+    <footer className="bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white mt-20 relative overflow-hidden">
       {/* Декоративный элемент */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500"></div>
+      <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-orange-500 via-orange-600 to-orange-500"></div>
       
       <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* О компании */}
           <div className="lg:col-span-2">
             <Link to="/" className="inline-block mb-4">
-              <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">
+              <h3 className="text-2xl font-black text-transparent bg-clip-text bg-linear-to-r from-orange-400 to-orange-600">
                 BurgerFood
               </h3>
             </Link>
