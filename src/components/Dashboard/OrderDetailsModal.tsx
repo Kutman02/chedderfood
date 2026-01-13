@@ -12,6 +12,7 @@ interface OrderDetailsModalProps {
 export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalProps) => {
   const showToast = useToastStore((state) => state.showToast);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const shareMenuRef = useRef<HTMLDivElement>(null);
   
   // Закрываем меню при клике вне его
@@ -73,11 +74,15 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
   };
 
   const handleShare = async () => {
+    // Предотвращаем множественные клики
+    if (isSharing) return;
+    
     const shareText = generateShareText();
     const shareTitle = `Заказ #${order.number}`;
 
     // Используем Web Share API, если доступен
     if ('share' in navigator) {
+      setIsSharing(true);
       try {
         await navigator.share({
           title: shareTitle,
@@ -89,7 +94,13 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
         // Пользователь отменил шаринг - не показываем ошибку
         if (err.name !== 'AbortError') {
           console.error('Share failed:', err);
+          // Если это ошибка InvalidStateError, показываем сообщение
+          if (err.name === 'InvalidStateError') {
+            showToast('Пожалуйста, подождите завершения предыдущей операции', 'error');
+          }
         }
+      } finally {
+        setIsSharing(false);
       }
     } else {
       // Fallback: показываем меню с опциями
@@ -144,7 +155,10 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
                     setShowShareMenu(!showShareMenu);
                   }
                 }}
-                className="w-10 h-10 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-600 flex items-center justify-center transition-colors"
+                disabled={isSharing}
+                className={`w-10 h-10 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-600 flex items-center justify-center transition-colors ${
+                  isSharing ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
                 title="Поделиться деталями заказа"
               >
                 <FaShare />
@@ -155,7 +169,10 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
                   {'share' in navigator && (
                     <button
                       onClick={handleShare}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left"
+                      disabled={isSharing}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left ${
+                        isSharing ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     >
                       <FaShare className="text-blue-600" />
                       <span className="font-semibold text-sm text-slate-900">Нативное меню</span>
