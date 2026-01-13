@@ -77,7 +77,7 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
     const shareTitle = `Заказ #${order.number}`;
 
     // Используем Web Share API, если доступен
-    if (navigator.share) {
+    if ('share' in navigator) {
       try {
         await navigator.share({
           title: shareTitle,
@@ -138,7 +138,7 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
             <div className="relative" ref={shareMenuRef}>
               <button
                 onClick={() => {
-                  if (navigator.share) {
+                  if ('share' in navigator) {
                     handleShare();
                   } else {
                     setShowShareMenu(!showShareMenu);
@@ -152,7 +152,7 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
               
               {showShareMenu && (
                 <div className="absolute right-0 top-12 bg-white shadow-2xl border-2 border-slate-200 rounded-xl p-2 z-50 min-w-[200px] animate-in slide-in-from-top-2 duration-200">
-                  {navigator.share && (
+                  {'share' in navigator && (
                     <button
                       onClick={handleShare}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left"
