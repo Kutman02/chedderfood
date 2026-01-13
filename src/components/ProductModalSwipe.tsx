@@ -112,9 +112,20 @@ export const ProductModalSwipe: React.FC<ProductModalProps> = ({
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setIsDragging(true);
-    setStartY(e.touches[0].clientY);
-    setCurrentY(e.touches[0].clientY);
+    // Проверяем, что свайп начинается от верхней части модалки (первые 50px)
+    const modalContent = modalRef.current;
+    if (!modalContent) return;
+    
+    const touchY = e.touches[0].clientY;
+    const modalRect = modalContent.getBoundingClientRect();
+    const relativeY = touchY - modalRect.top;
+    
+    // Разрешаем свайп для закрытия только если начинаем от верхней части модалки
+    if (relativeY <= 50) {
+      setIsDragging(true);
+      setStartY(e.touches[0].clientY);
+      setCurrentY(e.touches[0].clientY);
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -125,9 +136,9 @@ export const ProductModalSwipe: React.FC<ProductModalProps> = ({
     
     const deltaY = startY - currentTouchY;
     
-    // Свайп вниз для закрытия
-    if (deltaY < -50) {
-      // Показываем визуальную обратную связь о закрытии
+    // Предотвращаем прокрутку страницы при свайпе для закрытия
+    if (deltaY < 0) {
+      e.preventDefault();
     }
   };
 
@@ -152,7 +163,7 @@ export const ProductModalSwipe: React.FC<ProductModalProps> = ({
     >
       <div
         ref={modalRef}
-        className={`bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden transition-all duration-300 ease-out ${
+        className={`bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transition-all duration-300 ease-out ${
           isDragging ? 'transition-none' : ''
         }`}
         style={{
@@ -164,129 +175,142 @@ export const ProductModalSwipe: React.FC<ProductModalProps> = ({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="flex flex-col md:flex-row h-full">
-          {/* Левая часть - Изображение */}
-          <div className="md:w-1/2 relative">
-            <div 
-              className="aspect-square bg-slate-100"
-              onTouchStart={handleImageTouchStart}
-              onTouchMove={handleImageTouchMove}
-              onTouchEnd={handleImageTouchEnd}
-            >
-              <img
-                src={productImage}
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/600x600?text=No+Image';
-                }}
-              />
-              
-              {/* Навигационные стрелки */}
-              {productImages.length > 1 && (
-                <>
-                  <button
-                    onClick={handlePrevImage}
-                    disabled={currentImageIndex === 0}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={handleNextImage}
-                    disabled={currentImageIndex === productImages.length - 1}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </>
-              )}
-              
-              {/* Индикатор текущего изображения */}
-              {productImages.length > 1 && (
-                <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 text-sm font-bold">
-                  {currentImageIndex + 1} / {productImages.length}
-                </div>
-              )}
+        {/* Заголовок с кнопкой закрытия - фиксированный */}
+        <div className="shrink-0 flex items-center justify-between p-4 border-b border-slate-200 md:hidden">
+          <h2 className="text-lg font-black text-slate-800 flex-1 pr-2">
+            {product.name}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors rounded-lg shrink-0"
+          >
+            <FaTimes size={20} />
+          </button>
+        </div>
+
+        {/* Прокручиваемый контент */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div className="flex flex-col md:flex-row h-full md:h-auto">
+            {/* Левая часть - Изображение */}
+            <div className="md:w-1/2 relative shrink-0">
+              <div 
+                className="aspect-square bg-slate-100"
+                onTouchStart={handleImageTouchStart}
+                onTouchMove={handleImageTouchMove}
+                onTouchEnd={handleImageTouchEnd}
+              >
+                <img
+                  src={productImage}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/600x600?text=No+Image';
+                  }}
+                />
+                
+                {/* Навигационные стрелки */}
+                {productImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevImage}
+                      disabled={currentImageIndex === 0}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-full z-10"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={handleNextImage}
+                      disabled={currentImageIndex === productImages.length - 1}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-full z-10"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </>
+                )}
+                
+                {/* Индикатор текущего изображения */}
+                {productImages.length > 1 && (
+                  <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 text-sm font-bold rounded">
+                    {currentImageIndex + 1} / {productImages.length}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Правая часть - Информация о товаре */}
-          <div className="md:w-1/2 p-6 flex flex-col">
-            {/* Кнопка закрытия */}
-            <button
-              onClick={onClose}
-              className="self-end p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-            >
-              <FaTimes size={20} />
-            </button>
+            {/* Правая часть - Информация о товаре */}
+            <div className="md:w-1/2 p-6 flex flex-col shrink-0">
+              {/* Кнопка закрытия - только на десктопе */}
+              <button
+                onClick={onClose}
+                className="hidden md:block self-end p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors rounded-lg mb-2"
+              >
+                <FaTimes size={20} />
+              </button>
 
-            <div className="flex-1 space-y-4">
-              {/* Название товара */}
-              <h2 className="text-2xl font-black text-slate-800">
+              {/* Название товара - только на десктопе */}
+              <h2 className="hidden md:block text-2xl font-black text-slate-800 mb-4">
                 {product.name}
               </h2>
 
-              {/* Размер и тип теста */}
- 
-
-              {/* Цена */}
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-black text-orange-600">
-                  {productPrice} сом
-                </span>
-                {product.sale_price && product.regular_price && (
-                  <span className="text-lg text-slate-400 line-through">
-                    {product.regular_price} сом
+              <div className="flex-1 space-y-4">
+                {/* Цена */}
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-black text-orange-600">
+                    {productPrice} сом
                   </span>
-                )}
-              </div>
-
-              {/* Вес */}
-              {product.weight && (
-                <div className="text-sm text-slate-600 font-medium">
-                  Вес: {
-                    typeof product.weight === 'string' 
-                      ? (parseFloat(product.weight) >= 1000 ? `${(parseFloat(product.weight) / 1000).toFixed(1)} кг` : `${product.weight} г`)
-                      : (product.weight >= 1000 ? `${(product.weight / 1000).toFixed(1)} кг` : `${product.weight} г`)
-                  }
-                </div>
-              )}
-
-              {/* Состав */}
-              <div className="space-y-2">
-                <h3 className="font-bold text-lg text-slate-800">Описание</h3>
-                <div className="text-slate-700 text-sm">
-                  {product.description ? (
-                    <div 
-                      dangerouslySetInnerHTML={{ __html: product.description.replace(/<[^>]*>/g, '').split(',').map(ing => ing.trim()).join(', ') }}
-                    />
-                  ) : (
-                    <div>
-                      Мясо, томатный соус, моцарелла, огурцы маринованные, томаты, лук красный, халапеньо
-                    </div>
+                  {product.sale_price && product.regular_price && (
+                    <span className="text-lg text-slate-400 line-through">
+                      {product.regular_price} сом
+                    </span>
                   )}
                 </div>
-              </div>
-            </div>
 
-            {/* Кнопка добавления в корзину */}
-            <div className="pt-4">
-              <button
-                onClick={() => {
-                  dispatch(addToCart(product.id));
-                  showToast(`Вы добавили "${product.name}" в корзину`, 'success');
-                  onClose();
-                }}
-                className="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold hover:bg-orange-700 transition-colors flex items-center justify-center gap-2 text-base"
-                disabled={product.stock_status !== 'instock'}
-              >
-                <FaShoppingCart size={16} /> В корзину
-              </button>
+                {/* Вес */}
+                {product.weight && (
+                  <div className="text-sm text-slate-600 font-medium">
+                    Вес: {
+                      typeof product.weight === 'string' 
+                        ? (parseFloat(product.weight) >= 1000 ? `${(parseFloat(product.weight) / 1000).toFixed(1)} кг` : `${product.weight} г`)
+                        : (product.weight >= 1000 ? `${(product.weight / 1000).toFixed(1)} кг` : `${product.weight} г`)
+                    }
+                  </div>
+                )}
+
+                {/* Состав */}
+                <div className="space-y-2">
+                  <h3 className="font-bold text-lg text-slate-800">Описание</h3>
+                  <div className="text-slate-700 text-sm">
+                    {product.description ? (
+                      <div 
+                        dangerouslySetInnerHTML={{ __html: product.description.replace(/<[^>]*>/g, '').split(',').map(ing => ing.trim()).join(', ') }}
+                      />
+                    ) : (
+                      <div>
+                        Мясо, томатный соус, моцарелла, огурцы маринованные, томаты, лук красный, халапеньо
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Кнопка добавления в корзину - фиксированная внизу на мобильных */}
+              <div className="pt-4 pb-2 md:pb-0">
+                <button
+                  onClick={() => {
+                    dispatch(addToCart(product.id));
+                    showToast(`Вы добавили "${product.name}" в корзину`, 'success');
+                    onClose();
+                  }}
+                  className="w-full bg-orange-600 text-white py-3 md:py-2.5 rounded-xl font-bold hover:bg-orange-700 transition-colors flex items-center justify-center gap-2 text-base shadow-lg"
+                  disabled={product.stock_status !== 'instock'}
+                >
+                  <FaShoppingCart size={16} /> В корзину
+                </button>
+              </div>
             </div>
           </div>
         </div>
