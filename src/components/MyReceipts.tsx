@@ -5,7 +5,7 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { useGetPublicOrderQuery } from '../app/services/publicApi';
 import type { OrderItem, Product, ReceiptData } from '../types/types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { clearReceipts, deleteReceipt } from '../app/slices/receiptsSlice';
+import { deleteReceipt } from '../app/slices/receiptsSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
 
 interface MyReceiptsProps {
@@ -23,7 +23,6 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
     isOpen: false,
     receiptId: null,
   });
-  const [clearAllConfirm, setClearAllConfirm] = useState(false);
 
   // Блокируем прокрутку при открытии списка чеков
   useLayoutEffect(() => {
@@ -52,19 +51,6 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
 
   const cancelDeleteReceipt = () => {
     setDeleteConfirm({ isOpen: false, receiptId: null });
-  };
-
-  const handleClearAll = () => {
-    setClearAllConfirm(true);
-  };
-
-  const confirmClearAll = () => {
-    dispatch(clearReceipts());
-    setClearAllConfirm(false);
-  };
-
-  const cancelClearAll = () => {
-    setClearAllConfirm(false);
   };
 
   // Компонент для отдельного чека с обновлением статуса
@@ -266,17 +252,6 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
             <p className="text-sm text-slate-600">История ваших заказов</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {receipts.length > 0 && (
-            <button
-              onClick={handleClearAll}
-              className="p-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-              title="Очистить все чеки"
-            >
-              <FaTrash size={18} />
-            </button>
-          )}
-        </div>
       </div>
 
         {/* Контент */}
@@ -314,17 +289,6 @@ export const MyReceipts: React.FC<MyReceiptsProps> = ({ products, onClose }) => 
         message={`Вы действительно хотите удалить чек #${deleteConfirm.receiptId}?`}
         onConfirm={confirmDeleteReceipt}
         onCancel={cancelDeleteReceipt}
-        confirmText="Да"
-        cancelText="Нет"
-      />
-
-      {/* Диалог подтверждения очистки всех чеков */}
-      <ConfirmDialog
-        isOpen={clearAllConfirm}
-        title="Очистка всех чеков"
-        message="Вы действительно хотите удалить все чеки? Это действие нельзя отменить."
-        onConfirm={confirmClearAll}
-        onCancel={cancelClearAll}
         confirmText="Да"
         cancelText="Нет"
       />
