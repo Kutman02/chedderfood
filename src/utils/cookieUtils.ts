@@ -131,7 +131,7 @@ export function logAllCookies(): void {
 
 // Экспортируем функции для глобального доступа через window (для отладки в консоли)
 if (typeof window !== 'undefined') {
-  (window as any).cookieUtils = {
+  const cookieUtils = {
     clearWordPressCookies,
     clearAllCookies,
     getCookie,
@@ -140,6 +140,7 @@ if (typeof window !== 'undefined') {
     hasWordPressCookies,
     logAllCookies,
   };
+  (window as unknown as Window & { cookieUtils: typeof cookieUtils }).cookieUtils = cookieUtils;
   console.log('🍪 Cookie utilities available in console: window.cookieUtils');
 }
 

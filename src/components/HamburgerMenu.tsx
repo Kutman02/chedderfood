@@ -129,7 +129,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 
       {/* Меню */}
       {isOpen && (
-        <div className="fixed inset-0 z-[100]">
+        <div className="fixed inset-0 z-100">
           {/* Фон с анимацией появления */}
           <div
             className="absolute inset-0 bg-black/50 animate-in fade-in duration-300"

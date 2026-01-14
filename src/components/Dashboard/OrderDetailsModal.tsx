@@ -90,12 +90,13 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
         });
         setShowShareMenu(false);
         showToast('Детали заказа успешно отправлены', 'success');
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Пользователь отменил шаринг - не показываем ошибку
-        if (err.name !== 'AbortError') {
+        const error = err as Error & { name?: string };
+        if (error.name !== 'AbortError') {
           console.error('Share failed:', err);
           // Если это ошибка InvalidStateError, показываем сообщение
-          if (err.name === 'InvalidStateError') {
+          if (error.name === 'InvalidStateError') {
             showToast('Пожалуйста, подождите завершения предыдущей операции', 'error');
           }
         }
