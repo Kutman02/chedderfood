@@ -10,7 +10,6 @@ interface AuthResult {
     email: string;
     name: string;
   };
-  nonce?: string;       // WordPress nonce
   message?: string;
   error?: string;
   data?: Record<string, unknown>;           // For user data from getCurrentUser
@@ -39,18 +38,31 @@ const AuthTest = () => {
     }
   };
 
-  const testFetchNonce = async () => {
+  const testGetCurrentUser = async () => {
     try {
-      const nonce = await authService.fetchNonce();
-      setResult({ nonce: nonce || undefined, message: nonce ? 'Nonce fetched successfully' : 'Failed to fetch nonce' });
+      const user = await userService.getCurrentUser();
+      if (user) {
+        setResult({ 
+          data: { ...user } as Record<string, unknown>, 
+          message: 'Current user fetched successfully',
+          success: true 
+        });
+      } else {
+        setResult({ message: 'Failed to get current user - check Application Password configuration' });
+      }
     } catch (error) {
       setResult({ error: (error as Error).message });
     }
   };
 
-  const testClearNonce = () => {
-    userService.clearInvalidNonce();
-    setResult({ message: 'Nonce cleared from localStorage' });
+  const testAppPassword = () => {
+    const hasAppPassword = authService.hasAppPassword();
+    setResult({ 
+      message: hasAppPassword 
+        ? 'Application Password is configured ✅' 
+        : 'Application Password is NOT configured ❌',
+      success: hasAppPassword
+    });
   };
 
   const testWooCommerceAPI = async () => {
@@ -136,18 +148,18 @@ const AuthTest = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Тест текущего пользователя</h3>
+            <h3 className="text-lg font-semibold mb-4">Тест Application Password</h3>
             <button
-              onClick={testFetchNonce}
+              onClick={testGetCurrentUser}
               className="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 mb-3"
             >
-              Получить свежий nonce
+              Получить текущего пользователя
             </button>
             <button
-              onClick={testClearNonce}
-              className="w-full bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 mb-3"
+              onClick={testAppPassword}
+              className="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 mb-3"
             >
-              Очистить nonce
+              Проверить Application Password
             </button>
             <button
               onClick={testWooCommerceAPI}
@@ -160,15 +172,6 @@ const AuthTest = () => {
               className="w-full bg-yellow-600 text-white p-3 rounded-lg hover:bg-yellow-700 mb-3"
             >
               Отладить авторизацию
-            </button>
-            <button
-              onClick={() => {
-                const nonce = authService.getNonce();
-                alert(`Nonce: ${nonce || 'Не найден'}`);
-              }}
-              className="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700"
-            >
-              Проверить сохраненный nonce
             </button>
           </div>
         </div>

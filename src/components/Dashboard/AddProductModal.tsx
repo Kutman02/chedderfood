@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { FaTimes, FaImage, FaTag, FaDollarSign, FaFileAlt, FaPlus, FaTrash, FaBox } from 'react-icons/fa';
 import { useGetProductCategoriesQuery, useCreateProductMutation, useUploadImageMutation } from '../../app/services/api';
-import { userService } from '../../app/services/userService';
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -66,21 +65,9 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
 
     setIsSubmitting(true);
     try {
-      // Проверяем и обновляем nonce перед загрузкой
-      // Примечание: cookie auth может не работать через прокси в dev, но nonce должен работать
-      let nonce = localStorage.getItem('wp_nonce');
-      if (!nonce) {
-        console.warn('⚠️ No nonce found, attempting to fetch fresh nonce...');
-        const freshNonce = await userService.fetchNonce();
-        if (!freshNonce) {
-          alert('Не удалось получить nonce. Убедитесь, что вы залогинены как администратор через страницу входа React приложения.');
-          setIsSubmitting(false);
-          return;
-        }
-        nonce = freshNonce;
-      }
-      
-      console.log('✅ Using nonce for media upload:', nonce.substring(0, 10) + '...');
+      // Application Password обрабатывается автоматически через api.ts
+      // Не нужно проверять nonce - загрузка изображений будет использовать Application Password
+      console.log('✅ Starting image upload with Application Password (handled automatically by api.ts)');
       
       // Загружаем изображения
       const imageIds: number[] = [];
@@ -115,82 +102,75 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
              error.status === 401);
           
           if (isInvalidNonceError) {
-            console.warn('⚠️ Got invalid nonce error (403/401), trying to refresh nonce and retry...');
+            console.warn('⚠️ Got authentication error (403/401)');
+            console.warn('💡 Check Application Password configuration in .env file');
+            console.warn('💡 Required: VITE_WP_USERNAME and VITE_WP_APP_PASSWORD');
             
-            // ✅ Очищаем старые куки перед обновлением nonce
-            const { clearWordPressCookies } = await import('../../utils/cookieUtils');
-            clearWordPressCookies();
-            console.log('🧹 Cleared WordPress cookies before nonce refresh');
+            // Проверяем конфигурацию Application Password
+            const { WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD } = await import('../../app/services/apiConfig');
+            if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+              alert('Application Password не настроен! Проверьте переменные окружения VITE_WP_USERNAME и VITE_WP_APP_PASSWORD');
+              setIsSubmitting(false);
+              return;
+            }
             
-            // Очищаем старый nonce
-            localStorage.removeItem('wp_nonce');
+            console.log('🔄 Retrying upload...');
             
-            const freshNonce = await userService.fetchNonce();
-            if (freshNonce) {
-              console.log('✅ Fresh nonce obtained:', freshNonce.substring(0, 10) + '...');
-              console.log('🔄 Retrying upload with fresh nonce...');
+            try {
+              const retryResult = await uploadImage(formData).unwrap();
+              if (retryResult && retryResult.id) {
+                imageIds.push(retryResult.id);
+                console.log('✅ Image uploaded successfully after retry');
+                continue; // Успешно после повтора, переходим к следующему изображению
+              }
+            } catch (retryError) {
+              console.error('❌ Retry also failed:', retryError);
               
-              // Небольшая задержка, чтобы убедиться, что nonce сохранен
-              await new Promise(resolve => setTimeout(resolve, 100));
+              // Проверяем, является ли это ошибкой прав доступа (401/403)
+              const isPermissionError = retryError && typeof retryError === 'object' && 'status' in retryError && 
+                (retryError.status === 401 || retryError.status === 403) &&
+                'data' in retryError && 
+                typeof retryError.data === 'object' && 
+                retryError.data !== null &&
+                'code' in retryError.data &&
+                (retryError.data.code === 'rest_cannot_create' || retryError.data.code === 'rest_forbidden');
               
-              try {
-                const retryResult = await uploadImage(formData).unwrap();
-                if (retryResult && retryResult.id) {
-                  imageIds.push(retryResult.id);
-                  console.log('✅ Image uploaded successfully after nonce refresh');
-                  continue; // Успешно после повтора, переходим к следующему изображению
-                }
-              } catch (retryError) {
-                console.error('❌ Retry also failed after nonce refresh:', retryError);
+              if (isPermissionError) {
+                // Проверяем, настроен ли Application Password
+                const { WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD } = await import('../../app/services/apiConfig');
+                const hasAppPassword = WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD;
                 
-                // Проверяем, является ли это ошибкой прав доступа (401/403)
-                const isPermissionError = retryError && typeof retryError === 'object' && 'status' in retryError && 
-                  (retryError.status === 401 || retryError.status === 403) &&
-                  'data' in retryError && 
-                  typeof retryError.data === 'object' && 
-                  retryError.data !== null &&
-                  'code' in retryError.data &&
-                  (retryError.data.code === 'rest_cannot_create' || retryError.data.code === 'rest_forbidden');
-                
-                if (isPermissionError) {
-                  // Проверяем, настроен ли Application Password
-                  const { WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD } = await import('../../app/services/apiConfig');
-                  const hasAppPassword = WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD;
-                  
-                  if (!hasAppPassword) {
-                    const errorMsg = 'Ошибка аутентификации: куки не передаются при прямом подключении к бэкенду.\n\n' +
-                      'РЕШЕНИЕ: Настройте Application Password в WordPress:\n' +
-                      '1. Перейдите в WordPress: Users > Your Profile > Application Passwords\n' +
-                      '2. Создайте новый Application Password\n' +
-                      '3. Добавьте в .env файл:\n' +
-                      '   VITE_WP_USERNAME=your_username\n' +
-                      '   VITE_WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx\n' +
-                      '4. Перезапустите dev сервер';
-                    throw new Error(errorMsg);
-                  } else {
-                    const errorMessage = retryError && typeof retryError === 'object' && 'data' in retryError
-                      ? (retryError as { data?: { message?: string } }).data?.message || 'Ошибка загрузки'
-                      : 'Ошибка загрузки изображения';
-                    throw new Error(`${errorMessage}. Проверьте правильность Application Password в .env файле.`);
-                  }
+                if (!hasAppPassword) {
+                  const errorMsg = 'Ошибка аутентификации: куки не передаются при прямом подключении к бэкенду.\n\n' +
+                    'РЕШЕНИЕ: Настройте Application Password в WordPress:\n' +
+                    '1. Перейдите в WordPress: Users > Your Profile > Application Passwords\n' +
+                    '2. Создайте новый Application Password\n' +
+                    '3. Добавьте в .env файл:\n' +
+                    '   VITE_WP_USERNAME=your_username\n' +
+                    '   VITE_WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx\n' +
+                    '4. Перезапустите dev сервер';
+                  throw new Error(errorMsg);
                 } else {
                   const errorMessage = retryError && typeof retryError === 'object' && 'data' in retryError
                     ? (retryError as { data?: { message?: string } }).data?.message || 'Ошибка загрузки'
                     : 'Ошибка загрузки изображения';
-                  throw new Error(`${errorMessage}. Попробуйте выйти и войти снова.`);
+                  throw new Error(`${errorMessage}. Проверьте правильность Application Password в .env файле.`);
                 }
+              } else {
+                const errorMessage = retryError && typeof retryError === 'object' && 'data' in retryError
+                  ? (retryError as { data?: { message?: string } }).data?.message || 'Ошибка загрузки'
+                  : 'Ошибка загрузки изображения';
+                throw new Error(`${errorMessage}. Попробуйте выйти и войти снова.`);
               }
-            } else {
-              console.error('❌ Failed to fetch fresh nonce');
-              throw new Error('Не удалось получить свежий nonce. Убедитесь, что вы залогинены как администратор.');
             }
+          } else {
+            // Если это не ошибка аутентификации, просто пробрасываем ошибку дальше
+            const errorMessage = error && typeof error === 'object' && 'data' in error
+              ? (error as { data?: { message?: string } }).data?.message || 'Неизвестная ошибка'
+              : 'Ошибка загрузки изображения';
+            alert(`Ошибка загрузки изображения "${image.file.name}": ${errorMessage}`);
+            throw error; // Прерываем процесс, если загрузка не удалась
           }
-          
-          const errorMessage = error && typeof error === 'object' && 'data' in error
-            ? (error as { data?: { message?: string } }).data?.message || 'Неизвестная ошибка'
-            : 'Ошибка загрузки изображения';
-          alert(`Ошибка загрузки изображения "${image.file.name}": ${errorMessage}`);
-          throw error; // Прерываем процесс, если загрузка не удалась
         }
       }
 

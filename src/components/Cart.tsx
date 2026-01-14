@@ -81,7 +81,7 @@ export const Cart: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-screen">
+    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-screen safe-area-inset">
       {/* Кнопка закрытия вверху справа */}
       <button
         onClick={handleCloseCart}
@@ -91,7 +91,7 @@ export const Cart: React.FC = () => {
       </button>
 
       {/* Заголовок корзины */}
-      <div className="shrink-0 bg-white border-b border-slate-200 px-4 py-3 md:p-6 flex items-center justify-between">
+      <div className="shrink-0 bg-white border-b border-slate-200 px-4 py-3 md:p-6 flex items-center justify-between safe-area-top">
         <div className="flex items-center gap-2 md:gap-3">
           <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-100 rounded-full flex items-center justify-center shrink-0">
             <FaShoppingBag className="text-orange-600" size={20} />
@@ -117,7 +117,7 @@ export const Cart: React.FC = () => {
       </div>
 
         {/* Контент корзины */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6">
+        <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6 pb-24 md:pb-6">
           {productsLoading ? (
             <div className="text-center py-12 md:py-20">
               <div className="w-24 h-24 md:w-32 md:h-32 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 relative">
@@ -210,7 +210,7 @@ export const Cart: React.FC = () => {
 
         {/* Футер с итоговой суммой */}
         {cartItems.length > 0 && (
-          <div className="shrink-0 border-t border-slate-200 px-4 py-4 md:p-6 bg-white shadow-lg">
+          <div className="shrink-0 border-t border-slate-200 px-4 py-4 md:p-6 bg-white shadow-lg safe-area-bottom">
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center justify-between mb-3 md:mb-4">
                 <span className="text-lg md:text-xl font-bold text-slate-800">Итого:</span>
@@ -218,7 +218,7 @@ export const Cart: React.FC = () => {
               </div>
               <button
                 onClick={handleCheckout}
-                className="w-full bg-orange-600 text-white py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-orange-700 transition-all duration-300 ease-out flex items-center justify-center gap-2 md:gap-3 text-base md:text-lg active:scale-95 shadow-lg hover:shadow-xl"
+                className="w-full bg-orange-600 text-white py-3 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-orange-700 transition-all duration-300 ease-out flex items-center justify-center gap-2 md:gap-3 text-base md:text-lg active:scale-95 shadow-lg hover:shadow-xl"
               >
                 <FaShoppingBag size={18} />
                 Далее

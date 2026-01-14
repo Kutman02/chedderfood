@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaTimes, FaImage, FaTag, FaDollarSign, FaFileAlt, FaPlus, FaTrash, FaStar, FaFire, FaGift, FaEye, FaEyeSlash, FaBox } from 'react-icons/fa';
 import { useGetProductCategoriesQuery, useUpdateProductMutation, useUploadImageMutation } from '../../app/services/api';
-import { userService } from '../../app/services/userService';
 import type { Product, ProductStatus } from '../../types/types';
 
 interface EditProductModalProps {
@@ -131,19 +130,8 @@ export const EditProductModal = ({ isOpen, product, onClose }: EditProductModalP
           imageIds.push(image.imageId);
         } else if (image.file) {
           // Новое изображение
-          // Проверяем и обновляем nonce перед загрузкой
-          // Примечание: cookie auth может не работать через прокси в dev, но nonce должен работать
-          let nonce = localStorage.getItem('wp_nonce');
-          if (!nonce) {
-            console.warn('⚠️ No nonce found, attempting to fetch fresh nonce...');
-            const freshNonce = await userService.fetchNonce();
-            if (!freshNonce) {
-              throw new Error('Не удалось получить nonce. Убедитесь, что вы залогинены как администратор через страницу входа React приложения.');
-            }
-            nonce = freshNonce;
-          }
-          
-          console.log('✅ Using nonce for media upload:', nonce.substring(0, 10) + '...');
+          // Application Password обрабатывается автоматически через api.ts
+          console.log('✅ Starting image upload with Application Password (handled automatically by api.ts)');
           
           const formData = new FormData();
           // WordPress REST API требует, чтобы файл был передан с правильным именем
@@ -175,116 +163,88 @@ export const EditProductModal = ({ isOpen, product, onClose }: EditProductModalP
                error.status === 401);
             
             if (isInvalidNonceError) {
-              console.warn('⚠️ Got invalid nonce error (403/401), trying to refresh nonce and retry...');
+              console.warn('⚠️ Got authentication error (403/401)');
+              console.warn('💡 Check Application Password configuration in .env file');
+              console.warn('💡 Required: VITE_WP_USERNAME and VITE_WP_APP_PASSWORD');
               
-              // Проверяем, настроен ли Application Password
+              // Проверяем конфигурацию Application Password
               const { WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD } = await import('../../app/services/apiConfig');
-              const hasAppPassword = WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD;
-              
-              if (hasAppPassword) {
-                console.log('💡 Application Password is configured - it should be used automatically');
-                console.log('💡 If this error persists, check Application Password configuration');
+              if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+                throw new Error('Application Password не настроен! Проверьте переменные окружения VITE_WP_USERNAME и VITE_WP_APP_PASSWORD');
               }
               
-              // ⚠️ ВАЖНО: НЕ очищаем куки перед обновлением nonce!
-              // Nonce должен соответствовать активной сессии WordPress (куки)
-              // Если очистить куки, новый nonce не будет работать с несуществующей сессией
+              console.log('🔄 Retrying upload...');
               
-              // Очищаем только старый nonce из localStorage
-              localStorage.removeItem('wp_nonce');
+              // Небольшая задержка перед повтором
+              await new Promise(resolve => setTimeout(resolve, 100));
               
-              // Получаем новый nonce (он будет соответствовать текущей сессии в куках)
-              const freshNonce = await userService.fetchNonce();
-              if (freshNonce) {
-                console.log('✅ Fresh nonce obtained:', freshNonce.substring(0, 10) + '...');
-                console.log('🔄 Retrying upload with fresh nonce...');
-                
-                // Небольшая задержка, чтобы убедиться, что nonce сохранен
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                try {
-                  const retryResult = await uploadImage(formData).unwrap();
-                  if (retryResult && retryResult.id) {
-                    imageIds.push(retryResult.id);
-                    console.log('✅ Image uploaded successfully after nonce refresh');
-                    return; // Успешно после повтора
-                  }
-                } catch (retryError) {
-                  console.error('❌ Retry also failed after nonce refresh:', retryError);
-                  
-                  // Проверяем, является ли это ошибкой прав доступа (401/403)
-                  const isPermissionError = retryError && typeof retryError === 'object' && 'status' in retryError && 
-                    (retryError.status === 401 || retryError.status === 403) &&
-                    'data' in retryError && 
-                    typeof retryError.data === 'object' && 
-                    retryError.data !== null &&
-                    'code' in retryError.data &&
-                    (retryError.data.code === 'rest_cannot_create' || retryError.data.code === 'rest_forbidden');
-                  
-                  if (isPermissionError && !hasAppPassword) {
-                    const errorMsg = 'Ошибка аутентификации: куки не передаются при прямом подключении к бэкенду.\n\n' +
-                      'РЕШЕНИЕ: Настройте Application Password в WordPress:\n' +
-                      '1. Перейдите в WordPress: Users > Your Profile > Application Passwords\n' +
-                      '2. Создайте новый Application Password\n' +
-                      '3. Добавьте в .env файл:\n' +
-                      '   VITE_WP_USERNAME=your_username\n' +
-                      '   VITE_WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx\n' +
-                      '4. Перезапустите dev сервер';
-                    throw new Error(errorMsg);
-                  } else {
-                    // Если retry тоже не удался, возможно сессия истекла
-                    // Предлагаем пользователю перелогиниться или проверить Application Password
-                    const errorMessage = retryError && typeof retryError === 'object' && 'data' in retryError
-                      ? (retryError as { data?: { message?: string } }).data?.message || 'Ошибка загрузки'
-                      : 'Ошибка загрузки изображения';
-                    
-                    let finalErrorMessage = `${errorMessage}. `;
-                    if (hasAppPassword) {
-                      finalErrorMessage += 'Application Password настроен, но загрузка не удалась. Проверьте правильность Application Password в .env файле.';
-                    } else {
-                      finalErrorMessage += 'Возможно, сессия истекла. Попробуйте выйти и войти снова.';
-                    }
-                    
-                    throw new Error(finalErrorMessage);
-                  }
+              try {
+                const retryResult = await uploadImage(formData).unwrap();
+                if (retryResult && retryResult.id) {
+                  imageIds.push(retryResult.id);
+                  console.log('✅ Image uploaded successfully after retry');
+                  continue; // Успешно после повтора, переходим к следующему изображению
                 }
-              } else {
-                console.error('❌ Failed to fetch fresh nonce - session may have expired');
-                let errorMsg = 'Не удалось получить свежий nonce. ';
-                if (hasAppPassword) {
-                  errorMsg += 'Application Password настроен, но nonce не работает. ';
+              } catch (retryError) {
+                console.error('❌ Retry also failed:', retryError);
+                
+                // Проверяем, является ли это ошибкой прав доступа (401/403)
+                const isPermissionError = retryError && typeof retryError === 'object' && 'status' in retryError && 
+                  (retryError.status === 401 || retryError.status === 403) &&
+                  'data' in retryError && 
+                  typeof retryError.data === 'object' && 
+                  retryError.data !== null &&
+                  'code' in retryError.data &&
+                  (retryError.data.code === 'rest_cannot_create' || retryError.data.code === 'rest_forbidden');
+                
+                if (isPermissionError) {
+                  const errorMsg = 'Ошибка аутентификации при загрузке изображения.\n\n' +
+                    'РЕШЕНИЕ: Проверьте Application Password в WordPress:\n' +
+                    '1. Перейдите в WordPress: Users > Your Profile > Application Passwords\n' +
+                    '2. Убедитесь, что Application Password активен\n' +
+                    '3. Проверьте в .env файле:\n' +
+                    '   VITE_WP_USERNAME=your_username\n' +
+                    '   VITE_WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx\n' +
+                    '4. Перезапустите dev сервер';
+                  throw new Error(errorMsg);
+                } else {
+                  // Если retry тоже не удался
+                  const errorMessage = retryError && typeof retryError === 'object' && 'data' in retryError
+                    ? (retryError as { data?: { message?: string } }).data?.message || 'Ошибка загрузки'
+                    : 'Ошибка загрузки изображения';
+                  
+                  throw new Error(`${errorMessage}. Проверьте Application Password в настройках.`);
                 }
-                errorMsg += 'Возможно, сессия истекла. Попробуйте выйти и войти снова.';
-                throw new Error(errorMsg);
               }
-            }
-            
-            // Логируем полную информацию об ошибке
-            if (error && typeof error === 'object') {
-              console.error('Full error object:', error);
-              if ('data' in error) {
-                console.error('Error data:', error.data);
+            } else {
+              // Если это не ошибка аутентификации, обрабатываем как обычную ошибку
+              // Логируем полную информацию об ошибке
+              if (error && typeof error === 'object') {
+                console.error('Full error object:', error);
+                if ('data' in error) {
+                  console.error('Error data:', error.data);
+                }
               }
+              
+              const errorMessage = error && typeof error === 'object' && 'data' in error
+                ? (error as { data?: { message?: string; code?: string } }).data?.message || 
+                  (error as { data?: { message?: string; code?: string } }).data?.code || 
+                  'Неизвестная ошибка'
+                : 'Ошибка загрузки изображения';
+              
+              // Более информативное сообщение об ошибке
+              let userMessage = `Ошибка загрузки изображения "${image.file.name}": ${errorMessage}`;
+              if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
+                userMessage += '\n\nВозможные причины:\n';
+                userMessage += '1. Вы не залогинены в WordPress\n';
+                userMessage += '2. У вас нет прав на загрузку медиафайлов\n';
+                userMessage += '3. Сессия WordPress истекла - попробуйте выйти и войти снова\n';
+                userMessage += '\nПроверьте консоль браузера для деталей.';
+              }
+              
+              alert(userMessage);
+              throw error; // Прерываем процесс, если загрузка не удалась
             }
-            
-            const errorMessage = error && typeof error === 'object' && 'data' in error
-              ? (error as { data?: { message?: string; code?: string } }).data?.message || 
-                (error as { data?: { message?: string; code?: string } }).data?.code || 
-                'Неизвестная ошибка'
-              : 'Ошибка загрузки изображения';
-            
-            // Более информативное сообщение об ошибке
-            let userMessage = `Ошибка загрузки изображения "${image.file.name}": ${errorMessage}`;
-            if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
-              userMessage += '\n\nВозможные причины:\n';
-              userMessage += '1. Вы не залогинены в WordPress\n';
-              userMessage += '2. У вас нет прав на загрузку медиафайлов\n';
-              userMessage += '3. Сессия WordPress истекла - попробуйте выйти и войти снова\n';
-              userMessage += '\nПроверьте консоль браузера для деталей.';
-            }
-            
-            alert(userMessage);
-            throw error; // Прерываем процесс, если загрузка не удалась
           }
         }
       }
