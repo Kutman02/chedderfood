@@ -337,7 +337,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
         </div>
       )}
 
-      <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-screen safe-area-inset">
+      <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-[100dvh] safe-area-inset">
         {/* Кнопка закрытия вверху справа */}
         <button
           onClick={onClose}
@@ -371,7 +371,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
       </div>
 
         {/* Контент формы */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6 pb-24 md:pb-6">
+        <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6 pb-32 md:pb-6">
           <div className="max-w-2xl mx-auto">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 md:px-6 md:py-4 rounded-lg mb-4 md:mb-6 animate-in fade-in slide-in-from-bottom-4 duration-300 text-sm md:text-base">
@@ -515,7 +515,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
         </div>
 
         {/* Футер с итоговой суммой и кнопкой */}
-        <div className="shrink-0 border-t border-slate-200 px-4 py-4 md:p-6 bg-white shadow-lg safe-area-bottom">
+        <div className="shrink-0 border-t border-slate-200 px-4 py-4 md:p-6 bg-white shadow-lg safe-area-bottom relative z-20">
           <div className="max-w-2xl mx-auto">
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <span className="text-lg md:text-xl font-bold text-slate-800">Итого:</span>

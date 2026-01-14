@@ -52,6 +52,12 @@ html {
 /* Ensure footer buttons are always visible on mobile */
 @media (max-width: 768px) {
   .safe-area-bottom {
-    padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.5rem));
+    padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 1rem));
+  }
+  
+  /* Ensure fixed footers are always visible */
+  .fixed.inset-0.flex.flex-col .safe-area-bottom {
+    position: relative;
+    z-index: 20;
   }
 }
