@@ -45,7 +45,15 @@ const createAppPasswordAuth = (username: string, appPassword: string): string =>
   return `Basic ${btoa(credentials)}`;
 };
 
-export const authService = {
+// Явный тип для authService для предотвращения ошибок TypeScript
+export interface AuthService {
+  login(credentials: LoginCredentials): Promise<LoginResponse>;
+  getCurrentUser(): Promise<User | null>;
+  logout(): Promise<void>;
+  hasAppPassword(): boolean;
+}
+
+export const authService: AuthService = {
   // Логин через Application Password (проверка валидности)
   // Примечание: параметр credentials не используется напрямую, так как используется Application Password из переменных окружения
   // Интерфейс LoginCredentials сохранен для совместимости с существующим кодом

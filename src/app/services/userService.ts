@@ -23,7 +23,15 @@ const createAppPasswordAuth = (username: string, appPassword: string): string =>
   return `Basic ${btoa(credentials)}`;
 };
 
-export const userService = {
+// Явный тип для userService для предотвращения ошибок TypeScript
+export interface UserService {
+  debugAuthStatus(): void;
+  getCurrentUser(): Promise<User | null>;
+  checkAuth(): Promise<boolean>;
+  logout(): Promise<void>;
+}
+
+export const userService: UserService = {
   // Debug utility to check authentication status
   debugAuthStatus(): void {
     console.log('🔍 Debug Auth Status:');

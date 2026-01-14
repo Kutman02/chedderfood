@@ -86,7 +86,7 @@ export const api = createApi({
             console.log('💡 Tip: Set VITE_WP_USERNAME and VITE_WP_APP_PASSWORD for better auth');
           }
           
-          const nonce = localStorage.getItem('wp_nonce');
+          const nonce: string | null = localStorage.getItem('wp_nonce');
           
           if (!nonce) {
             if (import.meta.env.DEV) {
@@ -95,6 +95,7 @@ export const api = createApi({
               console.error('❌ Please login as admin first or configure Application Password!');
             }
           } else {
+            // nonce проверен на null выше, TypeScript знает что здесь он не null
             headers.set('X-WP-Nonce', nonce);
             if (import.meta.env.DEV) {
               console.log('✅ X-WP-Nonce:', nonce.substring(0, 10) + '...');
@@ -413,10 +414,14 @@ export const api = createApi({
         console.log('Upload Image - URL:', 'wp/v2/media');
         
         // Проверяем наличие nonce перед загрузкой
-        const nonce = localStorage.getItem('wp_nonce');
+        const nonce: string | null = localStorage.getItem('wp_nonce');
         if (!nonce) {
           console.error('❌ CRITICAL: No nonce found! Media upload will fail.');
           console.error('Please make sure you are logged in as admin.');
+          // Early return если nonce отсутствует и нет Application Password
+          if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+            throw new Error('Media upload requires either Application Password or valid WordPress nonce. Please login as admin first or configure Application Password.');
+          }
         }
         
         return {
