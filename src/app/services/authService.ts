@@ -1,7 +1,6 @@
-import { API_BASE_URL } from './apiConfig';
-import { clearWordPressCookies } from '../../utils/cookieUtils';
+import { API_BASE_URL, WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD } from './apiConfig';
 
-// Сервис для прямой авторизации через fetch
+// Сервис для авторизации через Application Password (работает 24/7)
 export interface LoginCredentials {
   username: string;
   password: string;
@@ -31,57 +30,74 @@ interface User {
 interface LoginResponse {
   success: boolean;
   user?: {
-    id: number;        // id из PHP
-    email: string;      // email из PHP  
-    name: string;        // name из PHP (display_name)
+    id: number;
+    email: string;
+    name: string;
   };
-  nonce?: string;       // WordPress nonce
   message?: string;
 }
 
+// Функция для создания Basic Auth заголовка с Application Password
+const createAppPasswordAuth = (username: string, appPassword: string): string => {
+  // Убираем пробелы из Application Password (WordPress генерирует с пробелами)
+  const cleanPassword = appPassword.replace(/\s+/g, '');
+  const credentials = `${username}:${cleanPassword}`;
+  return `Basic ${btoa(credentials)}`;
+};
+
 export const authService = {
-  // Прямой логин через fetch с cookies
+  // Логин через Application Password (проверка валидности)
+  // Примечание: параметр credentials не используется напрямую, так как используется Application Password из переменных окружения
+  // Интерфейс LoginCredentials сохранен для совместимости с существующим кодом
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
-      console.log('🔐 Attempting login with:', credentials.username);
-      console.log('🌐 Login URL:', `${API_BASE_URL}custom/v1/login`);
+      console.log('🔐 Attempting login with Application Password');
+      console.log('🔐 Username from form:', credentials.username); // Логируем для отладки
+      console.log('🌐 Login URL:', `${API_BASE_URL}wp/v2/users/me`);
       
-      // ✅ КРИТИЧНО: Очищаем старые WordPress куки перед логином
-      // Это решает проблему с конфликтующими сессиями в обычном браузере
-      clearWordPressCookies();
+      // Проверяем наличие Application Password в конфигурации
+      if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+        console.error('❌ Application Password не настроен!');
+        return {
+          success: false,
+          message: 'Application Password не настроен. Проверьте переменные окружения VITE_WP_USERNAME и VITE_WP_APP_PASSWORD'
+        };
+      }
+
+      const authHeader = createAppPasswordAuth(WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD);
       
-      // Также очищаем старый nonce перед новым логином
-      localStorage.removeItem('wp_nonce');
-      console.log('🧹 Cleared old nonce and cookies before login');
-      
-      const res = await fetch(`${API_BASE_URL}custom/v1/login`, {
-        method: 'POST',
-        credentials: 'include', // обязательно для cross-domain!
+      const res = await fetch(`${API_BASE_URL}wp/v2/users/me`, {
+        method: 'GET',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': authHeader,
         },
-        body: JSON.stringify(credentials),
       });
 
-      const data = await res.json();
       console.log('📥 Login response status:', res.status);
-      console.log('📥 Login response data:', data);
       
-      if (data.success && data.nonce) {
-        console.log('✅ Login successful, nonce received:', data.nonce);
-        localStorage.setItem('wp_nonce', data.nonce);
+      if (res.ok) {
+        const userData = await res.json();
+        console.log('✅ Login successful with Application Password');
+        console.log('📥 User data:', userData);
+        
+        return {
+          success: true,
+          user: {
+            id: userData.id,
+            email: userData.email,
+            name: userData.name || userData.display_name || 'User',
+          }
+        };
       } else {
-        console.log('❌ Login failed:', data.message);
-        // Even if login fails, try to fetch a nonce if user is actually logged in
-        const freshNonce = await this.fetchNonce();
-        if (freshNonce) {
-          console.log('🔄 Fetched fresh nonce after failed login response');
-          data.nonce = freshNonce;
-          data.success = true;
-        }
+        const errorData = await res.json().catch(() => ({ message: 'Ошибка авторизации' }));
+        console.log('❌ Login failed:', errorData);
+        return {
+          success: false,
+          message: errorData.message || 'Ошибка авторизации. Проверьте Application Password в настройках.'
+        };
       }
-      
-      return data;
     } catch (error) {
       console.error('💥 Login network error:', error);
       return {
@@ -91,94 +107,34 @@ export const authService = {
     }
   },
 
-  // Получение nonce из WordPress API
-  async fetchNonce(): Promise<string | null> {
+  // Проверка текущего пользователя через Application Password
+  async getCurrentUser(): Promise<User | null> {
     try {
-      console.log('🔍 Debug: Fetching fresh nonce from WordPress');
-      const res = await fetch(`${API_BASE_URL}custom/v1/nonce`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        console.log('🔍 Debug: Failed to fetch nonce, status:', res.status);
+      if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+        console.error('❌ Application Password не настроен!');
         return null;
       }
 
-      const data = await res.json();
-      if (data.nonce) {
-        console.log('🔍 Debug: Fresh nonce received:', data.nonce);
-        localStorage.setItem('wp_nonce', data.nonce);
-        return data.nonce;
-      }
-      return null;
-    } catch (error) {
-      console.error('Error fetching nonce:', error);
-      return null;
-    }
-  },
-
-  // Проверка текущего пользователя
-  async getCurrentUser(): Promise<User | null> {
-    try {
-      let nonce = localStorage.getItem('wp_nonce');
-      console.log('🔍 Debug: Getting current user');
-      console.log('🔍 Debug: Nonce from localStorage:', nonce);
+      const authHeader = createAppPasswordAuth(WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD);
       
-      // If no nonce, try to fetch one first
-      if (!nonce) {
-        console.log('🔍 Debug: No nonce found, fetching fresh nonce');
-        nonce = await this.fetchNonce();
-        if (!nonce) {
-          console.log('🔍 Debug: Could not obtain nonce, user might not be logged in');
-          return null;
-        }
-      }
+      console.log('🔍 Debug: Getting current user with Application Password');
+      console.log('🔍 Debug: Request URL:', `${API_BASE_URL}wp/v2/users/me`);
       
       const res = await fetch(`${API_BASE_URL}wp/v2/users/me`, {
         method: 'GET',
-        credentials: 'include', // обязательно!
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'X-WP-Nonce': nonce || '', // Добавляем nonce
+          'Authorization': authHeader,
         },
       });
 
-      // If we get a 403 with invalid nonce, try to fetch a fresh nonce and retry once
-      if (res.status === 403) {
-        const errorText = await res.text();
-        console.log('🔍 Debug: Error response body:', errorText);
-        
-        if (errorText.includes('rest_cookie_invalid_nonce')) {
-          console.log('🔍 Debug: Invalid nonce detected, fetching fresh nonce and retrying');
-          const freshNonce = await this.fetchNonce();
-          
-          if (freshNonce) {
-            console.log('🔍 Debug: Retrying with fresh nonce');
-            const retryRes = await fetch(`${API_BASE_URL}wp/v2/users/me`, {
-              method: 'GET',
-              credentials: 'include',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-WP-Nonce': freshNonce,
-              },
-            });
-
-            if (retryRes.ok) {
-              const data = await retryRes.json();
-              console.log('Current user data (after retry):', data);
-              return data;
-            } else {
-              console.log('🔍 Debug: Retry also failed, status:', retryRes.status);
-            }
-          }
-        }
-        
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
+      console.log('🔍 Debug: Response status:', res.status);
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorText = await res.text();
+        console.log('🔍 Debug: Error response body:', errorText);
+        return null;
       }
 
       const data = await res.json();
@@ -190,55 +146,19 @@ export const authService = {
     }
   },
 
-  // Выход из системы
+  // Выход из системы (Application Password не требует серверного logout)
   async logout(): Promise<void> {
     try {
-      const nonce = localStorage.getItem('wp_nonce');
-      
-      // Отправляем запрос на сервер для очистки сессии
-      try {
-        await fetch(`${API_BASE_URL}custom/v1/logout`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-WP-Nonce': nonce || '', // Добавляем nonce
-          },
-        });
-        console.log('✅ Logout request sent to server');
-      } catch (logoutError) {
-        console.log('⚠️ Logout request failed, but continuing with cleanup:', logoutError);
-      }
-      
-      // ✅ Очищаем куки на клиенте
-      clearWordPressCookies();
-      
-      // Очищаем nonce при выходе
-      localStorage.removeItem('wp_nonce');
-      console.log('✅ Logout completed - cookies and nonce cleared');
+      console.log('✅ Logout completed - Application Password auth cleared from memory');
+      // Application Password не требует серверного logout
+      // Просто очищаем состояние на клиенте
     } catch (error) {
       console.error('Logout error:', error);
-      // Все равно очищаем куки и nonce при ошибке
-      clearWordPressCookies();
-      localStorage.removeItem('wp_nonce');
     }
   },
 
-  // Утилиты для работы с nonce
-  getNonce(): string | null {
-    return localStorage.getItem('wp_nonce');
-  },
-
-  setNonce(nonce: string): void {
-    localStorage.setItem('wp_nonce', nonce);
-  },
-
-  clearNonce(): void {
-    localStorage.removeItem('wp_nonce');
-  },
-
-  // Проверка наличия nonce
-  hasNonce(): boolean {
-    return !!localStorage.getItem('wp_nonce');
+  // Проверка наличия Application Password
+  hasAppPassword(): boolean {
+    return !!(WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD);
   },
 };

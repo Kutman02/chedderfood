@@ -18,28 +18,22 @@ const Login = () => {
     setError(null);
     
     try {
+      // Application Password работает без username/password из формы
+      // Проверяем валидность Application Password из переменных окружения
       const result = await authService.login({ username, password });
       
-      // ИСПРАВЛЕНО: Проверяем только result.success и наличие user
-      // Мы не ищем token, так как работаем через Cookies
       if (result.success && result.user) {
-        // ✅ CRITICAL: Save nonce for all future API requests
-        if (result.nonce) {
-          localStorage.setItem('wp_nonce', result.nonce);
-          console.log('💾 Nonce saved to localStorage wp_nonce:', result.nonce);
-        } else {
-          console.error('❌ CRITICAL: No nonce received from login - API requests will fail');
-        }
-        
+        // Application Password работает без nonce и cookies
+        // Просто сохраняем информацию о пользователе
         dispatch(setCredentials({ 
-          token: 'cookie_authenticated', // Session is in cookies, not JWT
+          token: 'app_password_authenticated', // Маркер для Application Password
           userName: result.user.name || 'User' 
         }));
-        console.log('👤 Login successful for:', result.user.name);
+        console.log('👤 Login successful with Application Password for:', result.user.name);
         navigate('/dashboard');
       } else {
         console.error('❌ Login failed:', result.message || 'Unknown error');
-        setError(result.message || 'Ошибка входа');
+        setError(result.message || 'Ошибка входа. Проверьте настройки Application Password.');
       }
     } catch (err) {
       console.error('Login error:', err);
