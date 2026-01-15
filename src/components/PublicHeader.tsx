@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { openCart, openReceipts, closeCart, closeReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
 import { CategorySkeleton } from './Skeleton';
-import { FaReceipt, FaFire } from 'react-icons/fa';
+import { FaReceipt} from 'react-icons/fa';
 
 export const PublicHeader = () => {
   const dispatch = useAppDispatch();
@@ -93,25 +93,18 @@ export const PublicHeader = () => {
           <div className="flex items-center gap-2">
             {/* Кнопка чеков с огненным эффектом при активных заказах */}
             <button
-              onClick={handleOpenReceipts}
-              className={`relative p-1.5 hover:bg-orange-50/80 rounded-lg transition-all ${
-                hasActiveOrders ? 'text-red-600' : 'text-orange-600'
-              }`}
-              title="Мои чеки"
-            >
-              <FaReceipt size={18} />
-              {hasActiveOrders && (
-                <div className="absolute -top-0.5 -right-0.5 animate-pulse">
-                  <FaFire 
-                    className="text-red-500 drop-shadow-lg" 
-                    size={12}
-                    style={{
-                      filter: 'drop-shadow(0 0 4px rgba(239, 68, 68, 0.9))'
-                    }}
-                  />
-                </div>
-              )}
-            </button>
+  onClick={handleOpenReceipts}
+  className="relative p-1 rounded-lg hover:bg-orange-50/80 text-orange-600"
+>
+  {hasActiveOrders && (
+    <span className="absolute -inset-1.5 rounded-full border-3 border-orange-400/30 border-t-orange-600 animate-spin-slow" />
+  )}
+
+  <FaReceipt size={18} className="relative z-10" />
+</button>
+
+
+
             
             <HamburgerMenu 
               onCartOpen={() => {
