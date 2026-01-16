@@ -23,7 +23,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
         {/* Заголовок */}
         <div className="border-b border-slate-200 p-4">
