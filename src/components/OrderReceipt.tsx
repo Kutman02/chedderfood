@@ -236,7 +236,7 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
                             alt={item.name}
                             className="w-12 h-12 object-cover rounded-lg"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48x48?text=No+Image';
+                              (e.target as HTMLImageElement).src = 'https://cm328695-wordpress-da5gp.tw1.ru/wp-content/uploads/2026/02/ChatGPT-Image-10-февр.-2026-г.-10_22_47.png';
                             }}
                           />
                           <span className="font-medium text-sm">{item.name}</span>

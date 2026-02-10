@@ -60,7 +60,7 @@ export const ProductCard = ({ product, onEdit, isDragging, dragHandleProps }: Pr
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = 'http://cm328695-wordpress-da5gp.tw1.ru/wp-content/uploads/2026/01/7c37a436b7677921ef8d6256cd482ffb1509cf54-1120x1120-1.webp';
+              (e.target as HTMLImageElement).src = 'https://cm328695-wordpress-da5gp.tw1.ru/wp-content/uploads/2026/01/7c37a436b7677921ef8d6256cd482ffb1509cf54-1120x1120-1.webp';
             }}
           />
         ) : (

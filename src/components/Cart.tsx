@@ -155,7 +155,7 @@ export const Cart: React.FC = () => {
                       alt={item.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96x96?text=No+Image';
+                        (e.target as HTMLImageElement).src = 'https://cm328695-wordpress-da5gp.tw1.ru/wp-content/uploads/2026/02/ChatGPT-Image-10-февр.-2026-г.-10_22_47.png';
                       }}
                     />
                   </div>
