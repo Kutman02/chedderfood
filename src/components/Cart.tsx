@@ -9,7 +9,9 @@ import { addToCart, clearCart, removeFromCart } from '../app/slices/cartSlice';
 import { closeCart, openReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
 
+
 export const Cart: React.FC = () => {
+  const SITE_URL = import.meta.env.VITE_SITE_URL;
   const dispatch = useAppDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const cart = useAppSelector((s) => s.cart.items);
@@ -81,7 +83,7 @@ export const Cart: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-[100dvh] safe-area-inset">
+    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-100dvh safe-area-inset">
       {/* Кнопка закрытия вверху справа */}
       <button
         onClick={handleCloseCart}
@@ -155,7 +157,7 @@ export const Cart: React.FC = () => {
                       alt={item.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://cm328695-wordpress-da5gp.tw1.ru/wp-content/uploads/2026/02/ChatGPT-Image-10-февр.-2026-г.-10_22_47.png';
+                        (e.target as HTMLImageElement).src = `${SITE_URL}/wp-content/uploads/2026/02/ChatGPT-Image-10-февр.-2026-г.-10_22_47.png`;
                       }}
                     />
                   </div>
@@ -185,7 +187,7 @@ export const Cart: React.FC = () => {
                         >
                           <FaMinus size={12} />
                         </button>
-                        <span className="font-bold text-base md:text-lg text-slate-800 min-w-[24px] md:min-w-[28px] text-center">
+                        <span className="font-bold text-base md:text-lg text-slate-800 min-w-24px md:min-w-28px text-center">
                           {item.quantity}
                         </span>
                         <button

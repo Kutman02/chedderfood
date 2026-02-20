@@ -155,6 +155,7 @@ export const ProductModalSwipe: React.FC<ProductModalProps> = ({
     setIsDragging(false);
   };
 
+const SITE_URL = import.meta.env.VITE_SITE_URL;
 
   return (
     <div
@@ -204,7 +205,7 @@ export const ProductModalSwipe: React.FC<ProductModalProps> = ({
                   alt={product.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://cm328695-wordpress-da5gp.tw1.ru/wp-content/uploads/2026/02/ChatGPT-Image-10-февр.-2026-г.-10_22_47.png';
+                    (e.target as HTMLImageElement).src = `${SITE_URL}/wp-content/uploads/2026/02/ChatGPT-Image-10-февр.-2026-г.-10_22_47.png`;
                   }}
                 />
                 

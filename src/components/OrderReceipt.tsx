@@ -127,6 +127,8 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
         return status;
     }
   };
+  const SITE_URL = import.meta.env.VITE_SITE_URL;
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
@@ -236,7 +238,7 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
                             alt={item.name}
                             className="w-12 h-12 object-cover rounded-lg"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://cm328695-wordpress-da5gp.tw1.ru/wp-content/uploads/2026/02/ChatGPT-Image-10-февр.-2026-г.-10_22_47.png';
+                              (e.target as HTMLImageElement).src = `${SITE_URL}/wp-content/uploads/2026/02/ChatGPT-Image-10-февр.-2026-г.-10_22_47.png`;
                             }}
                           />
                           <span className="font-medium text-sm">{item.name}</span>

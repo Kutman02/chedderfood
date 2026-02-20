@@ -166,7 +166,7 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
               </button>
               
               {showShareMenu && (
-                <div className="absolute right-0 top-12 bg-white shadow-2xl border-2 border-slate-200 rounded-xl p-2 z-50 min-w-[200px] animate-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 top-12 bg-white shadow-2xl border-2 border-slate-200 rounded-xl p-2 z-50 min-w-200px animate-in slide-in-from-top-2 duration-200">
                   {'share' in navigator && (
                     <button
                       onClick={handleShare}
