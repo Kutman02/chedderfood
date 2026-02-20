@@ -1,4 +1,4 @@
-import { FaPhone, FaMapMarkerAlt, FaUserTie, FaTimes, FaCheckCircle, FaEye, FaExclamationTriangle } from 'react-icons/fa';
+import { FaPhone, FaMapMarkerAlt, FaUserTie, FaTimes, FaCheckCircle, FaEye, FaExclamationTriangle, FaTruck, FaStore } from 'react-icons/fa';
 import type { Order, TabConfig } from '../../types/types';
 
 interface OrderCardProps {
@@ -74,11 +74,40 @@ export const OrderCard = ({
         </div>
       </div>
 
-      <div className={`${activeTabData?.bgColor} p-3 rounded-xl mb-4 border`}>
-        <p className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
-          <FaMapMarkerAlt /> Адрес:
-        </p>
-        <p className="text-sm font-semibold">{order.billing.address_1}</p>
+      <div className="space-y-3 mb-4">
+        {/* Тип заказа */}
+        {order.meta_data && order.meta_data.length > 0 && (() => {
+          const orderTypeMeta = order.meta_data.find(m => m.key === 'order_type');
+          if (orderTypeMeta) {
+            const isPickup = orderTypeMeta.value === 'pickup';
+            return (
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-white ${
+                isPickup ? 'bg-green-600' : 'bg-blue-600'
+              }`}>
+                {isPickup ? (
+                  <>
+                    <FaStore size={16} />
+                    <span className="text-sm">Самовывоз</span>
+                  </>
+                ) : (
+                  <>
+                    <FaTruck size={16} />
+                    <span className="text-sm">Доставка</span>
+                  </>
+                )}
+              </div>
+            );
+          }
+          return null;
+        })()}
+        
+        {/* Адрес */}
+        <div className={`${activeTabData?.bgColor} p-3 rounded-xl border`}>
+          <p className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
+            <FaMapMarkerAlt /> Адрес:
+          </p>
+          <p className="text-sm font-semibold">{order.billing.address_1}</p>
+        </div>
       </div>
 
       {/* Кнопка просмотра деталей */}

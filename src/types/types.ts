@@ -94,6 +94,11 @@ export type Order = {
       total: string;
     }>;
     shipping_status?: string;
+    meta_data?: Array<{
+      id: number;
+      key: string;
+      value: string;
+    }>;
   };
 
   // Типы для корзины

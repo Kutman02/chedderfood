@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { FaTimes, FaPhone, FaMapMarkerAlt, FaCalendar, FaCreditCard, FaTruck, FaShare, FaWhatsapp, FaTelegram, FaCopy } from 'react-icons/fa';
+import { FaTimes, FaPhone, FaMapMarkerAlt, FaCalendar, FaCreditCard, FaTruck, FaShare, FaWhatsapp, FaTelegram, FaCopy, FaCheckCircle } from 'react-icons/fa';
 import type { Order } from '../../types/types';
 import { useToastStore } from '../../stores/toastStore';
 
@@ -239,10 +239,38 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
             </div>
           </div>
 
+          {/* Тип заказа */}
+          {order.meta_data && order.meta_data.length > 0 && (() => {
+            const orderTypeMeta = order.meta_data.find(m => m.key === 'order_type');
+            if (orderTypeMeta) {
+              const isPickup = orderTypeMeta.value === 'pickup';
+              return (
+                <div className={`rounded-xl p-4 border-2 ${
+                  isPickup 
+                    ? 'bg-green-50 border-green-200' 
+                    : 'bg-blue-50 border-blue-200'
+                }`}>
+                  <h3 className="text-lg font-black text-slate-900 mb-2 flex items-center gap-2">
+                    <FaCheckCircle className={isPickup ? 'text-green-600' : 'text-blue-600'} />
+                    {isPickup ? 'Самовывоз' : 'Доставка'}
+                  </h3>
+                  <p className={`text-sm font-semibold ${
+                    isPickup ? 'text-green-700' : 'text-blue-700'
+                  }`}>
+                    {isPickup 
+                      ? 'Клиент заберет заказ в ресторане' 
+                      : 'Доставка осуществляется по адресу'}
+                  </p>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
           {/* Адрес доставки */}
           <div className="bg-blue-50 rounded-xl p-4">
             <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
-              <FaMapMarkerAlt className="text-blue-600" /> Адрес доставки
+              <FaMapMarkerAlt className="text-blue-600" /> Адрес
             </h3>
             <p className="text-sm font-semibold mb-1">{order.billing.address_1}</p>
             {order.billing.address_2 && (

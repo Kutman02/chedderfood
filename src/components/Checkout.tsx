@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { FaTimes, FaArrowLeft, FaUser, FaPhone, FaMapMarkerAlt, FaNotesMedical, FaShoppingBag, FaChevronDown, FaCheckCircle } from 'react-icons/fa';
+import { FaTimes, FaArrowLeft, FaUser, FaPhone, FaMapMarkerAlt, FaNotesMedical, FaShoppingBag, FaChevronDown, FaCheckCircle, FaBoxOpen } from 'react-icons/fa';
 import { useCreateOrderMutation, useGetProductsQuery } from '../app/services/api';
 import type { Product, CheckoutFormData } from '../types/types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addReceipt, setCustomerData } from '../app/slices/receiptsSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
+
+// Адрес ресторана для самовывоза
+const RESTAURANT_ADDRESS = 'ул. Абдымомунова, 265, Бишкек 720040, Кыргызстан';
+const RESTAURANT_PHONE = '+996 (312) 62-55-55';
+const RESTAURANT_PICKUP_TEXT = 'Вы сможете забрать ваш заказ в нашем ресторане. Адрес указан ниже.';
 
 // Страны СНГ с кодами и форматами номеров
 const CIS_COUNTRIES = [
@@ -40,6 +45,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
   const unlockScroll = useScrollLockStore((s) => s.unlock);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [orderType, setOrderType] = useState<'delivery' | 'pickup'>('delivery');
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
   const { data: products } = useGetProductsQuery({
     per_page: 100,
@@ -122,6 +128,14 @@ export const Checkout: React.FC<CheckoutProps> = ({
     }
   };
 
+  const handleOrderTypeChange = (type: 'delivery' | 'pickup') => {
+    setOrderType(type);
+    // Очищаем ошибку адреса при переключении
+    if (errors.address) {
+      setErrors(prev => ({ ...prev, address: '' }));
+    }
+  };
+
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Разрешаем только цифры
     const value = e.target.value.replace(/\D/g, '');
@@ -150,7 +164,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
     if (!formData.first_name.trim()) {
       newErrors.first_name = 'Введите имя';
     }
-    if (!formData.address.trim()) {
+    // Адрес требуется только при доставке
+    if (orderType === 'delivery' && !formData.address.trim()) {
       newErrors.address = 'Введите адрес';
     }
     if (!phoneNumber.trim()) {
@@ -198,18 +213,24 @@ export const Checkout: React.FC<CheckoutProps> = ({
         customer_id: 0, // Гость
         billing: {
           first_name: formData.first_name,
-          address_1: formData.address,
+          address_1: orderType === 'pickup' ? RESTAURANT_ADDRESS : formData.address,
           phone: formData.phone,
           email: `customer_${Date.now()}@example.com`, // Временный email
         },
         shipping: {
           first_name: formData.first_name,
-          address_1: formData.address,
+          address_1: orderType === 'pickup' ? RESTAURANT_ADDRESS : formData.address,
         },
         line_items: cartItems,
         customer_note: formData.customer_note,
         total: totalAmount.toString(),
         currency: 'KGS',
+        meta_data: [
+          {
+            key: 'order_type',
+            value: orderType === 'pickup' ? 'pickup' : 'delivery',
+          },
+        ],
       };
 
       console.log('Creating order with data:', orderData);
@@ -221,7 +242,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
       // Сохраняем данные клиента для автозаполнения
       dispatch(setCustomerData({
         first_name: formData.first_name,
-        address: formData.address,
+        address: orderType === 'delivery' ? formData.address : RESTAURANT_ADDRESS,
         phone: formData.phone,
       }));
       
@@ -286,8 +307,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                 <div className="flex items-start gap-2 md:gap-3">
                   <FaMapMarkerAlt className="text-slate-400 mt-1 shrink-0" size={14} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs md:text-sm text-slate-500">Адрес</div>
-                    <div className="text-sm md:text-base font-medium text-slate-800">{formData.address}</div>
+                    <div className="text-xs md:text-sm text-slate-500">Адрес {orderType === 'pickup' ? '(Самовывоз)' : '(Доставка)'}</div>
+                    <div className="text-sm md:text-base font-medium text-slate-800">
+                      {orderType === 'pickup' ? RESTAURANT_ADDRESS : formData.address}
+                    </div>
                   </div>
                 </div>
                 
@@ -380,6 +403,58 @@ export const Checkout: React.FC<CheckoutProps> = ({
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+              {/* Выбор типа заказа - доставка или самовывоз */}
+              <div>
+                <label className="flex items-center gap-2 text-sm md:text-base font-medium text-slate-700 mb-3 md:mb-4">
+                  <FaBoxOpen size={14} />
+                  Способ получения *
+                </label>
+                <div className="flex gap-3 md:gap-4">
+                  <button
+                    type="button"
+                    onClick={() => handleOrderTypeChange('delivery')}
+                    className={`flex-1 py-3 md:py-4 px-3 md:px-4 rounded-lg md:rounded-xl font-bold text-sm md:text-base transition-all duration-200 active:scale-95 ${
+                      orderType === 'delivery'
+                        ? 'bg-blue-600 text-white shadow-lg scale-105'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <FaShoppingBag size={16} />
+                      Доставка
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleOrderTypeChange('pickup')}
+                    className={`flex-1 py-3 md:py-4 px-3 md:px-4 rounded-lg md:rounded-xl font-bold text-sm md:text-base transition-all duration-200 active:scale-95 ${
+                      orderType === 'pickup'
+                        ? 'bg-green-600 text-white shadow-lg scale-105'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <FaBoxOpen size={16} />
+                      Самовывоз
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Информация о самовывозе */}
+              {orderType === 'pickup' && (
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 animate-in slide-in-from-top-2 duration-300">
+                  <p className="text-sm font-semibold text-green-800 mb-3">{RESTAURANT_PICKUP_TEXT}</p>
+                  <div className="bg-white rounded-lg p-3 border border-green-200">
+                    <p className="text-xs font-bold text-slate-500 uppercase mb-2">📍 Адрес ресторана:</p>
+                    <p className="font-bold text-slate-900 text-sm mb-2">{RESTAURANT_ADDRESS}</p>
+                    <a href={`tel:${RESTAURANT_PHONE}`} className="text-xs font-bold text-green-600 hover:text-green-700 inline-block">
+                      {RESTAURANT_PHONE}
+                    </a>
+                  </div>
+                </div>
+              )}
+
               {/* Имя */}
               <div>
                 <label className="flex items-center gap-2 text-sm md:text-base font-medium text-slate-700 mb-2 md:mb-3">
@@ -402,25 +477,27 @@ export const Checkout: React.FC<CheckoutProps> = ({
               </div>
 
               {/* Адрес */}
-              <div>
-                <label className="flex items-center gap-2 text-sm md:text-base font-medium text-slate-700 mb-2 md:mb-3">
-                  <FaMapMarkerAlt size={14} />
-                  Адрес *
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-base md:text-lg border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ease-out ${
-                    errors.address ? 'border-red-500' : 'border-slate-300'
-                  }`}
-                  placeholder="Улица, дом, квартира"
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-xs md:text-sm mt-1.5 md:mt-2 animate-in fade-in slide-in-from-bottom-2 duration-300">{errors.address}</p>
-                )}
-              </div>
+              {orderType === 'delivery' && (
+                <div className="animate-in slide-in-from-top-2 duration-300">
+                  <label className="flex items-center gap-2 text-sm md:text-base font-medium text-slate-700 mb-2 md:mb-3">
+                    <FaMapMarkerAlt size={14} />
+                    Адрес доставки *
+                  </label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-base md:text-lg border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ease-out ${
+                      errors.address ? 'border-red-500' : 'border-slate-300'
+                    }`}
+                    placeholder="Улица, дом, квартира"
+                  />
+                  {errors.address && (
+                    <p className="text-red-500 text-xs md:text-sm mt-1.5 md:mt-2 animate-in fade-in slide-in-from-bottom-2 duration-300">{errors.address}</p>
+                  )}
+                </div>
+              )}
 
               {/* Телефон */}
               <div>
