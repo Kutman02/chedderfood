@@ -3,7 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { FaTimes, FaMinus, FaPlus, FaTrash, FaShoppingBag } from 'react-icons/fa';
 import { useGetProductsQuery } from '../app/services/api';
 import { Checkout } from './Checkout';
-import type { Product } from '../types/types';
+import { OrderReceipt } from './OrderReceipt';
+import type { Product, PublicOrder } from '../types/types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addToCart, clearCart, removeFromCart } from '../app/slices/cartSlice';
 import { closeCart, openReceipts } from '../app/slices/uiSlice';
@@ -16,6 +17,8 @@ export const Cart: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const cart = useAppSelector((s) => s.cart.items);
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [createdOrderData, setCreatedOrderData] = useState<PublicOrder | null>(null);
   const lockScroll = useScrollLockStore((s) => s.lock);
   const unlockScroll = useScrollLockStore((s) => s.unlock);
   const { data: products, isLoading: productsLoading } = useGetProductsQuery({
@@ -61,6 +64,30 @@ export const Cart: React.FC = () => {
     dispatch(openReceipts());
   };
 
+  const handleCheckoutShowReceipt = (orderData: PublicOrder) => {
+    dispatch(clearCart());
+    setCreatedOrderData(orderData);
+    setShowReceipt(true);
+  };
+
+  const handleReceiptClose = () => {
+    setShowReceipt(false);
+    setShowCheckoutForm(false);
+    // Открываем модаль "Мои чеки"
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('modal', 'mycheks');
+    setSearchParams(newParams);
+  };
+
+  const handleReceiptNewOrder = () => {
+    setShowReceipt(false);
+    setShowCheckoutForm(false);
+    dispatch(closeCart());
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('modal');
+    setSearchParams(newParams);
+  };
+
   const handleCheckoutBack = () => {
     setShowCheckoutForm(false);
   };
@@ -72,12 +99,24 @@ export const Cart: React.FC = () => {
     setSearchParams(newParams);
   };
 
+  if (showReceipt && createdOrderData) {
+    return (
+      <OrderReceipt
+        orderData={createdOrderData}
+        products={products || []}
+        onClose={handleReceiptClose}
+        onNewOrder={handleReceiptNewOrder}
+      />
+    );
+  }
+
   if (showCheckoutForm) {
     return (
       <Checkout
         onClose={handleCloseCart}
         onBack={handleCheckoutBack}
         onSuccess={handleCheckoutSuccess}
+        onShowReceipt={handleCheckoutShowReceipt}
       />
     );
   }

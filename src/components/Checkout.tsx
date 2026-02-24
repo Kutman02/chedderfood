@@ -2,7 +2,7 @@ import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { FaTimes, FaArrowLeft, FaUser, FaPhone, FaMapMarkerAlt, FaNotesMedical, FaShoppingBag, FaChevronDown, FaCheckCircle, FaBoxOpen } from 'react-icons/fa';
 import { useCreateOrderMutation, useGetProductsQuery } from '../app/services/api';
 import { useCheckActiveOrdersCountQuery } from '../app/services/publicApi';
-import type { Product, CheckoutFormData } from '../types/types';
+import type { Product, CheckoutFormData, PublicOrder } from '../types/types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addReceipt, setCustomerData } from '../app/slices/receiptsSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
@@ -32,12 +32,14 @@ interface CheckoutProps {
   onClose: () => void;
   onBack: () => void;
   onSuccess: () => void;
+  onShowReceipt?: (orderData: PublicOrder) => void;
 }
 
 export const Checkout: React.FC<CheckoutProps> = ({
   onClose,
   onBack,
   onSuccess,
+  onShowReceipt,
 }) => {
   const dispatch = useAppDispatch();
   const cart = useAppSelector((s) => s.cart.items);
@@ -260,9 +262,14 @@ export const Checkout: React.FC<CheckoutProps> = ({
         phone: formData.phone,
       }));
       
-      // Успешное создание заказа - закрываем все и возвращаем в корзину
-      onSuccess();
-      onClose();
+      // Вызываем callback если он передан
+      if (onShowReceipt) {
+        onShowReceipt(orderResponse);
+      } else {
+        // Fallback если callback не передан
+        onSuccess();
+        onClose();
+      }
     } catch (err) {
       console.error('Error creating order:', err);
       
