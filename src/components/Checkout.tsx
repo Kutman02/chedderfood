@@ -251,12 +251,12 @@ export const Checkout: React.FC<CheckoutProps> = ({
       // Успешное создание заказа - закрываем все и возвращаем в корзину
       onSuccess();
       onClose();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error creating order:', err);
       
       // Обработка ошибки 429 (Too Many Requests / Лимит заказов)
-      if (err.status === 429) {
-        const message = err.data?.message || 'Слишком много заказов. Пожалуйста, попробуйте еще раз позже.';
+      if (err && typeof err === 'object' && 'status' in err && err.status === 429) {
+        const message = (err as { data?: { message?: string } }).data?.message || 'Слишком много заказов. Пожалуйста, попробуйте еще раз позже.';
         setErrorMessage(message);
         // Показываем модальное окно снова, чтобы пользователь мог попробовать еще раз
         setShowConfirmModal(true);
