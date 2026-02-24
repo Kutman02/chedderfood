@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL, WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET } from './apiConfig';
-import { SiteSettings } from '../../types/types';
+import type { SiteSettings } from '../../types/types';
 
 // Отдельный API для публичных запросов без авторизации
 export const publicApi = createApi({

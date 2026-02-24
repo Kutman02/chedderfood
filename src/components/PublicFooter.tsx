@@ -3,7 +3,7 @@ import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaHome, FaInfoCircle, FaAddressBoo
 import { useGetSiteSettingsQuery } from '../app/services/publicApi';
 
 export const PublicFooter = () => {
-  const { data: siteSettings, isLoading } = useGetSiteSettingsQuery();
+  const { data: siteSettings } = useGetSiteSettingsQuery();
 
   // Данные по умолчанию (fallback)
   const defaultSettings = {

@@ -217,7 +217,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
     try {
       // Проверяем количество активных заказов с этого IP
-      if (activeOrdersData && activeOrdersData.length >= 2) {
+      if (activeOrdersData && activeOrdersData.length >= 3) {
         setErrorMessage('У вас уже есть 3 активных заказа. Дождитесь их выполнения перед созданием нового.');
         setShowConfirmModal(true);
         console.warn('Too many active orders:', activeOrdersData.length);

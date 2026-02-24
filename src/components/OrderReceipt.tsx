@@ -50,7 +50,7 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
 
   const getOrderTypeDisplay = () => {
     const orderType = getOrderType();
-    return orderType === 'pickup' ? '🛍️ Самовывоз' : '🚗 Доставка';
+    return orderType === 'pickup' ? '🛍️ Заберу сам (самовывоз)' : '🚗 Доставка';
   };
 
   const getShippingInfo = () => {
@@ -210,7 +210,7 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
                   ? 'text-green-700' 
                   : 'text-blue-700'
               }`}>
-                {getOrderType() === 'pickup' ? 'Самовывоз' : 'Доставка'}
+                {getOrderType() === 'pickup' ? 'Заберу сам (самовывоз)' : 'Доставка'}
               </p>
             </div>
           </div>
