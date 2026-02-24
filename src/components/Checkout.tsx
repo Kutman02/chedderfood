@@ -307,7 +307,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                 <div className="flex items-start gap-2 md:gap-3">
                   <FaMapMarkerAlt className="text-slate-400 mt-1 shrink-0" size={14} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs md:text-sm text-slate-500">Адрес {orderType === 'pickup' ? '(Самовывоз)' : '(Доставка)'}</div>
+                    <div className="text-xs md:text-sm text-slate-500">Адрес {orderType === 'pickup' ? '(Заберу сам (самовывоз))' : '(Доставка)'}</div>
                     <div className="text-sm md:text-base font-medium text-slate-800">
                       {orderType === 'pickup' ? RESTAURANT_ADDRESS : formData.address}
                     </div>
@@ -360,7 +360,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
         </div>
       )}
 
-      <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-[100dvh] safe-area-inset">
+      <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col h-100dvh safe-area-inset">
         {/* Кнопка закрытия вверху справа */}
         <button
           onClick={onClose}
@@ -435,7 +435,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   >
                     <div className="flex items-center justify-center gap-2">
                       <FaBoxOpen size={16} />
-                      Самовывоз
+                      Заберу сам (самовывоз)
                     </div>
                   </button>
                 </div>
@@ -526,7 +526,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                           className="fixed inset-0 z-40" 
                           onClick={() => setIsCountryDropdownOpen(false)}
                         />
-                        <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto min-w-[180px] md:min-w-[200px]">
+                        <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto min-w-180px md:min-w-200px">
                           {CIS_COUNTRIES.map((country) => (
                             <button
                               key={`${country.code}-${country.name}`}

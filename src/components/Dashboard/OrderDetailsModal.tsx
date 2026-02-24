@@ -252,7 +252,7 @@ export const OrderDetailsModal = ({ isOpen, order, onClose }: OrderDetailsModalP
                 }`}>
                   <h3 className="text-lg font-black text-slate-900 mb-2 flex items-center gap-2">
                     <FaCheckCircle className={isPickup ? 'text-green-600' : 'text-blue-600'} />
-                    {isPickup ? 'Самовывоз' : 'Доставка'}
+                    {isPickup ? 'Заберу сам (самовывоз)' : 'Доставка'}
                   </h3>
                   <p className={`text-sm font-semibold ${
                     isPickup ? 'text-green-700' : 'text-blue-700'

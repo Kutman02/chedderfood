@@ -87,7 +87,7 @@ export const OrderCard = ({
                 {isPickup ? (
                   <>
                     <FaStore size={16} />
-                    <span className="text-sm">Самовывоз</span>
+                    <span className="text-sm">Заберу сам (самовывоз)</span>
                   </>
                 ) : (
                   <>
