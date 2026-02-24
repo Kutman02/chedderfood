@@ -43,6 +43,16 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
     });
   };
 
+  const getOrderType = () => {
+    const orderTypeData = currentOrderData.meta_data?.find((m: any) => m.key === 'order_type');
+    return orderTypeData?.value || 'delivery';
+  };
+
+  const getOrderTypeDisplay = () => {
+    const orderType = getOrderType();
+    return orderType === 'pickup' ? '🛍️ Самовывоз' : '🚗 Доставка';
+  };
+
   const getShippingInfo = () => {
     const shipping = currentOrderData.shipping;
     const billing = currentOrderData.billing;
@@ -186,6 +196,25 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
             </div>
           </div>
 
+          {/* Выделенный блок со способом получения */}
+          <div className={`mb-6 rounded-lg p-4 border-2 flex items-center gap-4 ${
+            getOrderType() === 'pickup' 
+              ? 'bg-green-50 border-green-300' 
+              : 'bg-blue-50 border-blue-300'
+          }`}>
+            <div className="text-5xl">{getOrderType() === 'pickup' ? '🛍️' : '🚗'}</div>
+            <div>
+              <p className="text-xs text-slate-600 uppercase font-bold">Способ получения</p>
+              <p className={`text-2xl font-black ${
+                getOrderType() === 'pickup' 
+                  ? 'text-green-700' 
+                  : 'text-blue-700'
+              }`}>
+                {getOrderType() === 'pickup' ? 'Самовывоз' : 'Доставка'}
+              </p>
+            </div>
+          </div>
+
           <div className="mb-6 bg-orange-50 rounded-lg p-4">
             <h3 className="font-bold text-slate-800 mb-3">Информация о заказе</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -211,9 +240,12 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
               <p className="font-bold">{currentOrderData.payment_method_title || 'Оплата при получении'}</p>
             </div>
             <div className="mt-3 pt-3 border-t border-orange-200">
-              <p className="text-slate-600">Способ доставки:</p>
-              <p className="font-bold">{getShippingInfo().method}</p>
-              <p className="text-sm text-slate-600">{getShippingInfo().address}</p>
+              <p className="text-slate-600">Способ получения:</p>
+              <p className="font-bold text-lg text-orange-600">{getOrderTypeDisplay()}</p>
+            </div>
+            <div className="mt-3 pt-3 border-t border-orange-200">
+              <p className="text-slate-600">Адрес:</p>
+              <p className="font-bold text-sm">{getShippingInfo().address}</p>
             </div>
           </div>
 

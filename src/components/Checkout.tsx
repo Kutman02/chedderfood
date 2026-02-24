@@ -47,6 +47,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [orderType, setOrderType] = useState<'delivery' | 'pickup'>('delivery');
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const { data: products } = useGetProductsQuery({
     per_page: 100,
     status: 'publish',
@@ -206,6 +207,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
   const handleConfirmOrder = async () => {
     setShowConfirmModal(false);
     setIsSubmitting(true);
+    setErrorMessage('');
 
     try {
       const orderData = {
@@ -249,8 +251,22 @@ export const Checkout: React.FC<CheckoutProps> = ({
       // Успешное создание заказа - закрываем все и возвращаем в корзину
       onSuccess();
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error creating order:', err);
+      
+      // Обработка ошибки 429 (Too Many Requests / Лимит заказов)
+      if (err.status === 429) {
+        const message = err.data?.message || 'Слишком много заказов. Пожалуйста, попробуйте еще раз позже.';
+        setErrorMessage(message);
+        // Показываем модальное окно снова, чтобы пользователь мог попробовать еще раз
+        setShowConfirmModal(true);
+        console.warn('Rate limit (429) error:', message);
+        return;
+      }
+      
+      // Для других ошибок показываем стандартное сообщение
+      setErrorMessage('Ошибка при создании заказа. Пожалуйста, попробуйте еще раз.');
+      setShowConfirmModal(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -258,6 +274,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
   const handleCancelConfirm = () => {
     setShowConfirmModal(false);
+    setErrorMessage('');
   };
 
   // Показываем индикатор загрузки
@@ -293,6 +310,13 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
             {/* Контент */}
             <div className="p-4 md:p-6">
+              {/* Сообщение об ошибке 429 */}
+              {errorMessage && (
+                <div className="mb-4 md:mb-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-3 md:px-4 py-2.5 md:py-3 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <p className="text-sm md:text-base font-medium">{errorMessage}</p>
+                </div>
+              )}
+              
               <p className="text-sm md:text-base text-slate-600 mb-4 md:mb-6">Пожалуйста, проверьте данные заказа:</p>
               
               <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
@@ -344,15 +368,24 @@ export const Checkout: React.FC<CheckoutProps> = ({
               <div className="flex gap-2 md:gap-3">
                 <button
                   onClick={handleCancelConfirm}
-                  className="flex-1 bg-slate-100 text-slate-700 py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-slate-200 transition-colors active:scale-95 text-sm md:text-base"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-slate-100 text-slate-700 py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-slate-200 transition-colors active:scale-95 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Отменить
                 </button>
                 <button
                   onClick={handleConfirmOrder}
-                  className="flex-1 bg-orange-600 text-white py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-orange-700 transition-colors active:scale-95 text-sm md:text-base"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-orange-600 text-white py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-orange-700 transition-colors active:scale-95 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Подтвердить
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Создание...
+                    </>
+                  ) : (
+                    'Подтвердить'
+                  )}
                 </button>
               </div>
             </div>
@@ -396,7 +429,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
         {/* Контент формы */}
         <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6 pb-32 md:pb-6">
           <div className="max-w-2xl mx-auto">
-            {error && (
+            {error && !errorMessage && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 md:px-6 md:py-4 rounded-lg mb-4 md:mb-6 animate-in fade-in slide-in-from-bottom-4 duration-300 text-sm md:text-base">
                 Ошибка при создании заказа. Пожалуйста, попробуйте еще раз.
               </div>
