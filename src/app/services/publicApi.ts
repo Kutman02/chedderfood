@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL, WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET } from './apiConfig';
+import { SiteSettings } from '../../types/types';
 
 // Отдельный API для публичных запросов без авторизации
 export const publicApi = createApi({
@@ -20,7 +21,7 @@ export const publicApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['PublicOrder', 'Products', 'Categories', 'Orders'],
+  tagTypes: ['PublicOrder', 'Products', 'Categories', 'Orders', 'SiteSettings'],
   endpoints: (builder) => ({
     // Получение публичного заказа по ID (без авторизации)
     getPublicOrder: builder.query({
@@ -58,6 +59,11 @@ export const publicApi = createApi({
       query: () => `wc/v3/orders?per_page=100&status=pending,on-hold,processing`,
       providesTags: ['Orders'],
     }),
+    // Получение данных сайта (для футера)
+    getSiteSettings: builder.query<SiteSettings, void>({
+      query: () => 'wp/v2/settings',
+      providesTags: ['SiteSettings'],
+    }),
   }),
 });
 
@@ -66,4 +72,5 @@ export const {
   useGetPublicProductsQuery,
   useGetPublicProductCategoriesQuery,
   useCheckActiveOrdersCountQuery,
+  useGetSiteSettingsQuery,
 } = publicApi;

@@ -1,7 +1,30 @@
 import { Link } from 'react-router-dom';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaHome, FaInfoCircle, FaAddressBook, FaHeart } from 'react-icons/fa';
+import { useGetSiteSettingsQuery } from '../app/services/publicApi';
 
 export const PublicFooter = () => {
+  const { data: siteSettings, isLoading } = useGetSiteSettingsQuery();
+
+  // Данные по умолчанию (fallback)
+  const defaultSettings = {
+    title: 'BurgerFood',
+    description: 'Лучшая еда с доставкой на дом. Свежие ингредиенты, быстрая доставка, отличный сервис. Мы заботимся о каждом клиенте и гарантируем качество.',
+    phone: '+996 770 51 11 11',
+    email: 'kutmank9@gmail.com',
+    address: 'Ош, Кыргызстан',
+    city: 'Кыргызстан',
+  };
+
+  // Используем данные с сервера или значения по умолчанию
+  const settings = {
+    title: siteSettings?.title || defaultSettings.title,
+    description: siteSettings?.description || defaultSettings.description,
+    phone: siteSettings?.phone || defaultSettings.phone,
+    email: siteSettings?.email || defaultSettings.email,
+    address: siteSettings?.address || defaultSettings.address,
+    city: siteSettings?.city || defaultSettings.city,
+  };
+
   return (
     <footer className="bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white mt-20 relative overflow-hidden">
       {/* Декоративный элемент */}
@@ -13,12 +36,11 @@ export const PublicFooter = () => {
           <div className="lg:col-span-2">
             <Link to="/" className="inline-block mb-4">
               <h3 className="text-2xl font-black text-transparent bg-clip-text bg-linear-to-r from-orange-400 to-orange-600">
-                BurgerFood
+                {settings.title}
               </h3>
             </Link>
             <p className="text-slate-300 text-sm leading-relaxed mb-6 max-w-md">
-              Лучшая еда с доставкой на дом. Свежие ингредиенты, быстрая доставка, отличный сервис. 
-              Мы заботимся о каждом клиенте и гарантируем качество.
+              {settings.description}
             </p>
             <div className="flex items-center gap-2 text-slate-400 text-sm">
               <FaHeart className="text-orange-500" size={14} />
@@ -39,10 +61,10 @@ export const PublicFooter = () => {
                 </div>
                 <div>
                   <a 
-                    href="tel:+996770511111" 
+                    href={`tel:${settings.phone?.replace(/\s+/g, '')}`}
                     className="text-slate-300 hover:text-orange-400 transition-colors text-sm block"
                   >
-                    +996 770 51 11 11
+                    {settings.phone}
                   </a>
                 </div>
               </li>
@@ -52,10 +74,10 @@ export const PublicFooter = () => {
                 </div>
                 <div>
                   <a 
-                    href="mailto:kutmank9@gmail.com" 
+                    href={`mailto:${settings.email}`}
                     className="text-slate-300 hover:text-orange-400 transition-colors text-sm block break-all"
                   >
-                    kutmank9@gmail.com
+                    {settings.email}
                   </a>
                 </div>
               </li>
@@ -65,7 +87,7 @@ export const PublicFooter = () => {
                 </div>
                 <div>
                   <span className="text-slate-300 text-sm block">
-                    Ош, Кыргызстан
+                    {settings.address}
                   </span>
                 </div>
               </li>

@@ -18,6 +18,15 @@ export type OrderShippingLine = {
   total?: string;
 };
 
+export type SiteSettings = {
+  title?: string;
+  description?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  city?: string;
+};
+
 export type OrderPersonInfo = {
   first_name?: string;
   last_name?: string;
