@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { FaTimes, FaArrowLeft, FaUser, FaPhone, FaMapMarkerAlt, FaNotesMedical, FaShoppingBag, FaChevronDown, FaCheckCircle, FaBoxOpen } from 'react-icons/fa';
 import { useCreateOrderMutation, useGetProductsQuery } from '../app/services/api';
+import { useCheckActiveOrdersCountQuery } from '../app/services/publicApi';
 import type { Product, CheckoutFormData } from '../types/types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addReceipt, setCustomerData } from '../app/slices/receiptsSlice';
@@ -51,6 +52,9 @@ export const Checkout: React.FC<CheckoutProps> = ({
   const { data: products } = useGetProductsQuery({
     per_page: 100,
     status: 'publish',
+  });
+  const { data: activeOrdersData } = useCheckActiveOrdersCountQuery(undefined, {
+    pollingInterval: 0, // Проверяем только по требованию
   });
 
   // Блокируем прокрутку при открытии формы оформления заказа
@@ -210,6 +214,14 @@ export const Checkout: React.FC<CheckoutProps> = ({
     setErrorMessage('');
 
     try {
+      // Проверяем количество активных заказов с этого IP
+      if (activeOrdersData && activeOrdersData.length >= 2) {
+        setErrorMessage('У вас уже есть 3 активных заказа. Дождитесь их выполнения перед созданием нового.');
+        setShowConfirmModal(true);
+        console.warn('Too many active orders:', activeOrdersData.length);
+        return;
+      }
+
       const orderData = {
         status: 'on-hold',
         customer_id: 0, // Гость

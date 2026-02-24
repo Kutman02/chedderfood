@@ -20,7 +20,7 @@ export const publicApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['PublicOrder', 'Products', 'Categories'],
+  tagTypes: ['PublicOrder', 'Products', 'Categories', 'Orders'],
   endpoints: (builder) => ({
     // Получение публичного заказа по ID (без авторизации)
     getPublicOrder: builder.query({
@@ -53,11 +53,17 @@ export const publicApi = createApi({
       },
       providesTags: ['Categories'],
     }),
+    // Проверка количества активных заказов с текущего IP
+    checkActiveOrdersCount: builder.query({
+      query: () => `wc/v3/orders?per_page=100&status=pending,on-hold,processing`,
+      providesTags: ['Orders'],
+    }),
   }),
 });
 
 export const { 
   useGetPublicOrderQuery,
   useGetPublicProductsQuery,
-  useGetPublicProductCategoriesQuery
+  useGetPublicProductCategoriesQuery,
+  useCheckActiveOrdersCountQuery,
 } = publicApi;
