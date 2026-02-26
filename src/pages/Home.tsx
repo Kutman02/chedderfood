@@ -199,6 +199,7 @@ const SITE_URL = import.meta.env.VITE_SITE_URL;
                         const staggerClass = `animate-stagger-${(productIndex % 4) + 1}`;
 
                         return (
+                          
                           <div
                             key={product.id}
                             className={`shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 cursor-pointer flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300 ${staggerClass} transition-all duration-300 ease-out`}
