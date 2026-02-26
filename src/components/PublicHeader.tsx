@@ -8,6 +8,7 @@ import { useScrollLockStore } from '../stores/scrollLockStore';
 import { CategorySkeleton } from './Skeleton';
 import { FaReceipt} from 'react-icons/fa';
 
+
 export const PublicHeader = () => {
   const dispatch = useAppDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
