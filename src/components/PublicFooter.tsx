@@ -1,35 +1,29 @@
-import { Link } from 'react-router-dom';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaHome, FaInfoCircle, FaAddressBook, FaHeart } from 'react-icons/fa';
-import { useGetSiteSettingsQuery } from '../app/services/publicApi';
+import { Link } from 'react-router-dom'
+import {
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaHome,
+  FaInfoCircle,
+  FaAddressBook,
+  FaHeart,
+} from 'react-icons/fa'
 
 export const PublicFooter = () => {
-  const { data: siteSettings } = useGetSiteSettingsQuery();
-
-  // Данные по умолчанию (fallback)
-  const defaultSettings = {
+  const settings = {
     title: 'BurgerFood',
-    description: 'Лучшая еда с доставкой на дом. Свежие ингредиенты, быстрая доставка, отличный сервис. Мы заботимся о каждом клиенте и гарантируем качество.',
+    description:
+      'Лучшая еда с доставкой на дом. Свежие ингредиенты, быстрая доставка, отличный сервис. Мы заботимся о каждом клиенте и гарантируем качество.',
     phone: '+996 770 51 11 11',
     email: 'kutmank9@gmail.com',
     address: 'Ош, Кыргызстан',
     city: 'Кыргызстан',
-  };
-
-  // Используем данные с сервера или значения по умолчанию
-  const settings = {
-    title: siteSettings?.title || defaultSettings.title,
-    description: siteSettings?.description || defaultSettings.description,
-    phone: siteSettings?.phone || defaultSettings.phone,
-    email: siteSettings?.email || defaultSettings.email,
-    address: siteSettings?.address || defaultSettings.address,
-    city: siteSettings?.city || defaultSettings.city,
-  };
+  }
 
   return (
     <footer className="bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white mt-20 relative overflow-hidden">
-      {/* Декоративный элемент */}
       <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-orange-500 via-orange-600 to-orange-500"></div>
-      
+
       <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* О компании */}
@@ -59,37 +53,33 @@ export const PublicFooter = () => {
                 <div className="mt-0.5 p-2 bg-orange-500/10 rounded-lg group-hover:bg-orange-500/20 transition-colors">
                   <FaPhone className="text-orange-500" size={14} />
                 </div>
-                <div>
-                  <a 
-                    href={`tel:${settings.phone?.replace(/\s+/g, '')}`}
-                    className="text-slate-300 hover:text-orange-400 transition-colors text-sm block"
-                  >
-                    {settings.phone}
-                  </a>
-                </div>
+                <a
+                  href={`tel:${settings.phone.replace(/\s+/g, '')}`}
+                  className="text-slate-300 hover:text-orange-400 transition-colors text-sm"
+                >
+                  {settings.phone}
+                </a>
               </li>
+
               <li className="flex items-start gap-3 group">
                 <div className="mt-0.5 p-2 bg-orange-500/10 rounded-lg group-hover:bg-orange-500/20 transition-colors">
                   <FaEnvelope className="text-orange-500" size={14} />
                 </div>
-                <div>
-                  <a 
-                    href={`mailto:${settings.email}`}
-                    className="text-slate-300 hover:text-orange-400 transition-colors text-sm block break-all"
-                  >
-                    {settings.email}
-                  </a>
-                </div>
+                <a
+                  href={`mailto:${settings.email}`}
+                  className="text-slate-300 hover:text-orange-400 transition-colors text-sm break-all"
+                >
+                  {settings.email}
+                </a>
               </li>
+
               <li className="flex items-start gap-3 group">
                 <div className="mt-0.5 p-2 bg-orange-500/10 rounded-lg group-hover:bg-orange-500/20 transition-colors">
                   <FaMapMarkerAlt className="text-orange-500" size={14} />
                 </div>
-                <div>
-                  <span className="text-slate-300 text-sm block">
-                    {settings.address}
-                  </span>
-                </div>
+                <span className="text-slate-300 text-sm">
+                  {settings.address}
+                </span>
               </li>
             </ul>
           </div>
@@ -102,29 +92,40 @@ export const PublicFooter = () => {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   className="flex items-center gap-3 text-slate-300 hover:text-orange-400 transition-colors text-sm group"
                 >
-                  <FaHome className="text-orange-500/50 group-hover:text-orange-500 transition-colors" size={14} />
+                  <FaHome
+                    className="text-orange-500/50 group-hover:text-orange-500 transition-colors"
+                    size={14}
+                  />
                   <span>Главная</span>
                 </Link>
               </li>
+
               <li>
-                <Link 
-                  to="/about" 
+                <Link
+                  to="/about"
                   className="flex items-center gap-3 text-slate-300 hover:text-orange-400 transition-colors text-sm group"
                 >
-                  <FaInfoCircle className="text-orange-500/50 group-hover:text-orange-500 transition-colors" size={14} />
+                  <FaInfoCircle
+                    className="text-orange-500/50 group-hover:text-orange-500 transition-colors"
+                    size={14}
+                  />
                   <span>О нас</span>
                 </Link>
               </li>
+
               <li>
-                <Link 
-                  to="/contacts" 
+                <Link
+                  to="/contacts"
                   className="flex items-center gap-3 text-slate-300 hover:text-orange-400 transition-colors text-sm group"
                 >
-                  <FaAddressBook className="text-orange-500/50 group-hover:text-orange-500 transition-colors" size={14} />
+                  <FaAddressBook
+                    className="text-orange-500/50 group-hover:text-orange-500 transition-colors"
+                    size={14}
+                  />
                   <span>Контакты</span>
                 </Link>
               </li>
@@ -132,11 +133,11 @@ export const PublicFooter = () => {
           </div>
         </div>
 
-        {/* Нижняя часть футера */}
+        {/* Нижняя часть */}
         <div className="border-t border-slate-700/50 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate-400 text-sm text-center md:text-left">
-              © {new Date().getFullYear()} BurgerFood. Все права защищены.
+              © {new Date().getFullYear()} {settings.title}. Все права защищены.
             </p>
             <div className="flex items-center gap-2 text-slate-500 text-xs">
               <span>Версия 1.0.0</span>
@@ -147,6 +148,5 @@ export const PublicFooter = () => {
         </div>
       </div>
     </footer>
-  );
-};
-
+  )
+}
