@@ -23,13 +23,11 @@ export const InstallAppButton = () => {
   })
   const [showButton, setShowButton] = useState<boolean>(() => {
     // Инициализируем правильно при первом рендере
-    const ua = window.navigator.userAgent.toLowerCase()
-    const ios = /iphone|ipad|ipod/.test(ua)
     const standalone = window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true
     
-    // На iOS показываем кнопку, на Android - ждем события
-    return ios && !standalone
+    // Показываем кнопку для всех кроме уже установленного приложения
+    return !standalone
   })
   useEffect(() => {
     const ua = window.navigator.userAgent.toLowerCase()
