@@ -13,10 +13,6 @@ declare global {
 
 export const InstallAppButton = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [isIOS] = useState<boolean>(() => {
-    const ua = window.navigator.userAgent.toLowerCase()
-    return /iphone|ipad|ipod/.test(ua)
-  })
   const [isStandalone] = useState<boolean>(() => {
     return window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true
