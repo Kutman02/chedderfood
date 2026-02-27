@@ -31,13 +31,20 @@ export const InstallAppButton = () => {
     const standalone = window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true
 
-    if (standalone || ios) return
+    if (standalone) return
+
+    // На iOS кнопка будет показывать инструкцию
+    if (ios) {
+      setShowButton(true)
+      return
+    }
 
     // На Android слушаем события beforeinstallprompt
     const handler = (e: BeforeInstallPromptEvent) => {
       e.preventDefault()
       setDeferredPrompt(e)
       setShowButton(true)
+      console.log('beforeinstallprompt event fired')
     }
 
     window.addEventListener('beforeinstallprompt', handler as EventListener)
