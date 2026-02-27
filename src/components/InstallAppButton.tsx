@@ -53,20 +53,36 @@ export const InstallAppButton = () => {
 
   const handleInstall = async () => {
     if (deferredPrompt) {
-      deferredPrompt.prompt()
-      
-      const { outcome } = await deferredPrompt.userChoice
-      
-      if (outcome === 'accepted') {
-        console.log('App installed')
+      // Для Android с событием beforeinstallprompt
+      try {
+        deferredPrompt.prompt()
+        
+        const { outcome } = await deferredPrompt.userChoice
+        
+        if (outcome === 'accepted') {
+          console.log('App installed')
+        }
+        
+        setDeferredPrompt(null)
+        setShowButton(false)
+      } catch (error) {
+        console.error('Install error:', error)
       }
+    } else {
+      // Для iOS и других платформ
+      const ua = window.navigator.userAgent.toLowerCase()
+      const isIOSDevice = /iphone|ipad|ipod/.test(ua)
       
-      setDeferredPrompt(null)
-      setShowButton(false)
-    } else if (isIOS) {
-      alert(
-        'Чтобы установить приложение:\n\nНажмите кнопку "Поделиться" в Safari\nи выберите "Добавить на экран Домой"'
-      )
+      if (isIOSDevice) {
+        alert(
+          'Чтобы установить приложение:\n\n1. Нажмите кнопку "Поделиться" в Safari\n2. Выберите "Добавить на экран Домой"\n3. Назовите приложение\n4. Нажмите "Добавить"'
+        )
+      } else {
+        // Для других браузеров на Android
+        alert(
+          'Чтобы установить приложение:\n\n1. Откройте это приложение в Chrome или другом браузере\n2. Нажмите кнопку меню (три точки)\n3. Выберите "Установить приложение" или "Добавить на главный экран"'
+        )
+      }
     }
   }
 
