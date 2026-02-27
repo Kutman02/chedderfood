@@ -31,8 +31,6 @@ export const InstallAppButton = () => {
     // На iOS показываем кнопку, на Android - ждем события
     return ios && !standalone
   })
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
   useEffect(() => {
     const ua = window.navigator.userAgent.toLowerCase()
     const ios = /iphone|ipad|ipod/.test(ua)
@@ -55,27 +53,6 @@ export const InstallAppButton = () => {
     }
   }, [])
 
-  // Проверяем открыто ли меню
-  useEffect(() => {
-    const checkMenuOpen = () => {
-      // Проверяем наличие фона меню (fixed позиционирование с overlay)
-      const menuOpen = !!document.querySelector('[class*="fixed"][class*="inset-0"][class*="bg-black"]')
-      setIsMenuOpen(menuOpen)
-    }
-
-    // Проверяем сразу
-    checkMenuOpen()
-
-    // Слушаем изменения класса в документе
-    const observer = new MutationObserver(checkMenuOpen)
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    })
-
-    return () => observer.disconnect()
-  }, [])
-
   const handleInstall = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt()
@@ -95,14 +72,20 @@ export const InstallAppButton = () => {
     }
   }
 
-  if (isStandalone || !showButton || isMenuOpen) return null
+  if (isStandalone || !showButton) return null
 
   return (
     <button
       onClick={handleInstall}
-      className="fixed bottom-6 right-6 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-3 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 active:scale-95 z-40"
+      className="w-full flex items-center gap-4 p-5 bg-orange-50 hover:bg-orange-100 rounded-2xl transition-all duration-200 text-left active:scale-[0.98] shadow-sm hover:shadow-md"
     >
-      Установить приложение
+      <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center shadow-lg">
+        <span className="text-white font-bold text-lg">📱</span>
+      </div>
+      <div className="flex-1">
+        <h3 className="font-bold text-slate-800 text-base">Установить приложение</h3>
+        <p className="text-sm text-slate-600">Установите PWA на телефон</p>
+      </div>
     </button>
   )
 }
