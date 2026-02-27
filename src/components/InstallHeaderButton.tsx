@@ -13,24 +13,22 @@ declare global {
 }
 
 export const InstallHeaderButton = () => {
-  const [showButton, setShowButton] = useState(false);
   const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
-  const isIOSRef = useRef(false);
-  const isStandaloneRef = useRef(false);
-  const isAndroidRef = useRef(false);
+
+  // Определяем платформу и режим отображения
+  const ua = window.navigator.userAgent.toLowerCase();
+  const isIOS = /iphone|ipad|ipod/.test(ua);
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+  const isAndroid = /android/.test(ua);
+
+  // Кнопка показывается только если не standalone и это iOS или Android
+  const shouldShowButton = !isStandalone && (isIOS || isAndroid);
+
+  const [showButton, setShowButton] = useState(shouldShowButton);
 
   useEffect(() => {
-    const ua = window.navigator.userAgent.toLowerCase();
-    isIOSRef.current = /iphone|ipad|ipod/.test(ua);
-    isStandaloneRef.current = window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
-    isAndroidRef.current = /android/.test(ua);
-
-    // Показываем кнопку если не standalone и это iOS или Android
-    if (!isStandaloneRef.current && (isIOSRef.current || isAndroidRef.current)) {
-      setShowButton(true);
-    }
-
     // На Android слушаем событие beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -57,13 +55,13 @@ export const InstallHeaderButton = () => {
           deferredPromptRef.current = null;
           setShowButton(false);
         }
-      } catch (error) {
+      } catch {
         alert('Ошибка установки приложения. Попробуйте позже.');
       }
       return;
     }
     // Для iOS - показываем инструкцию
-    if (isIOSRef.current) {
+    if (isIOS) {
       alert(
         'Чтобы установить приложение на iPhone/iPad:\n\n1️⃣ Откройте сайт в Safari\n2️⃣ Нажмите кнопку "Поделиться" (квадрат со стрелкой вверх)\n3️⃣ Выберите "Добавить на экран Домой"\n4️⃣ Подтвердите установку'
       );
@@ -75,16 +73,18 @@ export const InstallHeaderButton = () => {
     );
   };
 
-  if (!showButton) return null;
-
   return (
-    <button
-      onClick={handleInstall}
-      className="flex items-center gap-2 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all active:scale-95 text-sm font-medium"
-      title="Установить приложение на телефон"
-    >
-      <FaArrowDown size={12} className="animate-bounce" />
-      <span>Установить</span>
-    </button>
+    <>
+      {showButton && (
+        <button
+          onClick={handleInstall}
+          className="flex items-center gap-2 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all active:scale-95 text-sm font-medium"
+          title="Установить приложение на телефон"
+        >
+          <FaArrowDown size={12} className="animate-bounce" />
+          <span>Установить</span>
+        </button>
+      )}
+    </>
   );
 };
