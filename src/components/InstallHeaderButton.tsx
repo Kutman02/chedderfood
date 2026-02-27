@@ -13,74 +13,69 @@ declare global {
 }
 
 export const InstallHeaderButton = () => {
-  const [showButton, setShowButton] = useState<boolean>(() => {
-    // Инициализируем правильно при первом рендере
-    const ua = window.navigator.userAgent.toLowerCase()
-    const isIOS = /iphone|ipad|ipod/.test(ua)
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as Navigator & { standalone?: boolean }).standalone === true
-
-    // Показываем кнопку если приложение не установлено и это iOS или Android
-    return !isStandalone && (isIOS || typeof window !== 'undefined')
-  })
-  const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null)
-  const isIOSRef = useRef(false)
+  const [showButton, setShowButton] = useState(false);
+  const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
+  const isIOSRef = useRef(false);
+  const isStandaloneRef = useRef(false);
+  const isAndroidRef = useRef(false);
 
   useEffect(() => {
-    // Определяем платформу
-    const ua = window.navigator.userAgent.toLowerCase()
-    isIOSRef.current = /iphone|ipad|ipod/.test(ua)
+    const ua = window.navigator.userAgent.toLowerCase();
+    isIOSRef.current = /iphone|ipad|ipod/.test(ua);
+    isStandaloneRef.current = window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+    isAndroidRef.current = /android/.test(ua);
 
-    // На iOS кнопка уже видна
-    if (isIOSRef.current) {
-      return
+    // Показываем кнопку если не standalone и это iOS или Android
+    if (!isStandaloneRef.current && (isIOSRef.current || isAndroidRef.current)) {
+      setShowButton(true);
     }
 
     // На Android слушаем событие beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault()
-      const evt = e as BeforeInstallPromptEvent
-      deferredPromptRef.current = evt
-      console.log('✓ beforeinstallprompt event captured')
-    }
+      e.preventDefault();
+      const evt = e as BeforeInstallPromptEvent;
+      deferredPromptRef.current = evt;
+      setShowButton(true);
+      console.log('✓ beforeinstallprompt event captured');
+    };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    }
-  }, [])
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
 
   const handleInstall = async () => {
-    console.log('Install button clicked', { hasPrompt: !!deferredPromptRef.current, isIOS: isIOSRef.current })
-
     // Для Android - вызиваем prompt() аппаратного диалога
     if (deferredPromptRef.current) {
       try {
-        console.log('Showing install prompt...')
-        await deferredPromptRef.current.prompt()
-
-        const { outcome } = await deferredPromptRef.current.userChoice
-        console.log('Install outcome:', outcome)
-
+        await deferredPromptRef.current.prompt();
+        const { outcome } = await deferredPromptRef.current.userChoice;
         if (outcome === 'accepted') {
-          console.log('✓ App installed successfully')
-          deferredPromptRef.current = null
-          setShowButton(false)
+          deferredPromptRef.current = null;
+          setShowButton(false);
         }
       } catch (error) {
-        console.error('Install prompt error:', error)
+        alert('Ошибка установки приложения. Попробуйте позже.');
       }
+      return;
     }
     // Для iOS - показываем инструкцию
-    else if (isIOSRef.current) {
+    if (isIOSRef.current) {
       alert(
-        'Чтобы установить приложение:\n\n1️⃣ Нажмите кнопку "Поделиться" в Safari\n2️⃣ Выберите "Добавить на экран Домой"\n3️⃣ Назовите приложение\n4️⃣ Нажмите "Добавить"'
-      )
+        'Чтобы установить приложение на iPhone/iPad:\n\n1️⃣ Откройте сайт в Safari\n2️⃣ Нажмите кнопку "Поделиться" (квадрат со стрелкой вверх)\n3️⃣ Выберите "Добавить на экран Домой"\n4️⃣ Подтвердите установку'
+      );
+      return;
     }
-  }
+    // Для десктопа и fallback
+    alert(
+      'Чтобы установить приложение:\n\n1. Откройте сайт в Google Chrome на Android\n2. Нажмите меню (⋮)\n3. Выберите "Установить приложение" или "Add to Home screen"'
+    );
+  };
 
-  if (!showButton) return null
+  if (!showButton) return null;
 
   return (
     <button
@@ -91,5 +86,5 @@ export const InstallHeaderButton = () => {
       <FaArrowDown size={12} className="animate-bounce" />
       <span>Установить</span>
     </button>
-  )
-}
+  );
+};
