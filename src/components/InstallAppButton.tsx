@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>
@@ -12,84 +12,87 @@ declare global {
 }
 
 export const InstallAppButton = () => {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [isStandalone] = useState<boolean>(() => {
-    return window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as Navigator & { standalone?: boolean }).standalone === true
-  })
   const [showButton, setShowButton] = useState<boolean>(() => {
     // Инициализируем правильно при первом рендере
-    const standalone = window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as Navigator & { standalone?: boolean }).standalone === true
-    
-    // Показываем кнопку для всех кроме уже установленного приложения
-    return !standalone
-  })
-  useEffect(() => {
     const ua = window.navigator.userAgent.toLowerCase()
-    const ios = /iphone|ipad|ipod/.test(ua)
-    const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+    const isIOS = /iphone|ipad|ipod/.test(ua)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true
 
-    if (standalone) return
+    // Показываем кнопку если:
+    // - Приложение еще не установлено (не standalone)
+    // - И это либо iOS, либо Android (где придет beforeinstallprompt)
+    return !isStandalone && (isIOS || typeof window !== 'undefined')
+  })
+  const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null)
+  const isIOSRef = useRef(false)
+  const isStandaloneRef = useRef(false)
 
-    // На iOS кнопка будет показывать инструкцию
-    if (ios) {
-      setShowButton(true)
+  useEffect(() => {
+    // Определяем платформу
+    const ua = window.navigator.userAgent.toLowerCase()
+    isIOSRef.current = /iphone|ipad|ipod/.test(ua)
+    isStandaloneRef.current = window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+
+    console.log('Platform detection:', { isIOS: isIOSRef.current, isStandalone: isStandaloneRef.current })
+
+    // На iOS кнопка уже видна для инструкции
+    if (isIOSRef.current) {
       return
     }
 
-    // На Android слушаем события beforeinstallprompt
-    const handler = (e: BeforeInstallPromptEvent) => {
+    // На Android слушаем событие beforeinstallprompt
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
-      setDeferredPrompt(e)
-      setShowButton(true)
-      console.log('beforeinstallprompt event fired')
+      const evt = e as BeforeInstallPromptEvent
+      deferredPromptRef.current = evt
+      console.log('✓ beforeinstallprompt event captured')
     }
 
-    window.addEventListener('beforeinstallprompt', handler as EventListener)
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handler as EventListener)
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     }
   }, [])
 
   const handleInstall = async () => {
-    if (deferredPrompt) {
-      // Для Android с событием beforeinstallprompt
+    console.log('Install button clicked', { hasPrompt: !!deferredPromptRef.current, isIOS: isIOSRef.current })
+
+    // Для Android - вызиваем prompt() аппаратного диалога
+    if (deferredPromptRef.current) {
       try {
-        deferredPrompt.prompt()
+        console.log('Showing install prompt...')
+        await deferredPromptRef.current.prompt()
         
-        const { outcome } = await deferredPrompt.userChoice
+        const { outcome } = await deferredPromptRef.current.userChoice
+        console.log('Install outcome:', outcome)
         
         if (outcome === 'accepted') {
-          console.log('App installed')
+          console.log('✓ App installed successfully')
+          deferredPromptRef.current = null
+          setShowButton(false)
         }
-        
-        setDeferredPrompt(null)
-        setShowButton(false)
       } catch (error) {
-        console.error('Install error:', error)
+        console.error('Install prompt error:', error)
       }
-    } else {
-      // Для iOS и других платформ
-      const ua = window.navigator.userAgent.toLowerCase()
-      const isIOSDevice = /iphone|ipad|ipod/.test(ua)
-      
-      if (isIOSDevice) {
-        alert(
-          'Чтобы установить приложение:\n\n1. Нажмите кнопку "Поделиться" в Safari\n2. Выберите "Добавить на экран Домой"\n3. Назовите приложение\n4. Нажмите "Добавить"'
-        )
-      } else {
-        // Для других браузеров на Android
-        alert(
-          'Чтобы установить приложение:\n\n1. Откройте это приложение в Chrome или другом браузере\n2. Нажмите кнопку меню (три точки)\n3. Выберите "Установить приложение" или "Добавить на главный экран"'
-        )
-      }
+    }
+    // Для iOS - показываем инструкцию
+    else if (isIOSRef.current) {
+      alert(
+        'Чтобы установить приложение:\n\n1️⃣ Нажмите кнопку "Поделиться" в Safari\n2️⃣ Выберите "Добавить на экран Домой"\n3️⃣ Назовите приложение\n4️⃣ Нажмите "Добавить"'
+      )
+    }
+    // Другие платформы
+    else {
+      alert(
+        'Чтобы установить приложение:\n\n1. Откройте в Chrome\n2. Нажмите меню (⋮)\n3. Выберите "Установить приложение"'
+      )
     }
   }
 
-  if (isStandalone || !showButton) return null
+  if (!showButton) return null
 
   return (
     <button
