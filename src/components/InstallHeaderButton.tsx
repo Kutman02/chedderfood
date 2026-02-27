@@ -82,7 +82,7 @@ export const InstallHeaderButton = () => {
           title="Установить приложение на телефон"
         >
           <FaArrowDown size={12} className="animate-bounce" />
-          <span>Установить</span>
+          <span>Установить приложение</span>
         </button>
       )}
     </>

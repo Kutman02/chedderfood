@@ -6,6 +6,7 @@ import { clearCustomerData } from '../app/slices/receiptsSlice';
 import { openReceipts, closeReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
 import { InstallAppButton } from '../components/InstallAppButton';
+import { InstallHeaderButton } from './InstallHeaderButton';
 
 
 interface HamburgerMenuProps {
@@ -220,6 +221,8 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                   </div>
                 )}
               </div>
+               {/* Кнопка установки приложения */}
+            <InstallHeaderButton />
 <InstallAppButton />
               {/* Ссылки на страницы */}
               <div className="border-t border-slate-200 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-300">

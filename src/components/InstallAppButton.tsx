@@ -103,8 +103,8 @@ export const InstallAppButton = () => {
         <span className="text-white font-bold text-lg">📱</span>
       </div>
       <div className="flex-1">
-        <h3 className="font-bold text-slate-800 text-base">Установить приложение</h3>
-        <p className="text-sm text-slate-600">Установите PWA на телефон</p>
+        <h3 className="font-bold text-slate-800 text-base">Инструкция по установке</h3>
+        <p className="text-sm text-slate-600">Установите PWA на ваш телефон</p>
       </div>
     </button>
   )

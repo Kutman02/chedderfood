@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useGetPublicProductCategoriesQuery } from '../app/services/publicApi';
 import { Link, useSearchParams } from 'react-router-dom';
 import { HamburgerMenu } from './HamburgerMenu';
-import { InstallHeaderButton } from './InstallHeaderButton';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { openCart, openReceipts, closeCart, closeReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
@@ -93,8 +92,7 @@ export const PublicHeader = () => {
           </Link>
           
           <div className="flex items-center gap-2">
-            {/* Кнопка установки приложения */}
-            <InstallHeaderButton />
+           
 
             {/* Кнопка чеков с огненным эффектом при активных заказах */}
             <button
