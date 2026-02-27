@@ -13,7 +13,7 @@ import Contacts from './pages/Contacts';
 import AuthTest from './components/AuthTest';
 import WooCommerceTest from './components/WooCommerceTest';
 import NotFound from './pages/NotFound';
-import { InstallButton } from './components/InstallButton';
+import { InstallAppButton } from './components/InstallAppButton';
 
 // Простая проверка: авторизован ли пользователь
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
@@ -34,8 +34,8 @@ function App() {
   return (
     <ErrorBoundary>
       <Toast />
+      <InstallAppButton />
       <Router>
-        <InstallButton />
         <Routes>
           {/* Публичный роут: Главная страница */}
           <Route path="/" element={<Home />} />
