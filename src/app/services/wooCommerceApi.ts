@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { Order, Customer } from '../../types/types';
+import type { Order, Customer } from '../../types';
 import { API_BASE_URL, WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET } from './apiConfig';
 
 // WooCommerce API with only Basic Auth (no WordPress nonce)

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaImage, FaEdit, FaFire, FaStar, FaGift, FaEyeSlash } from 'react-icons/fa';
-import type { Product } from '../../types/types';
+import type { Product } from '../../types';
 
 interface ProductCardProps {
   product: Product;

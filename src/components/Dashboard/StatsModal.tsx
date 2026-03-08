@@ -3,7 +3,7 @@ import { FaTimes, FaCalendarAlt, FaChartLine, FaBox, FaTag, FaDollarSign, FaShop
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { format, subDays } from 'date-fns';
 import { useGetAnalyticsOrdersQuery, useGetAnalyticsProductsQuery } from '../../app/services/api';
-import type { OrderItem } from '../../types/types';
+import type { OrderItem } from '../../types';
 
 interface AnalyticsData {
   revenue: number;

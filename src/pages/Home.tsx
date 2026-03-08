@@ -10,7 +10,7 @@ import { Cart } from '../components/Cart';
 import { ProductModalSwipe } from '../components/ProductModalSwipe';
 import { MyReceipts } from '../components/MyReceipts';
 import { ProductSkeleton } from '../components/Skeleton';
-import type { Product, Category } from '../types/types';
+import type { Product, Category } from '../types';
 import { FaShoppingCart, FaPlus, FaMinus, FaFire, FaStar, FaGift } from 'react-icons/fa';
 
 const Home = () => {

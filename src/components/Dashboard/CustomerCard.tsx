@@ -1,6 +1,6 @@
 
 import { FaUser, FaPhone, FaShoppingCart, FaDollarSign } from 'react-icons/fa';
-import type { Customer } from '../../types/types';
+import type { Customer } from '../../types';
 
 interface CustomerCardProps {
   customer: Customer;

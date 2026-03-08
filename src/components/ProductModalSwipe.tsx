@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { FaTimes, FaShoppingCart } from 'react-icons/fa';
-import type { Product } from '../types/types';
+import type { Product } from '../types';
 import { useAppDispatch } from '../app/hooks';
 import { addToCart } from '../app/slices/cartSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';

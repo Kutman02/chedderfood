@@ -3,7 +3,7 @@ import { FaTimes, FaTrash, FaReceipt, FaCalendarAlt, FaUser, FaPhone, FaMapMarke
 import { OrderReceipt } from './OrderReceipt';
 import { ConfirmDialog } from './ConfirmDialog';
 import { useGetPublicOrderQuery } from '../app/services/publicApi';
-import type { OrderItem, Product, ReceiptData } from '../types/types';
+import type { OrderItem, Product, ReceiptData } from '../types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { deleteReceipt } from '../app/slices/receiptsSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';

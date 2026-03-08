@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaTimes, FaImage, FaTag, FaDollarSign, FaFileAlt, FaPlus, FaTrash, FaStar, FaFire, FaGift, FaEye, FaEyeSlash, FaBox } from 'react-icons/fa';
 import { useGetProductCategoriesQuery, useUpdateProductMutation, useUploadImageMutation } from '../../app/services/api';
-import type { Product, ProductStatus } from '../../types/types';
+import type { Product, ProductStatus } from '../../types';
 
 interface EditProductModalProps {
   isOpen: boolean;

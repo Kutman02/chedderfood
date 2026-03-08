@@ -1,4 +1,4 @@
-import type { TabConfig } from '../../types/types';
+import type { TabConfig } from '../../types';
 
 interface TabNavigationProps {
   tabs: TabConfig[];

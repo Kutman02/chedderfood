@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { FaTimes, FaPhone, FaMapMarkerAlt, FaCalendar, FaCreditCard, FaTruck, FaShare, FaWhatsapp, FaTelegram, FaCopy, FaCheckCircle } from 'react-icons/fa';
-import type { Order } from '../../types/types';
+import type { Order } from '../../types';
 import { useToastStore } from '../../stores/toastStore';
 
 interface OrderDetailsModalProps {

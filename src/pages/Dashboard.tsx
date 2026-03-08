@@ -4,7 +4,7 @@ import { useGetWooOrdersQuery, useUpdateWooOrderStatusMutation } from '../app/se
 import { useAppSelector } from '../app/hooks';
 import { useAuth } from '../hooks/useAuth';
 import { FaBell, FaUserTie, FaCheckCircle, FaTimes, FaBox, FaUsers, FaShoppingBag, FaPlus, FaEye, FaEyeSlash } from 'react-icons/fa';
-import type { TabConfig, Product, Order } from '../types/types';
+import type { TabConfig, Product, Order } from '../types';
 import { filterOrders } from '../utils/utils';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { SerializedError } from '@reduxjs/toolkit';

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { FaShoppingCart, FaDollarSign, FaUsers } from 'react-icons/fa';
 import { useGetAllWooCustomersQuery } from '../../app/services/wooCommerceApi';
-import type { Customer } from '../../types/types';
+import type { Customer } from '../../types';
 import { CustomerCard } from './CustomerCard';
 import { CustomerSkeleton } from '../Skeleton';
 

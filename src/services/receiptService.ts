@@ -1,5 +1,5 @@
 // Сервис для работы с чеками в localStorage
-import type { CustomerData, ReceiptData } from '../types/types';
+import type { CustomerData, ReceiptData } from '../types';
 
 export class ReceiptService {
   private static readonly RECEIPTS_KEY = 'chedderfood_receipts';

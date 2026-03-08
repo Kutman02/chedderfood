@@ -1,5 +1,5 @@
 import { FaPhone, FaMapMarkerAlt, FaUserTie, FaTimes, FaCheckCircle, FaEye, FaExclamationTriangle, FaTruck, FaStore } from 'react-icons/fa';
-import type { Order, TabConfig } from '../../types/types';
+import type { Order, TabConfig } from '../../types';
 
 interface OrderCardProps {
   order: Order;

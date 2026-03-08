@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaTimes, FaShoppingCart } from 'react-icons/fa';
-import type { Product } from '../types/types';
+import type { Product } from '../types';
 
 interface ProductModalProps {
   product: Product | null;

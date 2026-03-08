@@ -1,4 +1,4 @@
-import type { Order } from '../types/types';
+import type { Order } from '../types';
 
 export const filterOrders = (orders: Order[] | undefined, query: string): Order[] => {
   if (!orders) return [];

@@ -1,7 +1,7 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { FaTimes, FaCheckCircle, FaPrint, FaShare, FaSync } from 'react-icons/fa';
 import { useGetPublicOrderQuery } from '../app/services/publicApi';
-import type { Product, OrderItem, PublicOrder } from '../types/types';
+import type { Product, OrderItem, PublicOrder, OrderMetaData } from '../types';
 import { useScrollLockStore } from '../stores/scrollLockStore';
 
 interface OrderReceiptProps {
@@ -44,7 +44,7 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
   };
 
   const getOrderType = () => {
-    const orderTypeData = currentOrderData.meta_data?.find((m: any) => m.key === 'order_type');
+    const orderTypeData = currentOrderData.meta_data?.find((m: OrderMetaData) => m.key === 'order_type');
     return orderTypeData?.value || 'delivery';
   };
 
