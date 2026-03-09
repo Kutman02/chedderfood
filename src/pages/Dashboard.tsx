@@ -8,7 +8,7 @@ import type { TabConfig, Product, Order } from '../types';
 import { filterOrders } from '../utils/utils';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { SerializedError } from '@reduxjs/toolkit';
-import { Clients } from '../components/Dashboard/Clients';
+import { Clients } from '../components/Dashboard/Clients/Clients';
 
 // Type guard function to check if error is FetchBaseQueryError with status 401
 const isAuthenticationError = (error: FetchBaseQueryError | SerializedError | undefined): boolean => {
@@ -21,7 +21,7 @@ const isAuthenticationError = (error: FetchBaseQueryError | SerializedError | un
 
 import { Header } from '../components/Dashboard/Header';
 import { OrderCard } from '../components/Dashboard/OrderCard/OrderCard';
-import { ProductCard } from '../components/Dashboard/ProductCard';
+import { ProductCard } from '../components/Dashboard/ProductCard/ProductCard';
 import { OrderDetailsModal } from '../components/Dashboard/OrderDetailsModal/OrderDetailsModal';
 import { AddProductModal } from '../components/Dashboard/AddProductModal/AddProductModal';
 import { EditProductModal } from '../components/Dashboard/EditProductModal/EditProductModal';
