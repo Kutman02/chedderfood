@@ -24,7 +24,7 @@ import { OrderCard } from '../components/Dashboard/OrderCard';
 import { ProductCard } from '../components/Dashboard/ProductCard';
 import { OrderDetailsModal } from '../components/Dashboard/OrderDetailsModal';
 import { AddProductModal } from '../components/Dashboard/AddProductModal/AddProductModal';
-import { EditProductModal } from '../components/Dashboard/EditProductModal';
+import { EditProductModal } from '../components/Dashboard/EditProductModal/EditProductModal';
 import { StatsModal } from '../components/Dashboard/StatsModal';
 import { OrderSkeleton, ProductSkeleton } from '../components/Skeleton';
 
