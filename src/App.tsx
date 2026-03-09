@@ -11,7 +11,7 @@ import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import Contacts from './pages/Contacts';
 import AuthTest from './components/AuthTest/AuthTest';
-import WooCommerceTest from './components/WooCommerceTest';
+import WooCommerceTest from './components/WooCommerceTest/WooCommerceTest';
 import NotFound from './pages/NotFound';
 
 // Простая проверка: авторизован ли пользователь

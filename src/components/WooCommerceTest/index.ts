@@ -1,0 +1,1 @@
+export { default as WooCommerceTest } from "./WooCommerceTest"
