@@ -1,0 +1,36 @@
+import type { HeaderProps } from "./types"
+
+import { Logo } from "./components/Logo"
+import { HeaderActions } from "./components/HeaderActions"
+
+export const Header = ({
+  showSettings,
+  setShowSettings,
+  showStats,
+  setShowStats,
+  userName
+}: HeaderProps) => {
+
+  return (
+
+    <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm sticky top-0 z-50">
+
+      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+
+        <Logo />
+
+        <HeaderActions
+          showSettings={showSettings}
+          setShowSettings={setShowSettings}
+          showStats={showStats}
+          setShowStats={setShowStats}
+          userName={userName}
+        />
+
+      </div>
+
+    </header>
+
+  )
+
+}

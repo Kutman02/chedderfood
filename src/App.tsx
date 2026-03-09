@@ -10,7 +10,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import Contacts from './pages/Contacts';
-import AuthTest from './components/AuthTest';
+import AuthTest from './components/AuthTest/AuthTest';
 import WooCommerceTest from './components/WooCommerceTest';
 import NotFound from './pages/NotFound';
 

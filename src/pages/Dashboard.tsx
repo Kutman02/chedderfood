@@ -19,7 +19,7 @@ const isAuthenticationError = (error: FetchBaseQueryError | SerializedError | un
   ));
 };
 
-import { Header } from '../components/Dashboard/Header';
+import { Header } from '../components/Dashboard/Header/Header';
 import { OrderCard } from '../components/Dashboard/OrderCard/OrderCard';
 import { ProductCard } from '../components/Dashboard/ProductCard/ProductCard';
 import { OrderDetailsModal } from '../components/Dashboard/OrderDetailsModal/OrderDetailsModal';
