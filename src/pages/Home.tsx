@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addToCart as addToCartAction, removeFromCart as removeFromCartAction } from '../app/slices/cartSlice';
 import { closeReceipts, openCart, openReceipts, closeCart } from '../app/slices/uiSlice';
 import { PublicHeader } from '../components/PublicHeader';
-import { PublicFooter } from '../components/PublicFooter';
+import { PublicFooter } from '../components/PublicFooter/PublicFooter';
 import { Cart } from '../components/Cart/Cart';
 import { ProductModalSwipe } from '../components/ProductModalSwipe/ProductModalSwipe';
 import { MyReceipts } from '../components/MyReceipts/MyReceipts';

@@ -1,5 +1,5 @@
 import { PublicHeader } from '../components/PublicHeader';
-import { PublicFooter } from '../components/PublicFooter';
+import { PublicFooter } from '../components/PublicFooter/PublicFooter';
 import { FaUtensils, FaShippingFast, FaHeart, FaAward } from 'react-icons/fa';
 
 const AboutUs = () => {
