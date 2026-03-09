@@ -1,0 +1,1 @@
+export { ProductModalSwipe } from "./ProductModalSwipe"
