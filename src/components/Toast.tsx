@@ -19,7 +19,7 @@ const ToastItem: React.FC<{ toast: ToastType }> = ({ toast }) => {
 
   return (
     <div
-      className={`${bgColorMap[toast.type || 'success']} border rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 min-w-[300px] max-w-[500px] animate-in slide-in-from-right-full duration-300`}
+      className={`${bgColorMap[toast.type || 'success']} border rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 min-w-300px max-w-500px animate-in slide-in-from-right-full duration-300`}
     >
       {iconMap[toast.type || 'success']}
       <span className="flex-1 text-sm font-medium text-slate-800">{toast.message}</span>
