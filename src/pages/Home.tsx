@@ -6,7 +6,7 @@ import { addToCart as addToCartAction, removeFromCart as removeFromCartAction } 
 import { closeReceipts, openCart, openReceipts, closeCart } from '../app/slices/uiSlice';
 import { PublicHeader } from '../components/PublicHeader';
 import { PublicFooter } from '../components/PublicFooter';
-import { Cart } from '../components/Cart';
+import { Cart } from '../components/Cart/Cart';
 import { ProductModalSwipe } from '../components/ProductModalSwipe';
 import { MyReceipts } from '../components/MyReceipts';
 import { ProductSkeleton } from '../components/Skeleton';
