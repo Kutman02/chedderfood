@@ -2,7 +2,7 @@
 import { useSearchParams } from "react-router-dom";
 
 import { Checkout } from "@/components/Checkout/Checkout"
-import { OrderReceipt } from "@/components/OrderReceipt"
+import { OrderReceipt } from "@/components/OrderReceipt/OrderReceipt"
 
 import {
   CartHeader,

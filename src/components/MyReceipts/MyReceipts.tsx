@@ -1,6 +1,6 @@
 import { useReceiptsLogic } from "./hooks"
 import { ConfirmDialog } from "../ConfirmDialog/ConfirmDialog"
-import { OrderReceipt } from "../OrderReceipt"
+import { OrderReceipt } from "../OrderReceipt/OrderReceipt"
 import type { Product } from "../../types"
 import { ReceiptsHeader, ReceiptsList, EmptyReceipts } from "./components"
 
