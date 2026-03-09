@@ -25,7 +25,7 @@ import { ProductCard } from '../components/Dashboard/ProductCard/ProductCard';
 import { OrderDetailsModal } from '../components/Dashboard/OrderDetailsModal/OrderDetailsModal';
 import { AddProductModal } from '../components/Dashboard/AddProductModal/AddProductModal';
 import { EditProductModal } from '../components/Dashboard/EditProductModal/EditProductModal';
-import { StatsModal } from '../components/Dashboard/StatsModal';
+import { StatsModal } from '../components/Dashboard/Stats/StatsModal';
 import { OrderSkeleton, ProductSkeleton } from '../components/Skeleton';
 
 const ORDER_TABS: TabConfig[] = [

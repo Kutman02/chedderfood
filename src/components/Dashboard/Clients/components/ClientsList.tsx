@@ -1,7 +1,7 @@
 import { FaUsers } from "react-icons/fa"
 import type { Customer } from "../../../../types"
 
-import { CustomerCard } from "../../CustomerCard"
+import { CustomerCard } from "../../CustomerCard/CustomerCard"
 
 interface Props {
   customers: Customer[]
