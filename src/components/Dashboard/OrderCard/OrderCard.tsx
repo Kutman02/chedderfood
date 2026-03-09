@@ -18,7 +18,13 @@ export const OrderCard = ({
   showConfirmation = false,
   confirmationAction = ""
 }: OrderCardProps) => {
-
+  
+const getStatusFromAction = () => {
+  if (confirmationAction === "принять") return "processing"
+  if (confirmationAction === "завершить") return "completed"
+  if (confirmationAction === "отменить") return "cancelled"
+  return ""
+}
   return (
 
     <div
@@ -58,13 +64,19 @@ export const OrderCard = ({
         />
       )}
 
-      {showConfirmation && (
-        <OrderConfirmation
-          action={confirmationAction}
-          onCancel={() => onConfirmAction(order.id, "", "")}
-          onConfirm={() => onStatusUpdate(order.id, confirmationAction)}
-        />
-      )}
+   {showConfirmation && (
+  <OrderConfirmation
+    action={confirmationAction}
+    onCancel={() => onConfirmAction(order.id, "", "")}
+    onConfirm={() => {
+      const status = getStatusFromAction()
+
+      if (status) {
+        onStatusUpdate(order.id, status)
+      }
+    }}
+  />
+)}
 
     </div>
 

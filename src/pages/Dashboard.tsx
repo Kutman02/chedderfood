@@ -22,7 +22,7 @@ const isAuthenticationError = (error: FetchBaseQueryError | SerializedError | un
 import { Header } from '../components/Dashboard/Header';
 import { OrderCard } from '../components/Dashboard/OrderCard/OrderCard';
 import { ProductCard } from '../components/Dashboard/ProductCard';
-import { OrderDetailsModal } from '../components/Dashboard/OrderDetailsModal';
+import { OrderDetailsModal } from '../components/Dashboard/OrderDetailsModal/OrderDetailsModal';
 import { AddProductModal } from '../components/Dashboard/AddProductModal/AddProductModal';
 import { EditProductModal } from '../components/Dashboard/EditProductModal/EditProductModal';
 import { StatsModal } from '../components/Dashboard/StatsModal';

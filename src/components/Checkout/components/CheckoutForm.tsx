@@ -1,10 +1,10 @@
 import React from "react";
-
 import { FaUser, FaMapMarkerAlt, FaNotesMedical } from "react-icons/fa";
 
 import { PhoneInput } from "./PhoneInput";
 import { OrderTypeSelector } from "./OrderTypeSelector";
-import type { Country } from "../constants/countries"
+
+import type { Country } from "../constants/countries";
 import type { CheckoutFormData } from "../../../types";
 
 interface CheckoutFormProps {
@@ -84,8 +84,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
             )}
           </div>
 
-          {/* Адрес */}
-          {orderType === "delivery" && (
+          {/* Адрес / Самовывоз */}
+          {orderType === "delivery" ? (
+
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
                 <FaMapMarkerAlt size={14} />
@@ -109,6 +110,34 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 </p>
               )}
             </div>
+
+          ) : (
+
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+
+              <p className="font-bold text-green-700 mb-1">
+                Самовывоз
+              </p>
+
+              <p className="text-sm text-green-700">
+                Заберите заказ по адресу:
+              </p>
+
+              <p className="font-bold text-lg text-green-800">
+  Курманжан Датка 12, Ош
+</p>
+
+<a
+  href="https://go.2gis.com/hXA1n"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-block mt-2 text-sm font-semibold text-green-700 underline hover:text-green-900"
+>
+  Открыть в 2ГИС
+</a>
+
+            </div>
+
           )}
 
           {/* Телефон */}

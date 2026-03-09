@@ -200,18 +200,31 @@ export const useCheckout = ({
         return;
       }
 
-      const orderData = {
-        status: "on-hold",
-        customer_id: 0,
-        billing: {
-          first_name: formData.first_name,
-          address_1: formData.address,
-          phone: formData.phone,
-        },
-        line_items: cartItems,
-        total: totalAmount.toString(),
-        currency: "KGS",
-      };
+const orderData = {
+  status: "on-hold",
+  customer_id: 0,
+
+  billing: {
+    first_name: formData.first_name,
+    address_1:
+      orderType === "pickup"
+        ? "Адрес ресторана"
+        : formData.address,
+    phone: formData.phone,
+  },
+
+  line_items: cartItems,
+
+  total: totalAmount.toString(),
+  currency: "KGS",
+
+  meta_data: [
+    {
+      key: "order_type",
+      value: orderType,
+    },
+  ],
+};
 
       const order = await createOrder(orderData).unwrap();
 

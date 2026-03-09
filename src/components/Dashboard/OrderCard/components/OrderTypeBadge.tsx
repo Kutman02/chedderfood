@@ -1,24 +1,43 @@
 import { FaTruck, FaStore } from "react-icons/fa"
 import type { Order } from "../../../../types"
 
-export const OrderTypeBadge = ({ order }: { order: Order }) => {
+interface OrderTypeBadgeProps {
+  order: Order
+}
 
-  const meta = order.meta_data?.find(m => m.key === "order_type")
+export const OrderTypeBadge = ({ order }: OrderTypeBadgeProps) => {
 
-  if (!meta) return null
+  const orderTypeMeta = order.meta_data?.find(
+    (m) => m.key === "order_type"
+  )
 
-  const isPickup = meta.value === "pickup"
+  if (!orderTypeMeta) return null
+
+  const isPickup = orderTypeMeta.value === "pickup"
 
   return (
 
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-white
-      ${isPickup ? "bg-green-600" : "bg-blue-600"}`}>
+    <div
+      className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-white ${
+        isPickup ? "bg-green-600" : "bg-blue-600"
+      }`}
+    >
 
-      {isPickup ? <FaStore size={16} /> : <FaTruck size={16} />}
-
-      <span className="text-sm">
-        {isPickup ? "Самовывоз" : "Доставка"}
-      </span>
+      {isPickup ? (
+        <>
+          <FaStore size={16} />
+          <span className="text-sm">
+            Заберу сам (самовывоз)
+          </span>
+        </>
+      ) : (
+        <>
+          <FaTruck size={16} />
+          <span className="text-sm">
+            Доставка
+          </span>
+        </>
+      )}
 
     </div>
 
