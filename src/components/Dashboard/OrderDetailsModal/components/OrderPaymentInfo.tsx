@@ -1,5 +1,5 @@
 import { FaCreditCard } from "react-icons/fa"
-import type { Order } from "../../../../types"
+import type { Order } from "@/types"
 
 interface Props {
   order: Order

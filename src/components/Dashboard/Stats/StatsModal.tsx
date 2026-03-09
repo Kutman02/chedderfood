@@ -4,12 +4,8 @@ import { format, subDays } from "date-fns"
 
 import { useAnalyticsData } from "./hooks/useAnalyticsData"
 
-import { StatsHeader } from "./components/StatsHeader"
-import { StatsMetrics } from "./components/StatsMetrics"
-import { SalesChart } from "./components/SalesChart"
-import { TopCategories } from "./components/TopCategories"
-import { TopProducts } from "./components/TopProducts"
-import { CategoryPieChart } from "./components/CategoryPieChart"
+
+import { StatsHeader, StatsMetrics, SalesChart, TopCategories, TopProducts, CategoryPieChart  } from "./components"
 
 interface StatsModalProps {
   isOpen: boolean

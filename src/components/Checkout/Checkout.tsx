@@ -1,12 +1,12 @@
 import React from "react";
-
-import { CheckoutHeader } from "./components/CheckoutHeader";
-import { CheckoutForm } from "./components/CheckoutForm";
-import { CheckoutFooter } from "./components/CheckoutFooter";
-import { ConfirmOrderModal } from "./components/ConfirmOrderModal";
-import type { PublicOrder } from "../../types";
-
-import { useCheckout } from "./hooks/useCheckout";
+import {
+  CheckoutHeader,
+  CheckoutForm,
+  CheckoutFooter,
+  ConfirmOrderModal
+} from "@/components/Checkout/components"
+import type { PublicOrder } from "@/types"
+import { useCheckout } from "@/components/Checkout/hooks/useCheckout"
 
 interface CheckoutProps {
   onClose: () => void;

@@ -1,6 +1,6 @@
 import type { SearchBarProps } from "./types"
-import { SearchInput } from "./components/SearchInput"
-import { ClearButton } from "./components/ClearButton"
+
+import { SearchInput, ClearButton } from "./components"
 
 export const SearchBar = ({ searchQuery, setSearchQuery }: SearchBarProps) => {
 

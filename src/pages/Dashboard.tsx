@@ -26,7 +26,7 @@ import { OrderDetailsModal } from '../components/Dashboard/OrderDetailsModal/Ord
 import { AddProductModal } from '../components/Dashboard/AddProductModal/AddProductModal';
 import { EditProductModal } from '../components/Dashboard/EditProductModal/EditProductModal';
 import { StatsModal } from '../components/Dashboard/Stats/StatsModal';
-import { OrderSkeleton, ProductSkeleton } from '../components/Skeleton';
+import { OrderSkeleton, ProductSkeleton } from '../components/Skeleton/components';
 
 const ORDER_TABS: TabConfig[] = [
   { id: 'on-hold', label: 'Новые', icon: FaBell, color: 'from-amber-500 to-orange-500', bgColor: 'bg-amber-50', textColor: 'text-amber-700', borderColor: 'border-amber-200' },

@@ -1,7 +1,7 @@
 import { FaTimes, FaShare } from "react-icons/fa"
-import type { Order } from "../../../../types"
+import type { Order } from "@/types"
 
-import { ShareMenu } from "./ShareMenu"
+import { ShareMenu } from "./index"
 
 interface Props {
   order: Order

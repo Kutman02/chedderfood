@@ -1,8 +1,11 @@
-import type { ConfirmDialogProps } from "./types"
 
-import { ConfirmHeader } from "./components/ConfirmHeader"
-import { ConfirmContent } from "./components/ConfirmContent"
-import { ConfirmActions } from "./components/ConfirmActions"
+import type { ConfirmDialogProps } from "@/components/ConfirmDialog/types"
+
+import {
+  ConfirmHeader,
+  ConfirmContent,
+  ConfirmActions
+} from "@/components/ConfirmDialog/components"
 
 export const ConfirmDialog = ({
   isOpen,

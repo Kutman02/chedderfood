@@ -1,7 +1,6 @@
 import type { HeaderProps } from "./types"
 
-import { Logo } from "./components/Logo"
-import { HeaderActions } from "./components/HeaderActions"
+import { Logo, HeaderActions } from "./components"
 
 export const Header = ({
   showSettings,

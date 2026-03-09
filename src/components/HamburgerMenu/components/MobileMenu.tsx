@@ -1,9 +1,6 @@
-import { MenuOverlay } from "./MenuOverlay"
-import { MenuHeader } from "./MenuHeader"
-import { ReceiptsButton } from "./ReceiptsButton"
-import { CustomerDataCard } from "./CustomerDataCard"
-import { InfoLinks } from "./InfoLinks"
-import { AppInfo } from "./AppInfo"
+
+
+import { MenuHeader, MenuOverlay, ReceiptsButton, CustomerDataCard, InfoLinks, AppInfo } from "./"
 
 import { InstallButton } from "../../InstallButton"
 

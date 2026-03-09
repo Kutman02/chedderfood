@@ -1,15 +1,17 @@
 
 import { useSearchParams } from "react-router-dom";
 
-import { Checkout } from "../Checkout/Checkout";
-import { OrderReceipt } from "../OrderReceipt";
+import { Checkout } from "@/components/Checkout/Checkout"
+import { OrderReceipt } from "@/components/OrderReceipt"
 
-import { CartHeader } from "./components/CartHeader";
-import { CartList } from "./components/CartList";
-import { CartFooter } from "./components/CartFooter";
-import { CartEmpty } from "./components/CartEmpty";
+import {
+  CartHeader,
+  CartList,
+  CartFooter,
+  CartEmpty
+} from "@/components/Cart/components"
 
-import { useCart } from "./hooks/useCart";
+import { useCart } from "@/components/Cart/hooks/useCart"
 
 export const Cart = () => {
   const [searchParams, setSearchParams] = useSearchParams();

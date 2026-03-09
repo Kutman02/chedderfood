@@ -5,7 +5,7 @@ import { HamburgerMenu } from './HamburgerMenu/HamburgerMenu';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { openCart, openReceipts, closeCart, closeReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';
-import { CategorySkeleton } from './Skeleton';
+import { CategorySkeleton } from './Skeleton/components';
 import { FaReceipt} from 'react-icons/fa';
 
 

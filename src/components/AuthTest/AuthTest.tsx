@@ -1,8 +1,10 @@
-import { LoginTestForm } from "./components/LoginTestForm"
-import { AuthButtons } from "./components/AuthButtons"
-import { ResultViewer } from "./components/ResultViewer"
+import {
+  LoginTestForm,
+  AuthButtons,
+  ResultViewer
+} from "@/components/AuthTest/components"
 
-import { useAuthTest } from "./hooks/useAuthTest"
+import { useAuthTest } from "@/components/AuthTest/hooks/useAuthTest"
 
 const AuthTest = () => {
 

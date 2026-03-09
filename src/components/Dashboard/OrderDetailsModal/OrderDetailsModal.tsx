@@ -1,8 +1,11 @@
 import { useState, useRef } from "react"
-import type { Order } from "../../../types"
+import type { Order } from "@/types"
 
-import { OrderDetailsHeader } from "./components/OrderDetailsHeader"
-import { OrderDetailsContent } from "./components/OrderDetailsContent"
+
+import {
+  OrderDetailsHeader,
+  OrderDetailsContent,
+} from "./components"
 
 interface OrderDetailsModalProps {
   isOpen: boolean

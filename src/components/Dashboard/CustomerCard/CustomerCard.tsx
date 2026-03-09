@@ -1,8 +1,10 @@
-import type { Customer } from "../../../types"
+import type { Customer } from "@/types"
 
-import { CustomerHeader } from "./components/CustomerHeader"
-import { CustomerContact } from "./components/CustomerContact"
-import { CustomerStats } from "./components/CustomerStats"
+import {
+  CustomerHeader,
+  CustomerContact,
+  CustomerStats
+} from "./components"
 
 interface CustomerCardProps {
   customer: Customer

@@ -1,13 +1,16 @@
 import { useState } from "react"
-import { useGetAllWooCustomersQuery } from "../../../app/services/wooCommerceApi"
 
-import { ClientsSortPanel } from "./components/ClientsSortPanel"
-import { ClientsList } from "./components/ClientsList"
-import { ClientsError } from "./components/ClientsError"
+import { useGetAllWooCustomersQuery } from "@/app/services/wooCommerceApi"
 
-import { CustomerSkeleton } from "../../Skeleton"
+import {
+  ClientsSortPanel,
+  ClientsList,
+  ClientsError
+} from "@/components/Dashboard/Clients/components"
 
-import { useFilteredCustomers } from "./hooks/useFilteredCustomers"
+import { CustomerSkeleton } from "@/components/Skeleton/components"
+
+import { useFilteredCustomers } from "@/components/Dashboard/Clients/hooks/useFilteredCustomers"
 
 interface ClientsProps {
   searchQuery: string

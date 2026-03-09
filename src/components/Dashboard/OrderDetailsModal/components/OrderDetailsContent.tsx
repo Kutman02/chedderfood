@@ -1,12 +1,14 @@
-import type { Order } from "../../../../types"
+import type { Order } from "@/types"
 
-import { OrderCustomerInfo } from "./OrderCustomerInfo"
-import { OrderTypeInfo } from "./OrderTypeInfo"
-import { OrderAddressInfo } from "./OrderAddressInfo"
-import { OrderItemsList } from "./OrderItemsList"
-import { OrderPricing } from "./OrderPricing"
-import { OrderPaymentInfo } from "./OrderPaymentInfo"
-import { OrderNote } from "./OrderNote"
+import {
+  OrderCustomerInfo,
+  OrderTypeInfo,
+  OrderAddressInfo,
+  OrderItemsList,
+  OrderPricing,
+  OrderPaymentInfo,
+  OrderNote
+} from "./index"
 
 interface Props {
   order: Order

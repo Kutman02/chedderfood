@@ -1,6 +1,8 @@
-import { EditProductHeader } from "./components/EditProductHeader"
-import { EditImageUploader } from "./components/EditImageUploader"
-import { EditProductForm } from "./components/EditProductForm"
+import {
+  EditProductHeader,
+  EditImageUploader,
+  EditProductForm
+} from "./components"
 
 import { useEditProduct } from "./hooks/useEditProduct"
 

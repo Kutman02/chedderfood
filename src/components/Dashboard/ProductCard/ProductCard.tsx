@@ -1,11 +1,8 @@
-import type { Product } from "../../../types"
+import type { Product } from "@/types"
 
-import { ProductImage } from "./components/ProductImage"
-import { ProductBadges } from "./components/ProductBadges"
-import { ProductEditButton } from "./components/ProductEditButton"
-import { ProductPrice } from "./components/ProductPrice"
-import { ProductTags } from "./components/ProductTags"
-import { ProductMeta } from "./components/ProductMeta"
+
+
+import { ProductImage, ProductBadges, ProductEditButton, ProductPrice, ProductTags, ProductMeta } from "./components"
 
 interface ProductCardProps {
   product: Product

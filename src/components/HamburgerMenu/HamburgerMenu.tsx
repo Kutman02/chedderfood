@@ -2,9 +2,11 @@ import type { HamburgerMenuProps } from "./types"
 
 import { useHamburgerMenu } from "./hooks/useHamburgerMenu"
 
-import { HamburgerButton } from "./components/HamburgerButton"
-import { MobileMenu } from "./components/MobileMenu"
-import { DesktopMenu } from "./components/DesktopMenu"
+import {
+  HamburgerButton,
+  MobileMenu,
+  DesktopMenu
+} from "./components"
 
 export const HamburgerMenu = ({
   onCustomerDataSelect,

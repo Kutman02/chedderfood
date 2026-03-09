@@ -1,5 +1,5 @@
 import { FaBox, FaDollarSign, FaChartLine } from "react-icons/fa"
-import { StatsCard } from "./components/StatsCard"
+import { StatsCard } from "./components"
 
 interface StatsProps {
   stats: {

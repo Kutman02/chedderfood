@@ -1,10 +1,12 @@
-import type { OrderCardProps } from "./types/orderCard.types"
+import {
+  OrderCardHeader,
+  OrderTypeBadge,
+  OrderAddress,
+  OrderActions,
+  OrderConfirmation
+} from "./components"
 
-import { OrderCardHeader } from "./components/OrderCardHeader"
-import { OrderTypeBadge } from "./components/OrderTypeBadge"
-import { OrderAddress } from "./components/OrderAddress"
-import { OrderActions } from "./components/OrderActions"
-import { OrderConfirmation } from "./components/OrderConfirmation"
+import type { OrderCardProps } from "./types/orderCard.types"
 
 export const OrderCard = ({
   order,
