@@ -8,7 +8,7 @@ import { PublicHeader } from '../components/PublicHeader';
 import { PublicFooter } from '../components/PublicFooter';
 import { Cart } from '../components/Cart/Cart';
 import { ProductModalSwipe } from '../components/ProductModalSwipe';
-import { MyReceipts } from '../components/MyReceipts';
+import { MyReceipts } from '../components/MyReceipts/MyReceipts';
 import { ProductSkeleton } from '../components/Skeleton/components';
 import type { Product, Category } from '../types';
 import { FaShoppingCart, FaPlus, FaMinus, FaFire, FaStar, FaGift } from 'react-icons/fa';

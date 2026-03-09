@@ -9,3 +9,5 @@ export * from "./CustomerDataCard"
 export * from "./InfoLinks"
 export * from "./AppInfo"
 
+export * from "../../InstallButton"
+

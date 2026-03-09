@@ -2,7 +2,7 @@
 
 import { MenuHeader, MenuOverlay, ReceiptsButton, CustomerDataCard, InfoLinks, AppInfo } from "./"
 
-import { InstallButton } from "../../InstallButton"
+import { InstallButton } from "../components"
 
 interface CustomerData {
   first_name: string

@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
+import { InstallButtonUI } from "./components"
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
 }
 
 export const InstallButton = () => {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null)
   const [showButton, setShowButton] = useState(false)
 
   useEffect(() => {
@@ -16,10 +18,10 @@ export const InstallButton = () => {
       setShowButton(true)
     }
 
-    window.addEventListener('beforeinstallprompt', handler)
+    window.addEventListener("beforeinstallprompt", handler)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handler)
+      window.removeEventListener("beforeinstallprompt", handler)
     }
   }, [])
 
@@ -30,8 +32,8 @@ export const InstallButton = () => {
 
     const { outcome } = await deferredPrompt.userChoice
 
-    if (outcome === 'accepted') {
-      console.log('App installed')
+    if (outcome === "accepted") {
+      console.log("App installed")
     }
 
     setDeferredPrompt(null)
@@ -40,12 +42,5 @@ export const InstallButton = () => {
 
   if (!showButton) return null
 
-  return (
-    <button
-      onClick={handleInstallClick}
-      className="fixed bottom-6 right-6 bg-orange-600 text-white px-4 py-3 rounded-xl shadow-lg"
-    >
-      Установить приложение
-    </button>
-  )
+  return <InstallButtonUI onClick={handleInstallClick} />
 }
