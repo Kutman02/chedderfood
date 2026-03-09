@@ -4,7 +4,7 @@ import { useGetPublicProductsQuery, useGetPublicProductCategoriesQuery } from '.
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addToCart as addToCartAction, removeFromCart as removeFromCartAction } from '../app/slices/cartSlice';
 import { closeReceipts, openCart, openReceipts, closeCart } from '../app/slices/uiSlice';
-import { PublicHeader } from '../components/PublicHeader';
+import { PublicHeader } from '../components/PublicHeader/PublicHeader';
 import { PublicFooter } from '../components/PublicFooter/PublicFooter';
 import { Cart } from '../components/Cart/Cart';
 import { ProductModalSwipe } from '../components/ProductModalSwipe/ProductModalSwipe';

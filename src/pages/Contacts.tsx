@@ -1,4 +1,4 @@
-import { PublicHeader } from '../components/PublicHeader';
+import { PublicHeader } from '../components/PublicHeader/PublicHeader';
 import { PublicFooter } from '../components/PublicFooter/PublicFooter';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaWhatsapp, FaTelegram } from 'react-icons/fa';
 
