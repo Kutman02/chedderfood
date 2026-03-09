@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useGetPublicProductCategoriesQuery } from '../app/services/publicApi';
 import { Link, useSearchParams } from 'react-router-dom';
-import { HamburgerMenu } from './HamburgerMenu';
+import { HamburgerMenu } from './HamburgerMenu/HamburgerMenu';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { openCart, openReceipts, closeCart, closeReceipts } from '../app/slices/uiSlice';
 import { useScrollLockStore } from '../stores/scrollLockStore';

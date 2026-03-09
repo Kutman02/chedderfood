@@ -1,7 +1,7 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { FaTimes, FaTrash, FaReceipt, FaCalendarAlt, FaUser, FaPhone, FaMapMarkerAlt, FaEye, FaSync } from 'react-icons/fa';
 import { OrderReceipt } from './OrderReceipt';
-import { ConfirmDialog } from './ConfirmDialog';
+import { ConfirmDialog } from './ConfirmDialog/ConfirmDialog';
 import { useGetPublicOrderQuery } from '../app/services/publicApi';
 import type { OrderItem, Product, ReceiptData } from '../types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';

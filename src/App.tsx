@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { useAppSelector } from './app/hooks';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { ModalRedirectWrapper } from './components/ModalRedirectWrapper';
 import { Toast } from './components/Toast';
 import Dashboard from './pages/Dashboard';
