@@ -1,6 +1,6 @@
 import type { FC } from "react"
 
-import type { Product, PublicOrder } from "../../types"
+import type { Product, PublicOrder } from "@/types"
 
 import { useOrderReceipt } from "./hooks/useOrderReceipt"
 
@@ -31,9 +31,16 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-
-        <ReceiptHeader
+<div className="
+  bg-white 
+  w-full h-full 
+  sm:h-auto sm:max-h-[90vh] 
+  sm:max-w-2xl 
+  sm:rounded-md 
+  shadow-2xl 
+  overflow-hidden 
+  flex flex-col
+">        <ReceiptHeader
           onClose={onClose}
           onRefresh={receipt.handleRefresh}
           isRefreshing={receipt.isRefreshing}
@@ -52,6 +59,7 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
               СЧЕТ
             </p>
           </div>
+          <OrderItemsTable items={receipt.orderItems} />
 
           <CustomerInfo order={receipt.order} />
 
@@ -63,7 +71,6 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
             shippingInfo={receipt.shippingInfo}
           />
 
-          <OrderItemsTable items={receipt.orderItems} />
 
           <OrderTotals
             subtotal={receipt.subtotal}
