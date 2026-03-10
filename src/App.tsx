@@ -5,7 +5,7 @@ import { useAppSelector } from './app/hooks';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { ModalRedirectWrapper } from './components/ModalRedirectWrapper';
 import { Toast } from './components/Toast/Toast';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard/Dashboard';
 import Login from './pages/Login';
 import Home from './pages/Home/Home';
 import AboutUs from './pages/AboutUs';
