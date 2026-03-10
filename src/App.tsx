@@ -7,7 +7,7 @@ import { ModalRedirectWrapper } from './components/ModalRedirectWrapper';
 import { Toast } from './components/Toast/Toast';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
-import Home from './pages/Home';
+import Home from './pages/Home/Home';
 import AboutUs from './pages/AboutUs';
 import Contacts from './pages/Contacts';
 import AuthTest from './components/AuthTest/AuthTest';
