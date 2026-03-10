@@ -6,7 +6,7 @@ import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { ModalRedirectWrapper } from './components/ModalRedirectWrapper';
 import { Toast } from './components/Toast/Toast';
 import Dashboard from './pages/Dashboard/Dashboard';
-import Login from './pages/Login';
+import Login from './pages/Login/Login';
 import Home from './pages/Home/Home';
 import AboutUs from './pages/AboutUs';
 import Contacts from './pages/Contacts';
