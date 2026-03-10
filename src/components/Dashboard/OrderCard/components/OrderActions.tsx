@@ -14,7 +14,6 @@ export const OrderActions = ({
   if (activeTab === "on-hold") {
 
     return (
-
       <div className="flex gap-2">
 
         <button
@@ -33,20 +32,41 @@ export const OrderActions = ({
         </button>
 
       </div>
-
     )
-
   }
 
   if (activeTab === "processing") {
 
     return (
+      <div className="flex gap-2">
 
+        <button
+          onClick={() => onConfirmAction(order.id, "ready", "готов")}
+          className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+        >
+          <FaCheckCircle />
+          Готов
+        </button>
+
+        <button
+          onClick={() => onConfirmAction(order.id, "cancelled", "отменить")}
+          className="px-4 bg-red-50 text-red-600 rounded-xl"
+        >
+          <FaTimes />
+        </button>
+
+      </div>
+    )
+  }
+
+  if (activeTab === "ready") {
+
+    return (
       <div className="flex gap-2">
 
         <button
           onClick={() => onConfirmAction(order.id, "completed", "завершить")}
-          className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+          className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
         >
           <FaCheckCircle />
           Завершить
@@ -60,11 +80,8 @@ export const OrderActions = ({
         </button>
 
       </div>
-
     )
-
   }
 
   return null
-
 }

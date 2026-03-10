@@ -23,6 +23,7 @@ export const OrderCard = ({
   
 const getStatusFromAction = () => {
   if (confirmationAction === "принять") return "processing"
+  if (confirmationAction === "готов") return "ready"
   if (confirmationAction === "завершить") return "completed"
   if (confirmationAction === "отменить") return "cancelled"
   return ""

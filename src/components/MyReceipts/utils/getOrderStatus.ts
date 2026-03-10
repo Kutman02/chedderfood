@@ -9,8 +9,10 @@ export const getOrderStatus = (status: string) => {
     case "processing":
       return { label: "Готовится", color: "text-blue-600" }
 
-    case "completed":
+    case "ready":
       return { label: "Готов", color: "text-green-600" }
+    case "completed":
+      return { label: "Завершён", color: "text-yellow-900" }
 
     case "cancelled":
       return { label: "Отменён", color: "text-red-600" }
