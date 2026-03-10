@@ -2,15 +2,15 @@ export const AppInfo = () => {
 
   return (
 
-    <div className="border-t border-slate-200 pt-6">
+    <div>
 
-      <h3 className="font-bold text-slate-800 mb-4 text-base">
+      <h3>
         О приложении
       </h3>
 
-      <div className="space-y-2 text-sm text-slate-600 bg-slate-50 rounded-2xl p-5">
+      <div>
 
-        <p className="font-medium text-slate-700">
+        <p>
           BurgerFood — доставка вкусной еды
         </p>
 

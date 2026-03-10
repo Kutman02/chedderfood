@@ -6,16 +6,13 @@ interface Props {
 
 export const MenuHeader = ({ onClose }: Props) => (
 
-  <div className="shrink-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+  <div>
 
-    <h2 className="text-lg font-black text-slate-800">
+    <h2>
       Меню
     </h2>
 
-    <button
-      onClick={onClose}
-      className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
-    >
+    <button onClick={onClose}>
       <FaTimes size={20} />
     </button>
 

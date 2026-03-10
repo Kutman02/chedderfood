@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from "react"
+import { useState, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
@@ -10,7 +10,6 @@ import { useScrollLockStore } from "../../../stores/scrollLockStore"
 export const useHamburgerMenu = () => {
 
   const dispatch = useAppDispatch()
-
   const [searchParams, setSearchParams] = useSearchParams()
 
   const isReceiptsOpen = useAppSelector((s) => s.ui.isReceiptsOpen)
@@ -22,15 +21,18 @@ export const useHamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  useLayoutEffect(() => {
+  // управление scroll lock
+  useEffect(() => {
 
     if (isOpen) {
       lockScroll()
-      return () => unlockScroll()
+    } else {
+      unlockScroll()
     }
 
   }, [isOpen, lockScroll, unlockScroll])
 
+  // определение mobile
   useEffect(() => {
 
     const checkMobile = () => {

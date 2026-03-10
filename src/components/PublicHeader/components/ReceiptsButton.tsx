@@ -10,15 +10,14 @@ export const ReceiptsButton = ({
   onClick,
 }: ReceiptsButtonProps) => {
   return (
-    <button
-      onClick={onClick}
-      className="relative p-1 rounded-lg hover:bg-orange-50/80 text-orange-600"
-    >
+    <button onClick={onClick}>
+
       {hasActiveOrders && (
-        <span className="absolute -inset-1.5 rounded-full border-[3px] border-orange-400/30 border-t-orange-600 animate-spin-slow" />
+        <span />
       )}
 
-      <FaReceipt size={18} className="relative z-10" />
+      <FaReceipt size={18} />
+
     </button>
   )
 }

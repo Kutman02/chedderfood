@@ -1,54 +1,42 @@
-import { create } from 'zustand';
+import { create } from "zustand"
 
 interface ScrollLockState {
-  isLocked: boolean;
-  scrollY: number;
-  lock: () => void;
-  unlock: () => void;
+  isLocked: boolean
+  lock: () => void
+  unlock: () => void
 }
 
 export const useScrollLockStore = create<ScrollLockState>((set, get) => ({
   isLocked: false,
-  scrollY: 0,
+
   lock: () => {
-    if (typeof window === 'undefined') return;
-    const { isLocked } = get();
-    if (isLocked) return;
+    if (typeof window === "undefined") return
 
-    const scrollY = window.scrollY;
+    const { isLocked } = get()
+    if (isLocked) return
 
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-    document.body.style.overflow = 'hidden';
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth
 
-    set({ isLocked: true, scrollY });
+    document.body.style.overflow = "hidden"
+
+    // чтобы не было layout shift из-за исчезновения scrollbar
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`
+    }
+
+    set({ isLocked: true })
   },
+
   unlock: () => {
-    if (typeof window === 'undefined') return;
-    const { isLocked, scrollY } = get();
-    if (!isLocked) return;
+    if (typeof window === "undefined") return
 
-    const top = document.body.style.top;
+    const { isLocked } = get()
+    if (!isLocked) return
 
-    const restoredY = top ? Math.abs(parseInt(top, 10)) : scrollY;
+    document.body.style.overflow = ""
+    document.body.style.paddingRight = ""
 
-    // Важно: убираем fixed-стили и сразу же синхронно восстанавливаем scroll,
-    // иначе браузер успевает поставить scrollY=0 и потом делает “плавный” скролл обратно.
-    const root = document.documentElement;
-    const prevScrollBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = 'auto';
-
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    document.body.style.overflow = '';
-
-    window.scrollTo(0, restoredY);
-
-    requestAnimationFrame(() => {
-      root.style.scrollBehavior = prevScrollBehavior;
-      set({ isLocked: false });
-    });
+    set({ isLocked: false })
   },
-}));
+}))

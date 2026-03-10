@@ -1,7 +1,4 @@
-
-
 import { MenuHeader, MenuOverlay, ReceiptsButton, CustomerDataCard, InfoLinks, AppInfo } from "./"
-
 import { InstallButton } from "../components"
 
 interface CustomerData {
@@ -28,23 +25,20 @@ export const MobileMenu = ({
 
   return (
 
-    <div className="fixed inset-0 z-100">
+    <div>
 
       <MenuOverlay onClick={closeMenu} />
 
-      <div className="absolute top-0 right-0 bottom-0 bg-white w-full max-w-md flex flex-col">
+      <div>
 
         <MenuHeader onClose={closeMenu} />
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div>
 
-          <ReceiptsButton
-            onClick={toggleReceipts}
-          />
+          <ReceiptsButton onClick={toggleReceipts} />
 
           <div>
-
-            <h3 className="font-bold text-slate-800 mb-4">
+            <h3>
               Мои данные
             </h3>
 
@@ -56,7 +50,6 @@ export const MobileMenu = ({
               }
               onClear={clearCustomer}
             />
-
           </div>
 
           <InstallButton />
