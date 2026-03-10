@@ -20,7 +20,7 @@ export const DesktopMenu = ({
         className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg"
       >
         <FaReceipt size={14}/>
-        <span className="text-sm font-medium">Мои чеки</span>
+        <span className="text-sm font-medium">Мои заказы</span>
       </button>
 
       <Link

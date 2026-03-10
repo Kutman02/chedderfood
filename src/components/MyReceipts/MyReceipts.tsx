@@ -53,8 +53,8 @@ export const MyReceipts = ({ products, onClose }: MyReceiptsProps) => {
 
       <ConfirmDialog
         isOpen={deleteConfirm.isOpen}
-        title="Удаление чека"
-        message={`Вы действительно хотите удалить чек #${deleteConfirm.receiptId}?`}
+        title="Удаление заказа"
+        message={`Вы действительно хотите удалить заказ #${deleteConfirm.receiptId}?`}
         onConfirm={confirmDeleteReceipt}
         onCancel={cancelDeleteReceipt}
         confirmText="Да"

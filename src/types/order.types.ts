@@ -100,25 +100,29 @@ export type Order = {
   date_created: string;
   date_modified: string;
 
-  billing: {
-    first_name: string;
-    last_name: string;
-    phone: string;
-    email: string;
-    address_1: string;
-    address_2: string;
-    city: string;
-    postcode: string;
-  };
+ billing: {
+  first_name: string;
+  last_name: string;
+  phone: string;
+  email: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  postcode: string;
+  country?: string;
+  company?: string;
+};
 
   shipping: {
-    first_name: string;
-    last_name: string;
-    address_1: string;
-    address_2: string;
-    city: string;
-    postcode: string;
-  };
+  first_name: string;
+  last_name: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  postcode: string;
+  country?: string;
+  company?: string;
+};
 
   line_items: OrderItem[];
 

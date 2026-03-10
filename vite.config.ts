@@ -51,6 +51,15 @@ export default defineConfig({
 
   server: {
     port: 5173,
+
+    proxy: {
+      "/wp-json": {
+        target: "https://chedderfood.local",
+        changeOrigin: true,
+        secure: false
+      }
+    }
+
   }
 
 })

@@ -25,7 +25,7 @@ export const ReceiptsButton = ({ onClick }: Props) => {
       <div className="flex-1">
 
         <h3 className="font-bold text-slate-800">
-          Мои чеки
+          Мои заказы
         </h3>
 
         <p className="text-sm text-slate-600">
