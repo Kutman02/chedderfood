@@ -20,19 +20,28 @@ export const OrderDetailsContent = ({ order }: Props) => {
 
     <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
 
-      <OrderCustomerInfo order={order} />
-
-      <OrderTypeInfo order={order} />
-
-      <OrderAddressInfo order={order} />
-
+      {/* Самое важное — блюда */}
       <OrderItemsList order={order} />
 
-      <OrderPricing order={order} />
+      {/* Комментарий клиента */}
+      <OrderNote order={order} />
 
+      {/* Тип заказа */}
+      <OrderTypeInfo order={order} />
+
+      {/* Клиент */}
+      <OrderCustomerInfo order={order} />
+
+      {/* Адрес */}
+      {(order.shipping?.address_1 || order.billing?.address_1) && (
+        <OrderAddressInfo order={order} />
+      )}
+
+      {/* Оплата */}
       <OrderPaymentInfo order={order} />
 
-      <OrderNote order={order} />
+      {/* Цена */}
+      <OrderPricing order={order} />
 
     </div>
 

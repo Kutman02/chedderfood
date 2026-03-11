@@ -1,5 +1,6 @@
 import { FaCheckCircle } from "react-icons/fa"
 import type { Order } from "@/types"
+import { OrderAddressInfo } from "./OrderAddressInfo"
 
 interface Props {
   order: Order
@@ -32,6 +33,8 @@ export const OrderTypeInfo = ({ order }: Props) => {
         {isPickup
           ? "Клиент заберет заказ в ресторане"
           : "Доставка осуществляется по адресу"}
+          <OrderAddressInfo order={order} />
+          
       </p>
 
     </div>

@@ -1,6 +1,5 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import type { Order } from "@/types"
-
 
 import {
   OrderDetailsHeader,
@@ -16,20 +15,50 @@ interface OrderDetailsModalProps {
 export const OrderDetailsModal = ({
   isOpen,
   order,
-  onClose
+  onClose,
 }: OrderDetailsModalProps) => {
 
   const [showShareMenu, setShowShareMenu] = useState(false)
 
   const shareMenuRef = useRef<HTMLDivElement | null>(null)
 
+  /**
+   * Блокируем скролл страницы
+   */
+  useEffect(() => {
+    if (!isOpen) return
+
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [isOpen])
+
+  /**
+   * Закрытие по ESC
+   */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [onClose])
+
   if (!isOpen || !order) return null
 
   return (
+    <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-black/50 backdrop-blur-sm">
 
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm overflow-hidden">
-
-      <div className="bg-white w-full h-screen flex flex-col overflow-hidden">
+      <div className="bg-white w-full h-full flex flex-col overflow-hidden">
 
         <OrderDetailsHeader
           order={order}
@@ -39,14 +68,16 @@ export const OrderDetailsModal = ({
           shareMenuRef={shareMenuRef}
         />
 
-        <OrderDetailsContent
-          order={order}
-        />
+        <div className="flex-1 overflow-y-auto">
+
+          <OrderDetailsContent
+            order={order}
+          />
+
+        </div>
 
       </div>
 
     </div>
-
   )
-
 }
