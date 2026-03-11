@@ -1,11 +1,11 @@
 import { useState } from "react"
-import { authService } from "../../../app/services/authService"
-import { userService } from "../../../app/services/userService"
+import { authService } from "@/app/services/authService"
+import { userService } from "@/app/services/userService"
 import {
   API_BASE_URL,
   WOOCOMMERCE_CONSUMER_KEY,
   WOOCOMMERCE_CONSUMER_SECRET
-} from "../../../app/services/apiConfig"
+} from "@/app/services/apiConfig"
 
 import type { AuthResult } from "../types"
 

@@ -1,10 +1,10 @@
 import { useState, useLayoutEffect } from "react"
 
-import { useGetPublicOrderQuery } from "../../../app/services/publicApi"
+import { useGetPublicOrderQuery } from "@/app/services/publicApi"
 
-import { useScrollLockStore } from "../../../stores/scrollLockStore"
+import { useScrollLockStore } from "@/stores/scrollLockStore"
 
-import type { Product, OrderItem, PublicOrder, OrderMetaData } from "../../../types"
+import type { Product, OrderItem, PublicOrder, OrderMetaData } from "@/types"
 
 import { formatDate } from "../utils/formatDate"
 

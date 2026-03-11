@@ -1,18 +1,18 @@
 import { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useCreateOrderMutation } from "../../../app/services/api";
-import { useCheckActiveOrdersCountQuery } from "../../../app/services/publicApi";
+import { useCreateOrderMutation } from "@/app/services/api";
+import { useCheckActiveOrdersCountQuery } from "@/app/services/publicApi";
 
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { addReceipt, setCustomerData } from "../../../app/slices/receiptsSlice";
-import { clearCart } from "../../../app/slices/cartSlice";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { addReceipt, setCustomerData } from "@/app/slices/receiptsSlice";
+import { clearCart } from "@/app/slices/cartSlice";
 
-import { useScrollLockStore } from "../../../stores/scrollLockStore";
+import { useScrollLockStore } from "@/stores/scrollLockStore";
 
 import { CIS_COUNTRIES } from "../constants/countries";
 
-import type { CheckoutFormData, PublicOrder } from "../../../types";
+import type { CheckoutFormData, PublicOrder } from "@/types";
 
 interface UseCheckoutProps {
   onClose: () => void;

@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 
-import { useAppDispatch, useAppSelector } from "../../../app/hooks"
-import { clearCustomerData } from "../../../app/slices/receiptsSlice"
-import { openReceipts, closeReceipts } from "../../../app/slices/uiSlice"
+import { useAppDispatch, useAppSelector } from "@/app/hooks"
+import { clearCustomerData } from "@/app/slices/receiptsSlice"
+import { openReceipts, closeReceipts } from "@/app/slices/uiSlice"
 
-import { useScrollLockStore } from "../../../stores/scrollLockStore"
+import { useScrollLockStore } from "@/stores/scrollLockStore"
 
 export const useHamburgerMenu = () => {
 

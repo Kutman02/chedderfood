@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { Product, Customer, Order, AnalyticsResponse } from '../../types';
+import type { Product, Customer, Order, AnalyticsResponse } from '@/types';
 import { format, subDays } from 'date-fns';
 import { WORDPRESS_APP_PASSWORD, WORDPRESS_USERNAME, API_BASE_URL, WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET } from './apiConfig';
 // checkAppPasswordConfig автоматически вызывается при импорте apiConfig в dev режиме

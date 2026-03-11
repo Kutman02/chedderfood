@@ -5,7 +5,7 @@ import { PhoneInput } from "./PhoneInput";
 import { OrderTypeSelector } from "./OrderTypeSelector";
 
 import type { Country } from "../constants/countries";
-import type { CheckoutFormData } from "../../../types";
+import type { CheckoutFormData } from "@/types";
 
 interface CheckoutFormProps {
   formData: CheckoutFormData;

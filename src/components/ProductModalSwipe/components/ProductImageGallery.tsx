@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { Product } from "../../../types"
+import type { Product } from "@/types"
 
 const SITE_URL = import.meta.env.VITE_SITE_URL
 

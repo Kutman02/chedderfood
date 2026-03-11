@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { CustomerData, ReceiptData } from '../../types';
+import type { CustomerData, ReceiptData } from '@/types';
 
 type ReceiptsState = {
   receipts: ReceiptData[];

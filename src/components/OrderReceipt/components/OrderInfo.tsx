@@ -1,5 +1,5 @@
 import type { FC } from "react"
-import type { PublicOrder } from "../../../types"
+import type { PublicOrder } from "@/types"
 
 interface ShippingInfo {
   method: string

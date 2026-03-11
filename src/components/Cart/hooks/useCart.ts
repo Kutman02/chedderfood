@@ -1,10 +1,10 @@
 import { useState, useLayoutEffect } from "react";
 
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { addToCart, clearCart, removeFromCart } from "../../../app/slices/cartSlice";
-import { closeCart, openReceipts } from "../../../app/slices/uiSlice";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { addToCart, clearCart, removeFromCart } from "@/app/slices/cartSlice";
+import { closeCart, openReceipts } from "@/app/slices/uiSlice";
 
-import { useScrollLockStore } from "../../../stores/scrollLockStore";
+import { useScrollLockStore } from "@/stores/scrollLockStore";
 
 import type { Product, PublicOrder, CartItem } from "../../../types";
 

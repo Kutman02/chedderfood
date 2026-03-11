@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { HamburgerMenuProps } from "./types"
 
-import { useScrollLockStore } from "../../stores/scrollLockStore"
+import { useScrollLockStore } from "@/stores/scrollLockStore"
 
 import {
   HamburgerButton,

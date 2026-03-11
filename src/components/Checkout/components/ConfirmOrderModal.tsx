@@ -1,7 +1,7 @@
 import React from "react";
 import { FaCheckCircle, FaUser, FaMapMarkerAlt, FaPhone, FaNotesMedical } from "react-icons/fa";
 
-import type { CheckoutFormData } from "../../../types";
+import type { CheckoutFormData } from "@/types";
 
 interface ConfirmOrderModalProps {
   open: boolean;

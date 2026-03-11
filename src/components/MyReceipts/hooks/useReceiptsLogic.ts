@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import { deleteReceipt } from "@/app/slices/receiptsSlice"
 
-import type { ReceiptData } from "../../../types"
+import type { ReceiptData } from "@/types"
 
 export const useReceiptsLogic = () => {
 

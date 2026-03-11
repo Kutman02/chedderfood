@@ -1,5 +1,5 @@
 import { FaTimes } from "react-icons/fa"
-import type { Product } from "../../../types"
+import type { Product } from "@/types"
 
 interface ModalHeaderProps {
   product: Product

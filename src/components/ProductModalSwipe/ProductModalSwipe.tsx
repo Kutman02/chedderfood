@@ -1,7 +1,7 @@
 import { useRef, useEffect, useLayoutEffect } from "react"
-import type { Product } from "../../types"
+import type { Product } from "@/types"
 
-import { useScrollLockStore } from "../../stores/scrollLockStore"
+import { useScrollLockStore } from "@/stores/scrollLockStore"
 
 import { ModalHeader } from "./components/ModalHeader"
 import { ProductImageGallery } from "./components/ProductImageGallery"
