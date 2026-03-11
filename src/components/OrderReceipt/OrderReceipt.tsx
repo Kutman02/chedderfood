@@ -42,7 +42,7 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
           w-full h-full
           sm:h-auto sm:max-h-[90vh]
           sm:max-w-2xl
-          sm:rounded-md
+          sm:rounded-xl
           shadow-2xl
           overflow-hidden
           flex flex-col
@@ -56,48 +56,56 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
           isRefreshing={receipt.isRefreshing}
         />
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 max-w-xl mx-auto w-full">
 
-          <div className="text-center mb-8 border-b-2 border-slate-200 pb-6">
+          {/* Restaurant */}
+          <div className="text-center border-b border-slate-200 pb-6">
 
-            <h1 className="text-2xl font-black text-slate-800 mb-2">
+            <h1 className="text-3xl font-black text-slate-900">
               BURGERFOOD
             </h1>
 
-            <p className="text-slate-600">
+            <p className="text-sm text-slate-500 mt-1">
               Курманжан датка 12, Ош, Кыргызстан
             </p>
 
-            <p className="text-lg font-bold text-orange-600 mt-2">
-              СЧЕТ
+            <p className="text-orange-600 font-bold mt-3 text-lg">
+              Чек заказа
             </p>
 
           </div>
 
-          <OrderItemsTable items={receipt.orderItems} />
-
-          <CustomerInfo order={currentOrder} />
-
-          <OrderTypeBlock orderType={receipt.orderType} />
-
+          {/* Order info */}
           <OrderInfo
             order={currentOrder}
             formatDate={receipt.formatDate}
             shippingInfo={receipt.shippingInfo}
           />
 
+          {/* Status */}
+          <OrderStatus
+            status={currentOrder.status}
+            isUpdated={!!receipt.latestOrder}
+          />
+
+          {/* Items */}
+          <OrderItemsTable items={receipt.orderItems} />
+
+          {/* Totals */}
           <OrderTotals
             subtotal={receipt.subtotal}
             shippingCost={receipt.shippingCost}
             total={receipt.total}
           />
 
-          <OrderNote note={currentOrder.customer_note} />
+          {/* Delivery / Pickup */}
+          <OrderTypeBlock orderType={receipt.orderType} />
 
-          <OrderStatus
-            status={currentOrder.status}
-            latestOrder={receipt.latestOrder}
-          />
+          {/* Customer */}
+          <CustomerInfo order={currentOrder} />
+
+          {/* Note */}
+          <OrderNote note={currentOrder.customer_note} />
 
         </div>
 

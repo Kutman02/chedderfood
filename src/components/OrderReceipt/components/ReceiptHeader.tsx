@@ -15,7 +15,7 @@ const getStatusUI = (status: string) => {
     case "pending":
       return {
         text: "Ожидает оплаты",
-        icon: <FaClock className="text-yellow-600" size={20} />,
+        icon: FaClock,
         bg: "bg-yellow-100",
         color: "text-yellow-700",
       }
@@ -23,7 +23,7 @@ const getStatusUI = (status: string) => {
     case "on-hold":
       return {
         text: "Ожидает подтверждения",
-        icon: <FaClock className="text-orange-600" size={20} />,
+        icon: FaClock,
         bg: "bg-orange-100",
         color: "text-orange-700",
       }
@@ -31,7 +31,7 @@ const getStatusUI = (status: string) => {
     case "processing":
       return {
         text: "Ваш заказ готовится",
-        icon: <MdRestaurant className="text-blue-600 animate-pulse" size={22} />,
+        icon: MdRestaurant,
         bg: "bg-blue-100",
         color: "text-blue-700",
       }
@@ -39,7 +39,7 @@ const getStatusUI = (status: string) => {
     case "ready":
       return {
         text: "Заказ готов",
-        icon: <IoFastFood className="text-green-600" size={22} />,
+        icon: IoFastFood,
         bg: "bg-green-100",
         color: "text-green-700",
       }
@@ -47,7 +47,7 @@ const getStatusUI = (status: string) => {
     case "completed":
       return {
         text: "Заказ завершён",
-        icon: <FaCheckCircle className="text-green-600" size={20} />,
+        icon: FaCheckCircle,
         bg: "bg-green-100",
         color: "text-green-700",
       }
@@ -55,7 +55,7 @@ const getStatusUI = (status: string) => {
     case "cancelled":
       return {
         text: "Заказ отменён",
-        icon: <FaTimes className="text-red-600" size={20} />,
+        icon: FaTimes,
         bg: "bg-red-100",
         color: "text-red-700",
       }
@@ -63,7 +63,7 @@ const getStatusUI = (status: string) => {
     default:
       return {
         text: "Статус заказа",
-        icon: <FaClock className="text-slate-500" size={20} />,
+        icon: FaClock,
         bg: "bg-slate-100",
         color: "text-slate-700",
       }
@@ -78,22 +78,23 @@ export const ReceiptHeader: FC<ReceiptHeaderProps> = ({
 }) => {
 
   const ui = getStatusUI(status)
+  const Icon = ui.icon
 
   return (
-    <div className="shrink-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+    <div className="shrink-0 bg-linear-to-r from-white to-orange-50 border-b border-slate-200 p-4 flex items-center justify-between">
 
       <div className="flex items-center gap-3">
 
         <div className={`w-10 h-10 ${ui.bg} rounded-full flex items-center justify-center`}>
-          {ui.icon}
+          <Icon size={20} className={ui.color} />
         </div>
 
         <div>
-          <h2 className={`text-xl font-black ${ui.color}`}>
+          <h2 className={`text-lg font-black ${ui.color}`}>
             {ui.text}
           </h2>
 
-          <p className="text-sm text-slate-600">
+          <p className="text-xs text-slate-500">
             Автообновление каждые 30 секунд
           </p>
         </div>
@@ -116,7 +117,8 @@ export const ReceiptHeader: FC<ReceiptHeaderProps> = ({
 
         <button
           onClick={onClose}
-          className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+          className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          title="Закрыть"
         >
           <FaTimes size={20} />
         </button>

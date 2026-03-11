@@ -20,63 +20,58 @@ export const OrderInfo: FC<OrderInfoProps> = ({
   shippingInfo,
 }) => {
   return (
-    <div className="mb-6 bg-orange-50 rounded-lg p-4">
-      <h3 className="font-bold text-slate-800 mb-3">
-        Информация о заказе
-      </h3>
+    <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-6">
 
-      <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="mb-4">
 
-        <div>
-          <p className="text-slate-600">Номер счета:</p>
-          <p className="font-bold text-lg">
-            {order.id}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-slate-600">Дата счета:</p>
-          <p className="font-bold">
-            {formatDate(order.date_created)}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-slate-600">Номер заказа:</p>
-          <p className="font-bold text-lg text-orange-600">
-            #{order.id}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-slate-600">Дата заказа:</p>
-          <p className="font-bold">
-            {formatDate(order.date_created)}
-          </p>
-        </div>
-
-      </div>
-
-      <div className="mt-3 pt-3 border-t border-orange-200">
-        <p className="text-slate-600">Метод оплаты:</p>
-        <p className="font-bold">
-          {order.payment_method_title || "Оплата при получении"}
+        <p className="text-sm text-slate-500">
+          Заказ
         </p>
+
+        <p className="text-2xl font-black text-orange-600">
+          #{order.id}
+        </p>
+
+        <p className="text-sm text-slate-600">
+          {formatDate(order.date_created)}
+        </p>
+
       </div>
 
-      <div className="mt-3 pt-3 border-t border-orange-200">
-        <p className="text-slate-600">Способ получения:</p>
-        <p className="font-bold text-lg text-orange-600">
-          {shippingInfo.method}
-        </p>
+      <div className="space-y-4 text-sm">
+
+        <div>
+          <p className="text-slate-500">
+            Способ оплаты
+          </p>
+
+          <p className="font-semibold text-slate-800">
+            {order.payment_method_title || "Оплата при получении"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-slate-500">
+            Способ получения
+          </p>
+
+          <p className="font-semibold text-orange-600">
+            {shippingInfo.method}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-slate-500">
+            Адрес доставки
+          </p>
+
+          <p className="font-semibold text-slate-800">
+            {shippingInfo.address}
+          </p>
+        </div>
+
       </div>
 
-      <div className="mt-3 pt-3 border-t border-orange-200">
-        <p className="text-slate-600">Адрес:</p>
-        <p className="font-bold text-sm">
-          {shippingInfo.address}
-        </p>
-      </div>
     </div>
   )
 }

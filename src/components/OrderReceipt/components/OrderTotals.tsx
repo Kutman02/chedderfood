@@ -12,38 +12,42 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
   total,
 }) => {
   return (
-    <div className="border-t-2 border-slate-200 pt-4">
+    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
 
-      <div className="space-y-2">
+      <div className="space-y-3">
 
-        <div className="flex justify-between text-sm">
-          <span className="text-slate-600">
-            Подытог:
-          </span>
+        <div className="flex justify-between text-sm text-slate-600">
+          <span>Товары</span>
 
-          <span className="font-medium">
+          <span className="font-medium text-slate-800">
             {subtotal.toFixed(2)} сом
           </span>
         </div>
 
-        <div className="flex justify-between text-sm">
-          <span className="text-slate-600">
-            Доставка:
-          </span>
+        <div className="flex justify-between text-sm text-slate-600">
+          <span>Доставка</span>
 
-          <span className="font-medium">
-            {shippingCost > 0
-              ? `${shippingCost.toFixed(2)} сом`
-              : "Бесплатно"}
-          </span>
+          {shippingCost > 0 ? (
+            <span className="font-medium text-slate-800">
+              {shippingCost.toFixed(2)} сом
+            </span>
+          ) : (
+            <span className="font-medium text-green-600">
+              Бесплатно
+            </span>
+          )}
         </div>
 
-        <div className="flex justify-between text-lg font-bold text-orange-600 pt-2 border-t border-slate-200">
-          <span>Итого:</span>
+        <div className="border-t border-slate-200 pt-3 flex justify-between items-center">
 
-          <span>
+          <span className="text-lg font-semibold text-slate-800">
+            Итого
+          </span>
+
+          <span className="text-2xl font-black text-orange-600">
             {total.toFixed(2)} сом
           </span>
+
         </div>
 
       </div>

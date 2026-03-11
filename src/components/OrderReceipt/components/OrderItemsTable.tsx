@@ -5,72 +5,74 @@ interface OrderItemsTableProps {
   items: OrderItemWithImage[]
 }
 
+const formatPrice = (price: number) => `${price.toFixed(2)} сом`
+
 export const OrderItemsTable: FC<OrderItemsTableProps> = ({ items }) => {
   return (
-    <div className="mb-6">
-      <h3 className="font-bold text-slate-800 mb-3">
-        Заказанные товары
+    <div>
+
+      <h3 className="font-bold text-slate-900 text-lg mb-4">
+        Ваш заказ
       </h3>
 
-      <div className="border border-slate-200 rounded-lg overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="text-left p-3 text-sm font-medium text-slate-700">
-                Товар
-              </th>
+      <div className="space-y-4">
 
-              <th className="text-center p-3 text-sm font-medium text-slate-700">
-                Количество
-              </th>
+        {items.map((item, index) => {
 
-              <th className="text-right p-3 text-sm font-medium text-slate-700">
-                Цена
-              </th>
-            </tr>
-          </thead>
+          const key = `${item.name}-${index}`
 
-          <tbody>
-            {items.map((item, index) => (
-              <tr
-                key={index}
-                className="border-t border-slate-200"
-              >
-                <td className="p-3">
-                  <div className="flex items-center gap-3">
+          return (
+            <div
+              key={key}
+              className="flex items-center gap-4 border-b border-slate-200 pb-4 last:border-none"
+            >
 
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-12 h-12 object-cover rounded-lg"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        if (item.fallback) {
-                          target.src = item.fallback
-                        }
-                      }}
-                    />
+              <img
+                src={item.image || item.fallback}
+                alt={item.name}
+                loading="lazy"
+                className="
+                  w-14 h-14
+                  object-cover
+                  rounded-xl
+                  bg-slate-100
+                  shrink-0
+                "
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
 
-                    <span className="font-medium text-sm">
-                      {item.name}
-                    </span>
+                  if (item.fallback && target.src !== item.fallback) {
+                    target.src = item.fallback
+                  }
+                }}
+              />
 
-                  </div>
-                </td>
+              <div className="flex-1 min-w-0">
 
-                <td className="p-3 text-center font-medium">
-                  {item.quantity}
-                </td>
+                <p className="font-semibold text-slate-800 truncate">
+                  {item.name}
+                </p>
 
-                <td className="p-3 text-right font-medium">
-                  {item.total.toFixed(2)} сом
-                </td>
+                <p className="text-sm text-slate-500">
+                  {item.quantity} × {formatPrice(Number(item.price))}
+                </p>
 
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </div>
+
+              <div className="text-right">
+
+                <p className="font-bold text-slate-900">
+                  {formatPrice(item.total)}
+                </p>
+
+              </div>
+
+            </div>
+          )
+        })}
+
       </div>
+
     </div>
   )
 }

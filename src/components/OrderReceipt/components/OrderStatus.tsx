@@ -3,24 +3,15 @@ import { getStatusColor, getStatusText } from "../utils/orderStatus"
 
 interface OrderStatusProps {
   status: string
-  latestOrder?: boolean
+  isUpdated?: boolean
 }
 
 export const OrderStatus: FC<OrderStatusProps> = ({
   status,
-  latestOrder,
+  isUpdated,
 }) => {
   const statusColor = getStatusColor(status)
   const statusText = getStatusText(status)
-
-  const indicatorColor =
-    status === "completed"
-      ? "bg-green-600"
-      : status === "processing"
-      ? "bg-blue-600"
-      : status === "cancelled"
-      ? "bg-red-600"
-      : "bg-yellow-600"
 
   return (
     <div className="mt-6 text-center">
@@ -28,18 +19,18 @@ export const OrderStatus: FC<OrderStatusProps> = ({
       <div
         className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${statusColor}`}
       >
-        <div
-          className={`w-2 h-2 rounded-full animate-pulse ${indicatorColor}`}
-        />
+
+        <div className="w-2 h-2 rounded-full bg-current animate-pulse" />
 
         <span className="font-medium">
           Статус: {statusText}
         </span>
+
       </div>
 
-      {latestOrder && (
+      {isUpdated && (
         <p className="text-xs text-slate-500 mt-2">
-          Обновлено: {new Date().toLocaleTimeString()}
+          Обновлено {new Date().toLocaleTimeString()}
         </p>
       )}
 
