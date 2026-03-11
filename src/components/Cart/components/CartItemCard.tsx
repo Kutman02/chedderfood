@@ -1,19 +1,14 @@
 import React from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
-import type { Product } from "../../../types";
 
-type CartItem = Product & {
-  quantity: number;
-  totalPrice: string;
-};
+import type { CartItem } from "@/types";
 
 interface CartItemCardProps {
   item: CartItem;
-  onAdd: (productId: number) => void;
-  onRemove: (productId: number) => void;
+  onAdd: () => void;
+  onRemove: () => void;
   siteUrl: string;
 }
-
 export const CartItemCard: React.FC<CartItemCardProps> = ({
   item,
   onAdd,
@@ -64,7 +59,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
           <div className="flex items-center gap-1.5 md:gap-2 bg-orange-50 rounded-lg p-1 md:p-1.5">
 
             <button
-              onClick={() => onRemove(item.id)}
+              onClick={onRemove}
               className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-orange-600 text-white rounded-md md:rounded-lg hover:bg-orange-700 transition-colors duration-200 active:scale-95"
             >
               <FaMinus size={12} />
@@ -75,7 +70,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
             </span>
 
             <button
-              onClick={() => onAdd(item.id)}
+              onClick={onAdd}
               className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-orange-600 text-white rounded-md md:rounded-lg hover:bg-orange-700 transition-colors duration-200 active:scale-95"
             >
               <FaPlus size={12} />
@@ -86,7 +81,10 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
           {/* Total */}
           <div className="text-right">
             <div className="font-bold text-base md:text-lg text-slate-800 whitespace-nowrap">
-              {item.totalPrice} сом
+              {(
+  parseFloat(item.sale_price || item.price || "0") *
+  item.quantity
+).toFixed(0)} сом
             </div>
           </div>
 

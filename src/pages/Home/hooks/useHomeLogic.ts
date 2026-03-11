@@ -79,46 +79,52 @@ export const useHomeLogic = () => {
   }, [products, categories]);
 
   // cart
-  const addToCart = (productId: number) => {
-    dispatch(addToCartAction(productId));
-  };
+ const addToCart = (product: Product) => {
+  dispatch(addToCartAction(product));
+};
 
   const removeFromCart = (productId: number) => {
     dispatch(removeFromCartAction(productId));
   };
 
-  const cartCount = useMemo(() => {
-    return Object.values(cart).reduce((sum, count) => sum + count, 0);
-  }, [cart]);
+ const cartCount = useMemo(() => {
+  return Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+}, [cart]);
 
   // URL sync
   useEffect(() => {
     const modal = searchParams.get("modal");
     const productId = searchParams.get("productId");
 
-    if (modal === "cart" && !isCartOpen) {
-      dispatch(openCart());
-    }
+    // CART
+if (modal === "cart") {
+  dispatch(openCart());
+  dispatch(closeReceipts());
+}
 
-    if ((modal === "receipts" || modal === "mycheks") && !isReceiptsOpen) {
-      dispatch(openReceipts());
-    }
+// RECEIPTS
+else if (modal === "receipts" || modal === "mycheks") {
+  dispatch(closeCart());
+  dispatch(openReceipts());
+}
 
-    if (modal === "product" && productId && products) {
-      const product = products.find((p : Product) => p.id === Number(productId));
+// PRODUCT
+else if (modal === "product" && productId && products) {
+  const product = products.find((p: Product) => p.id === Number(productId));
 
-      if (product) {
-        setSelectedProduct(product);
-        setIsModalOpen(true);
-      }
-    }
+  if (product) {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  }
+}
 
-    if (!modal) {
-      dispatch(closeCart());
-      dispatch(closeReceipts());
-      setIsModalOpen(false);
-      setSelectedProduct(null);
-    }
+// NOTHING
+else {
+  dispatch(closeCart());
+  dispatch(closeReceipts());
+  setIsModalOpen(false);
+  setSelectedProduct(null);
+}
   }, [searchParams, dispatch, products, isCartOpen, isReceiptsOpen]);
 
   // открыть товар

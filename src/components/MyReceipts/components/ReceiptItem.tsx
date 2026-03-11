@@ -63,7 +63,7 @@ export const ReceiptItem = ({
         p-5
         shadow-sm
         hover:shadow-md
-        hover:-translate-y-[2px]
+        hover:-translate-y-2px
         transition
         flex
         flex-col

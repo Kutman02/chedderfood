@@ -24,11 +24,11 @@ export const Cart = () => {
   if (cart.showReceipt && cart.createdOrderData) {
     return (
       <OrderReceipt
-        orderData={cart.createdOrderData}
-        products={cart.products || []}
-        onClose={cart.handleReceiptClose}
-        onNewOrder={cart.handleReceiptNewOrder}
-      />
+  orderData={cart.createdOrderData}
+  products={cart.cartItems}
+  onClose={cart.handleReceiptClose}
+  onNewOrder={cart.handleReceiptNewOrder}
+/>
     );
   }
 

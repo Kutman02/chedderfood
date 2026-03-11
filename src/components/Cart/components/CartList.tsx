@@ -1,16 +1,11 @@
 import React from "react";
-import type { Product } from "../../../types";
+import type { CartItem } from "@/types";
 
 import { CartItemCard } from "./CartItemCard";
 
-type CartItem = Product & {
-  quantity: number;
-  totalPrice: string;
-};
-
 interface CartListProps {
   items: CartItem[];
-  onAdd: (productId: number) => void;
+  onAdd: (product: CartItem) => void;
   onRemove: (productId: number) => void;
   siteUrl: string;
 }
@@ -29,8 +24,8 @@ export const CartList: React.FC<CartListProps> = ({
           <CartItemCard
             key={item.id}
             item={item}
-            onAdd={onAdd}
-            onRemove={onRemove}
+            onAdd={() => onAdd(item)}
+            onRemove={() => onRemove(item.id)}
             siteUrl={siteUrl}
           />
         ))}

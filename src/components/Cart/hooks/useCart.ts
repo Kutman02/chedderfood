@@ -1,5 +1,4 @@
 import { useState, useLayoutEffect } from "react";
-import { useGetProductsQuery } from "../../../app/services/api";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { addToCart, clearCart, removeFromCart } from "../../../app/slices/cartSlice";
@@ -7,7 +6,7 @@ import { closeCart, openReceipts } from "../../../app/slices/uiSlice";
 
 import { useScrollLockStore } from "../../../stores/scrollLockStore";
 
-import type { Product, PublicOrder } from "../../../types";
+import type { Product, PublicOrder, CartItem } from "../../../types";
 
 interface UseCartProps {
   searchParams: URLSearchParams;
@@ -29,10 +28,6 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
   const lockScroll = useScrollLockStore((s) => s.lock);
   const unlockScroll = useScrollLockStore((s) => s.unlock);
 
-  const { data: products, isLoading: productsLoading } = useGetProductsQuery({
-    per_page: 100,
-    status: "publish",
-  });
 
   /* =========================
      SCROLL LOCK
@@ -51,26 +46,15 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
      CART ITEMS
   ========================= */
 
-  const cartItems =
-    products?.filter((product: Product) => cart[product.id] > 0).map(
-      (product: Product) => ({
-        ...product,
-        quantity: cart[product.id],
-        totalPrice: (
-          parseFloat(product.sale_price || product.price || "0") *
-          cart[product.id]
-        ).toFixed(0),
-      })
-    ) || [];
+  const cartItems: CartItem[] = Object.values(cart);
 
-  const totalAmount = cartItems.reduce(
-    (sum: number, item: Product & { quantity: number; totalPrice: string }) =>
-      sum + parseFloat(item.totalPrice),
-    0
-  );
+  const totalAmount = cartItems.reduce((sum: number, item) => {
+    const price = parseFloat(item.sale_price || item.price || "0");
+    return sum + price * item.quantity;
+  }, 0);
 
   const totalItems = cartItems.reduce(
-    (sum: number, item: Product & { quantity: number }) => sum + item.quantity,
+    (sum: number, item) => sum + item.quantity,
     0
   );
 
@@ -78,9 +62,9 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
      CART ACTIONS
   ========================= */
 
-  const handleAdd = (productId: number) => {
-    dispatch(addToCart(productId));
-  };
+ const handleAdd = (product: Product) => {
+  dispatch(addToCart(product));
+};
 
   const handleRemove = (productId: number) => {
     dispatch(removeFromCart(productId));
@@ -114,7 +98,6 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
   const handleCheckoutSuccess = () => {
     dispatch(clearCart());
     setShowCheckoutForm(false);
-
     dispatch(openReceipts());
   };
 
@@ -154,8 +137,6 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
   return {
     siteUrl: SITE_URL,
 
-    products,
-    productsLoading,
 
     cartItems,
     totalAmount,

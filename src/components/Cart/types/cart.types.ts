@@ -6,7 +6,6 @@ import type { Product, PublicOrder } from "../../../types";
 
 export type CartItem = Product & {
   quantity: number;
-  totalPrice: string;
 };
 
 
@@ -16,10 +15,9 @@ export type CartItem = Product & {
 
 export interface CartState {
   items: {
-    [productId: number]: number;
+    [productId: number]: CartItem;
   };
 }
-
 
 /* =========================
    CART TOTALS

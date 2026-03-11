@@ -1,16 +1,16 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { CartItem } from '../../types';
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { CartMap, Product } from "../../types";
 
 type CartState = {
-  items: CartItem;
+  items: CartMap;
 };
 
-const CART_KEY = 'chedderfood_cart';
+const CART_KEY = "chedderfood_cart";
 
-const loadCart = (): CartItem => {
+const loadCart = (): CartMap => {
   try {
     const raw = localStorage.getItem(CART_KEY);
-    return raw ? (JSON.parse(raw) as CartItem) : {};
+    return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
   }
@@ -21,36 +21,59 @@ const initialState: CartState = {
 };
 
 export const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<number>) => {
-      const productId = action.payload;
-      state.items[productId] = (state.items[productId] || 0) + 1;
+    addToCart: (state, action: PayloadAction<Product>) => {
+      const product = action.payload;
+
+      if (state.items[product.id]) {
+        state.items[product.id].quantity += 1;
+      } else {
+        state.items[product.id] = {
+          ...product,
+          quantity: 1,
+        };
+      }
     },
+
     removeFromCart: (state, action: PayloadAction<number>) => {
       const productId = action.payload;
-      const current = state.items[productId] || 0;
-      if (current > 1) {
-        state.items[productId] = current - 1;
+      const item = state.items[productId];
+
+      if (!item) return;
+
+      if (item.quantity > 1) {
+        item.quantity -= 1;
       } else {
         delete state.items[productId];
       }
     },
+
     clearCart: (state) => {
       state.items = {};
     },
-    setQuantity: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
+
+    setQuantity: (
+      state,
+      action: PayloadAction<{ productId: number; quantity: number }>
+    ) => {
       const { productId, quantity } = action.payload;
+
+      const item = state.items[productId];
+      if (!item) return;
+
       if (quantity <= 0) {
         delete state.items[productId];
       } else {
-        state.items[productId] = quantity;
+        item.quantity = quantity;
       }
     },
   },
 });
 
-export const { addToCart, removeFromCart, clearCart, setQuantity } = cartSlice.actions;
+export const { addToCart, removeFromCart, clearCart, setQuantity } =
+  cartSlice.actions;
+
 export const cartReducer = cartSlice.reducer;
 export const cartStorageKey = CART_KEY;

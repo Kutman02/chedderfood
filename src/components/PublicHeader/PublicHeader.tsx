@@ -3,13 +3,7 @@ import { useGetPublicProductCategoriesQuery } from "../../app/services/publicApi
 import { useSearchParams } from "react-router-dom"
 import type { Category } from "@/types"
 
-import { useAppDispatch, useAppSelector } from "@/app/hooks"
-import {
-  openCart,
-  openReceipts,
-  closeCart,
-  closeReceipts,
-} from "@/app/slices/uiSlice"
+import { useAppSelector } from "@/app/hooks"
 
 import { useScrollLockStore } from "@/stores/scrollLockStore"
 
@@ -17,13 +11,10 @@ import { HeaderTop } from "./components/HeaderTop"
 import { CategorySkeleton } from "../Skeleton/components"
 
 export const PublicHeader = () => {
-  const dispatch = useAppDispatch()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const headerRef = useRef<HTMLElement | null>(null)
 
-  const isReceiptsOpen = useAppSelector((s) => s.ui.isReceiptsOpen)
-  const isCartOpen = useAppSelector((s) => s.ui.isCartOpen)
   const receipts = useAppSelector((s) => s.receipts.receipts)
 
   const { data: categories, isLoading } =
@@ -40,38 +31,29 @@ export const PublicHeader = () => {
     )
   }, [receipts])
 
-  const handleOpenReceipts = () => {
-    if (isReceiptsOpen) {
-      dispatch(closeReceipts())
+const handleOpenReceipts = () => {
+  const newParams = new URLSearchParams(searchParams)
 
-      const newParams = new URLSearchParams(searchParams)
-      newParams.delete("modal")
-      setSearchParams(newParams)
-    } else {
-      dispatch(openReceipts())
-
-      const newParams = new URLSearchParams(searchParams)
-      newParams.set("modal", "mycheks")
-      setSearchParams(newParams)
-    }
+  if (searchParams.get("modal") === "mycheks") {
+    newParams.delete("modal")
+  } else {
+    newParams.set("modal", "mycheks")
   }
 
-  const handleCartToggle = () => {
-    if (isCartOpen) {
-      dispatch(closeCart())
+  setSearchParams(newParams)
+}
 
-      const newParams = new URLSearchParams(searchParams)
-      newParams.delete("modal")
-      setSearchParams(newParams)
-    } else {
-      dispatch(openCart())
+ const handleCartToggle = () => {
+  const newParams = new URLSearchParams(searchParams)
 
-      const newParams = new URLSearchParams(searchParams)
-      newParams.set("modal", "cart")
-      setSearchParams(newParams)
-    }
+  if (searchParams.get("modal") === "cart") {
+    newParams.delete("modal")
+  } else {
+    newParams.set("modal", "cart")
   }
 
+  setSearchParams(newParams)
+}
   useEffect(() => {
     if (isScrollLocked) return
 

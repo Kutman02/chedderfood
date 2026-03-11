@@ -1,16 +1,18 @@
 import { useState, useEffect, useLayoutEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { useCreateOrderMutation, useGetProductsQuery } from "../../../app/services/api";
+import { useCreateOrderMutation } from "../../../app/services/api";
 import { useCheckActiveOrdersCountQuery } from "../../../app/services/publicApi";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { addReceipt, setCustomerData } from "../../../app/slices/receiptsSlice";
+import { clearCart } from "../../../app/slices/cartSlice";
 
 import { useScrollLockStore } from "../../../stores/scrollLockStore";
 
 import { CIS_COUNTRIES } from "../constants/countries";
 
-import type { Product, CheckoutFormData, PublicOrder } from "../../../types";
+import type { CheckoutFormData, PublicOrder } from "../../../types";
 
 interface UseCheckoutProps {
   onClose: () => void;
@@ -20,11 +22,10 @@ interface UseCheckoutProps {
 
 export const useCheckout = ({
   onClose,
-  onSuccess,
-  onShowReceipt,
 }: UseCheckoutProps) => {
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const cart = useAppSelector((s) => s.cart.items);
   const savedCustomerData = useAppSelector((s) => s.receipts.customerData);
@@ -34,10 +35,7 @@ export const useCheckout = ({
 
   const [createOrder] = useCreateOrderMutation();
 
-  const { data: products } = useGetProductsQuery({
-    per_page: 100,
-    status: "publish",
-  });
+
 
   const { data: activeOrdersData } = useCheckActiveOrdersCountQuery(undefined, {
     pollingInterval: 0,
@@ -82,23 +80,15 @@ export const useCheckout = ({
     }));
   }, [selectedCountry, phoneNumber]);
 
-  const cartItems = products
-    ? products
-        .filter((product: Product) => cart[product.id] > 0)
-        .map((product: Product) => ({
-          product_id: product.id,
-          quantity: cart[product.id],
-        }))
-    : [];
+ const cartItems = Object.values(cart).map((item) => ({
+  product_id: item.id,
+  quantity: item.quantity,
+}));
 
-  const totalAmount = products
-    ? products
-        .filter((product: Product) => cart[product.id] > 0)
-        .reduce((sum: number, product: Product) => {
-          const price = parseFloat(product.sale_price || product.price || "0");
-          return sum + price * cart[product.id];
-        }, 0)
-    : 0;
+ const totalAmount = Object.values(cart).reduce((sum: number, item) => {
+  const price = parseFloat(item.sale_price || item.price || "0");
+  return sum + price * item.quantity;
+}, 0);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -229,6 +219,7 @@ const orderData = {
       const order = await createOrder(orderData).unwrap();
 
       dispatch(addReceipt(order));
+      dispatch(clearCart());
 
       dispatch(
         setCustomerData({
@@ -238,12 +229,9 @@ const orderData = {
         })
       );
 
-      if (onShowReceipt) {
-        onShowReceipt(order);
-      } else {
-        onSuccess();
-        onClose();
-      }
+     onClose();
+
+navigate(`/?modal=mycheks&order=${order.id}`, { replace: true });
     } catch (err) {
       console.error(err);
       setErrorMessage("Ошибка создания заказа");

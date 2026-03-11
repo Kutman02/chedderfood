@@ -18,11 +18,9 @@ export const ProductCard = ({ product, productIndex, onClick }: ProductCardProps
   const dispatch = useAppDispatch();
   const cart = useAppSelector((s) => s.cart.items);
 
-  const cartCount = cart[product.id] || 0;
-
-  const addToCart = () => {
-    dispatch(addToCartAction(product.id));
-  };
+const cartCount = cart[product.id]?.quantity || 0;
+  const handleAddToCart = () => {
+dispatch(addToCartAction(product));  };
 
   const removeFromCart = () => {
     dispatch(removeFromCartAction(product.id));
@@ -92,7 +90,7 @@ export const ProductCard = ({ product, productIndex, onClick }: ProductCardProps
           {cartCount === 0 ? (
             <div
               className="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-110 transition cursor-pointer"
-              onClick={addToCart}
+              onClick={handleAddToCart}
             >
               <FaPlus className="text-orange-500" size={14} />
             </div>
@@ -110,7 +108,7 @@ export const ProductCard = ({ product, productIndex, onClick }: ProductCardProps
               </span>
 
               <button
-                onClick={addToCart}
+                onClick={handleAddToCart}
                 className="w-6 h-6 flex items-center justify-center hover:bg-orange-50 rounded-full"
               >
                 <FaPlus className="text-orange-500" size={10} />

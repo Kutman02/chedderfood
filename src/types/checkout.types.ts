@@ -1,3 +1,5 @@
+import type { Product } from "./product.types";
+
 /* =========================
    CART
 ========================= */
@@ -6,10 +8,10 @@
  * Cart хранит количество товаров по id продукта
  * пример: { 12: 2, 45: 1 }
  */
-export type CartItem = {
-  [productId: number]: number;
+export type CartItem = Product & {
+  quantity: number;
 };
-
+export type CartMap = Record<number, CartItem>;
 
 /* =========================
    CHECKOUT FORM

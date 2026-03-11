@@ -15,7 +15,7 @@ export const AddToCartButton = ({ product, onClose }: AddToCartButtonProps) => {
   const showToast = useToastStore((state) => state.showToast)
 
   const handleAddToCart = () => {
-    dispatch(addToCart(product.id))
+    dispatch(addToCart(product))
     showToast(`Вы добавили "${product.name}" в корзину`, "success")
     onClose()
   }

@@ -13,7 +13,10 @@ export const FloatingCartButton = ({ cartCount }: FloatingCartButtonProps) => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  if (cartCount === 0) return null;
+  // защита от NaN
+  const safeCount = Number(cartCount) || 0;
+
+  if (safeCount === 0) return null;
 
   const toggleCart = () => {
     const params = new URLSearchParams(searchParams);
@@ -38,7 +41,7 @@ export const FloatingCartButton = ({ cartCount }: FloatingCartButtonProps) => {
         <FaShoppingCart className="animate-pulse" />
 
         <span className="bg-white text-orange-600 px-2 py-1 rounded-full text-sm font-bold">
-          {cartCount}
+          {safeCount}
         </span>
       </button>
     </div>
