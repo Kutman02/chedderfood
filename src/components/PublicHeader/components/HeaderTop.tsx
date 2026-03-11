@@ -8,7 +8,6 @@ interface HeaderTopProps {
 }
 
 export const HeaderTop = ({
-  hasActiveOrders,
   onReceiptsClick,
   onCartToggle,
 }: HeaderTopProps) => {
@@ -23,9 +22,10 @@ export const HeaderTop = ({
         </div>
       </Link>
 
-      <HamburgerMenu
-        onCartOpen={onCartToggle}
-      />
+     <HamburgerMenu
+  onCartOpen={onCartToggle}
+  toggleReceipts={onReceiptsClick}
+/>
 
     </div>
 

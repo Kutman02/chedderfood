@@ -11,40 +11,46 @@ export const DesktopMenu = ({
   onCartOpen
 }: Props) => {
 
+  const baseBtn =
+    "flex items-center gap-2 px-4 h-9 rounded-lg text-sm font-medium transition-colors"
+
+  const secondary =
+    "bg-slate-100 text-slate-700 hover:bg-slate-200"
+
   return (
 
     <div className="flex items-center gap-2">
 
       <button
         onClick={toggleReceipts}
-        className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg"
+        className={`${baseBtn} ${secondary}`}
       >
         <FaReceipt size={14}/>
-        <span className="text-sm font-medium">Мои заказы</span>
+        <span>Мои заказы</span>
       </button>
 
       <Link
         to="/about"
-        className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg"
+        className={`${baseBtn} ${secondary}`}
       >
         <FaInfoCircle size={14}/>
-        <span className="text-sm font-medium">О нас</span>
+        <span>О нас</span>
       </Link>
 
       <Link
         to="/contacts"
-        className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg"
+        className={`${baseBtn} ${secondary}`}
       >
         <FaAddressBook size={14}/>
-        <span className="text-sm font-medium">Контакты</span>
+        <span>Контакты</span>
       </Link>
 
       <button
         onClick={onCartOpen}
-        className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg"
+        className={`${baseBtn} bg-orange-600 text-white hover:bg-orange-700`}
       >
         <FaShoppingCart size={14}/>
-        <span className="text-sm font-medium">Корзина</span>
+        <span>Корзина</span>
       </button>
 
     </div>

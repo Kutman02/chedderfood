@@ -1,4 +1,4 @@
-import { MenuHeader, MenuOverlay, ReceiptsButton, CustomerDataCard, InfoLinks, AppInfo } from "./"
+import { MenuHeader, ReceiptsButton, CustomerDataCard, InfoLinks, AppInfo } from "./"
 import { InstallButton } from "../components"
 
 interface CustomerData {
@@ -25,42 +25,56 @@ export const MobileMenu = ({
 
   return (
 
-    <div>
+    <div className="flex flex-col h-full bg-white">
 
-      <MenuOverlay onClick={closeMenu} />
+      {/* Header */}
+      <MenuHeader onClose={closeMenu} />
 
-      <div>
+      {/* Scroll Content */}
+      <div className="flex-1 overflow-y-auto px-5 py-6 space-y-8">
 
-        <MenuHeader onClose={closeMenu} />
+        {/* Orders */}
+        <ReceiptsButton onClick={toggleReceipts} />
 
-        <div>
+        {/* Customer Data */}
+        <section className="space-y-4">
 
-          <ReceiptsButton onClick={toggleReceipts} />
+          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            Мои данные
+          </h3>
 
-          <div>
-            <h3>
-              Мои данные
-            </h3>
+          <CustomerDataCard
+            customerData={customerData}
+            onUse={() =>
+              customerData &&
+              onCustomerDataSelect?.(customerData)
+            }
+            onClear={clearCustomer}
+          />
 
-            <CustomerDataCard
-              customerData={customerData}
-              onUse={() =>
-                customerData &&
-                onCustomerDataSelect?.(customerData)
-              }
-              onClear={clearCustomer}
-            />
-          </div>
+        </section>
 
-          <InstallButton />
+        {/* Install App */}
+        <InstallButton />
+
+        {/* Info Links */}
+        <section className="pt-2 border-t border-slate-200">
 
           <InfoLinks onClose={closeMenu} />
 
+        </section>
+
+        {/* App Info */}
+        <section className="pt-2 border-t border-slate-200">
+
           <AppInfo />
 
-        </div>
+        </section>
 
       </div>
+
+      {/* iOS Safe Area */}
+      <div className="h-[env(safe-area-inset-bottom)]" />
 
     </div>
 

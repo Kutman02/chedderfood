@@ -1,8 +1,5 @@
 export interface HamburgerMenuProps {
-  onCustomerDataSelect?: (data: {
-    first_name: string
-    phone: string
-    address: string
-  }) => void
+  onCustomerDataSelect?: (data: any) => void
   onCartOpen?: () => void
+  toggleReceipts: () => void
 }

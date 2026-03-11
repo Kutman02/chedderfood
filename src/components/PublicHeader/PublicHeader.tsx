@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react"
 import { useGetPublicProductCategoriesQuery } from "../../app/services/publicApi"
 import { useSearchParams } from "react-router-dom"
+import type { Category } from "@/types"
 
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import {
@@ -120,13 +121,11 @@ export const PublicHeader = () => {
   }
 
   const filteredCategories =
-    categories?.filter((c) => c.name !== "Без категории") ?? []
-
+categories?.filter((c: Category) => c.name !== "Без категории")
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/80 shadow-sm"
-    >
+className="sticky top-0 z-50 w-full bg-white/90 shadow-sm"    >
       <div className="max-w-7xl mx-auto px-4">
 
         {/* Header Top */}
@@ -144,8 +143,7 @@ export const PublicHeader = () => {
             {isLoading ? (
               <CategorySkeleton count={8} />
             ) : (
-              filteredCategories.map((category) => (
-                <button
+filteredCategories.map((category: Category) => (                <button
                   key={category.id}
                   onClick={() => handleCategoryClick(category.id)}
                   className={`px-3 py-1.5 rounded-lg font-semibold text-sm whitespace-nowrap transition-all shrink-0 ${

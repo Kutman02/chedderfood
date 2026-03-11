@@ -1,6 +1,7 @@
+import { useState } from "react"
 import type { HamburgerMenuProps } from "./types"
 
-import { useHamburgerMenu } from "./hooks/useHamburgerMenu"
+import { useScrollLockStore } from "../../stores/scrollLockStore"
 
 import {
   HamburgerButton,
@@ -10,73 +11,77 @@ import {
 
 export const HamburgerMenu = ({
   onCustomerDataSelect,
-  onCartOpen
+  onCartOpen,
+  toggleReceipts
 }: HamburgerMenuProps) => {
 
-  const menu = useHamburgerMenu()
+  const [open, setOpen] = useState(false)
 
-  // Desktop
-  if (!menu.isMobile) {
+  const lock = useScrollLockStore((s) => s.lock)
+  const unlock = useScrollLockStore((s) => s.unlock)
 
-    return (
-
-      <div className="flex items-center gap-2">
-
-        <DesktopMenu
-          onCartOpen={onCartOpen}
-          toggleReceipts={menu.toggleReceipts}
-        />
-
-      </div>
-
-    )
-
+  const openMenu = () => {
+    lock()
+    setOpen(true)
   }
 
-  // Mobile
+  const closeMenu = () => {
+    unlock()
+    setOpen(false)
+  }
+
   return (
+    <>
+      {/* Desktop menu */}
+      <div className="hidden md:flex items-center gap-2">
+        <DesktopMenu
+   onCartOpen={onCartOpen}
+  toggleReceipts={toggleReceipts ?? (() => {})}
+/>
+      </div>
 
-    <div className="relative">
+      {/* Mobile menu */}
+      <div className="md:hidden">
 
-      {/* Hamburger Button */}
-    <div className="p-2 text-slate-600 hover:text-orange-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
-  <HamburgerButton onClick={menu.openMenu} />
-</div>
+        <HamburgerButton onClick={openMenu} />
 
-      {menu.isOpen && (
-
-        <div className="fixed inset-0 z-[100] flex">
+        <div
+          className={`fixed inset-0 z-1000 ${
+            open ? "pointer-events-auto" : "pointer-events-none"
+          }`}
+        >
 
           {/* Overlay */}
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={menu.closeMenu}
+            onClick={closeMenu}
+            className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
+              open ? "opacity-100" : "opacity-0"
+            }`}
           />
 
           {/* Drawer */}
-          <div className="ml-auto w-full max-w-md h-full bg-white flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
+          <aside
+            className={`absolute right-0 top-0 h-full w-[320px] max-w-full bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-out ${
+              open ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
 
-            {/* Menu Content */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+           <MobileMenu
+  closeMenu={closeMenu}
+  toggleReceipts={() => {
+    toggleReceipts?.()
+    closeMenu()
+  }}
+  clearCustomer={() => {}}
+  customerData={null}
+  onCustomerDataSelect={onCustomerDataSelect}
+/>
 
-              <MobileMenu
-                closeMenu={menu.closeMenu}
-                toggleReceipts={menu.toggleReceipts}
-                clearCustomer={menu.clearCustomer}
-                customerData={menu.customerData}
-                onCustomerDataSelect={onCustomerDataSelect}
-              />
-
-            </div>
-
-          </div>
+          </aside>
 
         </div>
 
-      )}
-
-    </div>
-
+      </div>
+    </>
   )
-
 }

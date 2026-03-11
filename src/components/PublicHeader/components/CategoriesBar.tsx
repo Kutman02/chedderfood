@@ -16,7 +16,6 @@ interface CategoriesBarProps {
 export const CategoriesBar = ({
   categories,
   isLoading,
-  selectedCategory,
   onCategoryClick,
 }: CategoriesBarProps) => {
 

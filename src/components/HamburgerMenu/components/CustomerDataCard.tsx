@@ -20,54 +20,53 @@ export const CustomerDataCard = ({
 
   if (!customerData) {
     return (
-      <div>
-
-        <p>
+      <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-600">
+        <p className="font-medium text-slate-700 mb-1">
           Сохраненные данные отсутствуют
         </p>
 
-        <p>
+        <p className="text-xs text-slate-500">
           После первого заказа данные сохранятся автоматически
         </p>
-
       </div>
     )
   }
 
   return (
 
-    <div>
+    <div className="bg-slate-50 rounded-xl p-4 space-y-4">
 
-      <div>
+      {/* Data */}
+      <div className="space-y-3 text-sm">
 
-        {/* Имя */}
-        <div>
+        {/* Name */}
+        <div className="flex items-center gap-3">
 
-          <FaUser size={14} />
+          <FaUser className="text-slate-400" size={14} />
 
-          <span>
+          <span className="text-slate-700 font-medium">
             {customerData.first_name}
           </span>
 
         </div>
 
-        {/* Телефон */}
-        <div>
+        {/* Phone */}
+        <div className="flex items-center gap-3">
 
-          <FaPhone size={14} />
+          <FaPhone className="text-slate-400" size={14} />
 
-          <span>
+          <span className="text-slate-700">
             {customerData.phone}
           </span>
 
         </div>
 
-        {/* Адрес */}
-        <div>
+        {/* Address */}
+        <div className="flex items-center gap-3">
 
-          <FaMapMarkerAlt size={14} />
+          <FaMapMarkerAlt className="text-slate-400" size={14} />
 
-          <span>
+          <span className="text-slate-700 truncate">
             {customerData.address}
           </span>
 
@@ -75,17 +74,21 @@ export const CustomerDataCard = ({
 
       </div>
 
-      {/* Кнопки */}
-      <div>
+      {/* Actions */}
+      <div className="flex gap-2">
 
         {onUse && (
-          <button onClick={onUse}>
+          <button
+            onClick={onUse}
+            className="flex-1 bg-orange-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-orange-700 transition"
+          >
             Использовать
           </button>
         )}
 
         <button
           onClick={onClear}
+          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
           title="Очистить данные"
         >
           <FaTimes size={16} />

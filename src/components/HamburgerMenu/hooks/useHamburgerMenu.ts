@@ -22,15 +22,17 @@ export const useHamburgerMenu = () => {
   const [isMobile, setIsMobile] = useState(false)
 
   // управление scroll lock
-  useEffect(() => {
+useEffect(() => {
 
-    if (isOpen) {
-      lockScroll()
-    } else {
-      unlockScroll()
-    }
+  if (!isOpen) return
 
-  }, [isOpen, lockScroll, unlockScroll])
+  lockScroll()
+
+  return () => {
+    unlockScroll()
+  }
+
+}, [isOpen])
 
   // определение mobile
   useEffect(() => {
@@ -48,7 +50,10 @@ export const useHamburgerMenu = () => {
 
   }, [])
 
-  const openMenu = () => setIsOpen(true)
+const openMenu = () => {
+  console.log("OPEN MENU")
+  setIsOpen(true)
+}  
   const closeMenu = () => setIsOpen(false)
 
   const toggleReceipts = () => {
