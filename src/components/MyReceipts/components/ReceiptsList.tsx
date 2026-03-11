@@ -1,5 +1,5 @@
 import { ReceiptItem } from "./ReceiptItem"
-import type { ReceiptData } from "../../../types"
+import type { ReceiptData } from "@/types"
 
 interface ReceiptsListProps {
   receipts: ReceiptData[]
@@ -34,9 +34,9 @@ export const ReceiptsList = ({
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-gray-900">
+        {/* <h2 className="text-2xl font-semibold text-gray-900">
           Заказы
-        </h2>
+        </h2> */}
 
         <span className="text-sm text-gray-500">
           Всего: {receipts.length}
