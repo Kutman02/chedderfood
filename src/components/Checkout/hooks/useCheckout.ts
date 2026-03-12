@@ -202,6 +202,7 @@ const orderData = {
         : formData.address,
     phone: formData.phone,
   },
+  customer_note: formData.customer_note,
 
   line_items: cartItems,
 
