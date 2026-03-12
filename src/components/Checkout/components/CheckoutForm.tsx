@@ -1,6 +1,6 @@
 import React from "react";
 import { FaUser, FaMapMarkerAlt, FaNotesMedical } from "react-icons/fa";
-
+import { RESTAURANT } from "@/config/restaurant";
 import { PhoneInput } from "./PhoneInput";
 import { OrderTypeSelector } from "./OrderTypeSelector";
 
@@ -124,11 +124,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
               </p>
 
               <p className="font-bold text-lg text-green-800">
-  Курманжан Датка 12, Ош
+                {RESTAURANT.address}
 </p>
 
 <a
-  href="https://go.2gis.com/hXA1n"
+    href={RESTAURANT.map2gis}
   target="_blank"
   rel="noopener noreferrer"
   className="inline-block mt-2 text-sm font-semibold text-green-700 underline hover:text-green-900"

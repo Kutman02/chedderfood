@@ -1,7 +1,7 @@
 import type { FC } from "react"
 
 import type { Product, PublicOrder } from "@/types"
-
+import { RESTAURANT } from "@/config/restaurant";
 import { useOrderReceipt } from "./hooks/useOrderReceipt"
 
 import { ReceiptHeader } from "./components/ReceiptHeader"
@@ -66,7 +66,7 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
             </h1>
 
             <p className="text-sm text-slate-500 mt-1">
-              Курманжан датка 12, Ош, Кыргызстан
+              {RESTAURANT.address}
             </p>
 
             <p className="text-orange-600 font-bold mt-3 text-lg">

@@ -11,7 +11,7 @@ import { clearCart } from "@/app/slices/cartSlice";
 import { useScrollLockStore } from "@/stores/scrollLockStore";
 
 import { CIS_COUNTRIES } from "../constants/countries";
-
+import { RESTAURANT } from "@/config/restaurant";
 import type { CheckoutFormData, PublicOrder } from "@/types";
 
 interface UseCheckoutProps {
@@ -198,7 +198,7 @@ const orderData = {
     first_name: formData.first_name,
     address_1:
       orderType === "pickup"
-        ? "Адрес ресторана"
+        ? RESTAURANT.address
         : formData.address,
     phone: formData.phone,
   },
@@ -208,12 +208,16 @@ const orderData = {
   total: totalAmount.toString(),
   currency: "KGS",
 
-  meta_data: [
-    {
-      key: "order_type",
-      value: orderType,
-    },
-  ],
+ meta_data: [
+  {
+    key: "order_type",
+    value: orderType,
+  },
+  {
+    key: "pickup_address",
+    value: RESTAURANT.address,
+  },
+],
 };
 
       const order = await createOrder(orderData).unwrap();
