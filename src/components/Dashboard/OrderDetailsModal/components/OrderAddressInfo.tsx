@@ -1,4 +1,3 @@
-import { FaMapMarkerAlt } from "react-icons/fa"
 import type { Order } from "@/types"
 
 interface Props {

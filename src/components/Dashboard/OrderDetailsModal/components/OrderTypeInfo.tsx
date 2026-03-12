@@ -32,7 +32,7 @@ export const OrderTypeInfo = ({ order }: Props) => {
       }`}>
         {isPickup
           ? "Клиент заберет заказ в ресторане"
-          : "Доставка осуществляется по адресу"}
+          : "Адрес клиента"}
           <OrderAddressInfo order={order} />
           
       </p>

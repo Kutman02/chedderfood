@@ -5,7 +5,7 @@ export * from "./OrderTypeInfo"
 export * from "./OrderAddressInfo"
 export * from "./OrderItemsList"
 export * from "./OrderPricing"
-export * from "./OrderNote"     
+export * from "./OrderNote"
 export * from "./ShareMenu"
 export * from "./OrderDetailsContent"
 

@@ -155,7 +155,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
               <FaNotesMedical size={14} />
-              Примечание
+              Комментарий к заказу
             </label>
 
             <textarea

@@ -28,7 +28,7 @@ export const OrderItemsList = ({ order }: Props) => {
             {/* Левая часть */}
             <div className="flex items-center gap-3 flex-1">
 
-              <div className="text-lg font-black text-slate-900 min-w-[40px]">
+              <div className="text-lg font-black text-slate-900 min-w-40px">
                 {item.quantity}×
               </div>
 

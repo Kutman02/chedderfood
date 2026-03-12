@@ -10,7 +10,7 @@ export const OrderNote: FC<OrderNoteProps> = ({ note }) => {
   return (
     <div className="mt-6 p-4 bg-blue-50 rounded-lg">
       <h4 className="font-medium text-slate-800 mb-2">
-        Примечание к заказу:
+        Коментарий к заказу:
       </h4>
 
       <p className="text-sm text-slate-600">

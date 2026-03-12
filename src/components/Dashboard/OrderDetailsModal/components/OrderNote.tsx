@@ -1,27 +1,21 @@
-import type { Order } from "@/types"
+import type { FC } from "react"
 
-interface Props {
-  order: Order
+interface OrderNoteProps {
+  note?: string
 }
 
-export const OrderNote = ({ order }: Props) => {
-
-  if (!order.customer_note) return null
+export const OrderNote: FC<OrderNoteProps> = ({ note }) => {
+  if (!note) return null
 
   return (
+    <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+      <h4 className="font-medium text-slate-800 mb-2">
+        Коментарий к заказу:
+      </h4>
 
-    <div className="bg-amber-50 rounded-xl p-4">
-
-      <h3 className="text-lg font-black text-slate-900 mb-2">
-        Примечание клиента
-      </h3>
-
-      <p className="text-sm text-slate-700">
-        {order.customer_note}
+      <p className="text-sm text-slate-600">
+        {note}
       </p>
-
     </div>
-
   )
-
 }

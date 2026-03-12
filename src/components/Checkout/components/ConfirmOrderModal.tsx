@@ -120,7 +120,7 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
 
                 <div>
                   <div className="text-sm text-slate-500">
-                    Примечание
+                    Коментарий к заказу
                   </div>
 
                   <div className="font-medium text-slate-800">

@@ -24,7 +24,7 @@ export const OrderDetailsContent = ({ order }: Props) => {
       <OrderItemsList order={order} />
 
       {/* Комментарий клиента */}
-      <OrderNote order={order} />
+      <OrderNote note={order.customer_note} />
 
       {/* Тип заказа */}
       <OrderTypeInfo order={order} />
