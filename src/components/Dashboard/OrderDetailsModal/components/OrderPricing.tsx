@@ -7,37 +7,60 @@ interface Props {
 
 export const OrderPricing = ({ order }: Props) => {
 
+  const shipping = parseFloat(order.shipping_total || "0")
+  const total = parseFloat(order.total || "0")
+  const subtotal = total - shipping
+
   return (
 
-    <div className="bg-green-50 rounded-xl p-4">
+    <div className="bg-white border-2 border-green-200 rounded-xl p-4">
+
+      <h3 className="text-sm font-bold text-slate-500 mb-3">
+        Сумма заказа
+      </h3>
 
       <div className="space-y-2">
 
-        {order.shipping_total && parseFloat(order.shipping_total) > 0 && (
+        {/* Товары */}
+        <div className="flex justify-between items-center">
+
+          <span className="text-sm font-semibold text-slate-600">
+            Товары
+          </span>
+
+          <span className="font-bold text-slate-900">
+            {subtotal.toFixed(2)} {order.currency}
+          </span>
+
+        </div>
+
+        {/* Доставка */}
+        {shipping > 0 && (
 
           <div className="flex justify-between items-center">
 
             <span className="text-sm font-semibold text-slate-600 flex items-center gap-2">
               <FaTruck size={12}/>
-              Доставка:
+              Доставка
             </span>
 
-            <span className="text-sm font-bold">
-              {order.shipping_total} {order.currency}
+            <span className="font-bold text-slate-900">
+              {shipping.toFixed(2)} {order.currency}
             </span>
 
           </div>
 
         )}
 
-        <div className="flex justify-between items-center pt-2 border-t border-green-200">
+        {/* Итог */}
+        <div className="flex justify-between items-center pt-3 border-t border-green-200">
 
           <span className="text-lg font-black text-slate-900">
-            Итого:
+            Итого
           </span>
 
-          <span className="text-2xl font-black text-green-600">
-            {order.total} {order.currency}
+          <span className="text-3xl font-black text-green-600">
+            {total.toFixed(2)} {order.currency}
           </span>
 
         </div>

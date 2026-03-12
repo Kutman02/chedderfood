@@ -1,4 +1,4 @@
- import { FaUser, FaPhone } from "react-icons/fa"
+import { FaUser, FaPhone, FaCopy } from "react-icons/fa"
 import type { Order } from "@/types"
 
 interface Props {
@@ -13,6 +13,11 @@ export const OrderCustomerInfo = ({ order }: Props) => {
 
   const fullName = `${firstName} ${lastName}`.trim()
 
+  const handleCopyPhone = () => {
+    if (!phone) return
+    navigator.clipboard.writeText(phone)
+  }
+
   return (
 
     <div className="bg-white rounded-xl border border-slate-200 p-4">
@@ -21,14 +26,14 @@ export const OrderCustomerInfo = ({ order }: Props) => {
         Клиент
       </h3>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
 
         {/* Имя */}
-        <div className="flex items-center gap-2 text-slate-800 font-semibold">
+        <div className="flex items-center gap-2 text-slate-900 font-semibold">
 
-          <FaUser size={14} className="text-slate-400" />
+          <FaUser className="text-slate-400" />
 
-          <span>
+          <span className="text-base">
             {fullName || "Без имени"}
           </span>
 
@@ -37,16 +42,25 @@ export const OrderCustomerInfo = ({ order }: Props) => {
         {/* Телефон */}
         {phone && (
 
-          <a
-            href={`tel:${phone}`}
-            className="flex items-center gap-2 text-orange-600 font-bold hover:underline"
-          >
+          <div className="flex items-center justify-between bg-slate-50 border rounded-lg px-3 py-2">
 
-            <FaPhone size={14} />
+            <a
+              href={`tel:${phone}`}
+              className="flex items-center gap-2 text-orange-600 font-bold"
+            >
+              <FaPhone />
+              {phone}
+            </a>
 
-            {phone}
+            <button
+              onClick={handleCopyPhone}
+              className="flex items-center gap-1 text-xs bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded"
+            >
+              <FaCopy />
+              копировать
+            </button>
 
-          </a>
+          </div>
 
         )}
 
@@ -55,5 +69,4 @@ export const OrderCustomerInfo = ({ order }: Props) => {
     </div>
 
   )
-
 }

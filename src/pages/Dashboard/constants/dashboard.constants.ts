@@ -25,7 +25,7 @@ export const ORDER_TABS: TabConfig[] = [
 
   {
     id: "processing",
-    label: "В работе",
+    label: "Готовятся",
     icon: FaUserTie,
     color: "from-blue-500 to-blue-600",
     bgColor: "bg-blue-50",
