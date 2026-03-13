@@ -3,14 +3,21 @@ import { ProductSkeleton } from "@/components/Skeleton/components"
 
 import { useDashboardUI } from "../hooks/useDashboardUI"
 import { useProducts } from "../hooks/useProducts"
+import { useOutletContext } from "react-router-dom"
+
+type OutletContextType = {
+  handleEditProduct: (product: any) => void
+  setShowAddProductModal: (value: boolean) => void
+}
 
 const ProductsPage = () => {
 
+  const { searchQuery } = useDashboardUI()
+
   const {
-    searchQuery,
     handleEditProduct,
     setShowAddProductModal
-  } = useDashboardUI()
+  } = useOutletContext<OutletContextType>()
 
   const {
     products,

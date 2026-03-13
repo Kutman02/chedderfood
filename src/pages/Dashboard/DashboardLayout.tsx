@@ -16,8 +16,10 @@ import { useGetWooOrdersQuery } from "@/app/services/wooCommerceApi"
 
 const DashboardLayout = () => {
     const { data: ordersData } = useGetWooOrdersQuery({
-  per_page: 100
-})
+  per_page: 100,
+},
+{ pollingInterval: 15000 }
+)
 
 const ordersCount = ordersData?.length ?? 0
 
@@ -45,7 +47,8 @@ const {
   orderDetailsModal,
   setOrderDetailsModal,
 
-  handleViewDetails
+  handleViewDetails,
+  handleEditProduct,
 } = useDashboardUI()
 
   if (!isAuthenticated && !authLoading) {
@@ -78,7 +81,13 @@ const {
         />
 
         <main className="mt-6">
-          <Outlet context={{ handleViewDetails }} />
+          <Outlet
+  context={{
+    handleViewDetails,
+    handleEditProduct,
+    setShowAddProductModal
+  }}
+/>
         </main>
 
       </div>
