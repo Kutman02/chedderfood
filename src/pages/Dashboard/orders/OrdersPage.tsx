@@ -34,31 +34,63 @@ const OrdersPage = () => {
   /**
    * 🔔 звук нового заказа
    */
-useEffect(() => {
+  useEffect(() => {
 
-  const newCount = counts["on-hold"] || 0
+    const newCount = counts["on-hold"] || 0
 
-  const prevCount = Number(
-    sessionStorage.getItem("orders_on_hold_count") || 0
-  )
+    const prevCount = Number(
+      sessionStorage.getItem("orders_on_hold_count") || 0
+    )
 
-  if (newCount > prevCount) {
+    if (newCount > prevCount) {
 
-    const audio = new Audio("/sounds/new-order.mp3")
+      const audio = new Audio("/sounds/new-order.mp3")
 
-    audio.play().catch(() => {
-      console.warn("Звук заблокирован браузером")
-    })
+      audio.play().catch(() => {
+        console.warn("Звук заблокирован браузером")
+      })
 
-  }
+    }
 
-  sessionStorage.setItem(
-    "orders_on_hold_count",
-    String(newCount)
-  )
+    sessionStorage.setItem(
+      "orders_on_hold_count",
+      String(newCount)
+    )
 
-}, [counts])
+  }, [counts])
 
+  /**
+   * 🔴 мигающий title вкладки
+   */
+  useEffect(() => {
+
+    const newOrders = counts["on-hold"] || 0
+
+    const originalTitle = document.title
+
+    if (newOrders <= 0) {
+      document.title = originalTitle
+      return
+    }
+
+    let visible = false
+
+    const interval = setInterval(() => {
+
+      document.title = visible
+        ? `(${newOrders}) Новый заказ!`
+        : originalTitle
+
+      visible = !visible
+
+    }, 1000)
+
+    return () => {
+      clearInterval(interval)
+      document.title = originalTitle
+    }
+
+  }, [counts])
 
   if (ordersLoading) {
     return <OrderSkeleton count={5} />
