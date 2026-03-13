@@ -4,25 +4,30 @@ import { OrderSkeleton } from "@/components/Skeleton/components"
 
 import { useDashboardUI } from "../hooks/useDashboardUI"
 import { useOrders } from "../hooks/useOrders"
+import { useOutletContext } from "react-router-dom"
 
 const OrdersPage = () => {
 
-  const {
-    activeTab,
-    setActiveTab,
-    searchQuery,
-    handleViewDetails
-  } = useDashboardUI()
+ const {
+  activeTab,
+  setActiveTab,
+  searchQuery
+} = useDashboardUI()
 
-  const {
-    orders,
-    ordersLoading,
-    processingIds,
-    removingOrderIds,
-    expandedConfirmation,
-    handleConfirmAction,
-    handleConfirmStatusUpdate
-  } = useOrders(activeTab, searchQuery)
+const { handleViewDetails } = useOutletContext<{
+  handleViewDetails: (order: any) => void
+}>()
+
+ const {
+  orders,
+  ordersLoading,
+  counts,
+  processingIds,
+  removingOrderIds,
+  expandedConfirmation,
+  handleConfirmAction,
+  handleConfirmStatusUpdate
+} = useOrders(activeTab, searchQuery)
 
   if (ordersLoading) {
     return <OrderSkeleton count={5} />
@@ -33,6 +38,7 @@ const OrdersPage = () => {
       <OrderTabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        counts={counts}
       />
 
       <OrdersSection

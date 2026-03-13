@@ -7,6 +7,13 @@ import {
 
 import { filterOrders } from "../../../utils/utils"
 
+type OrderStatus =
+  | "on-hold"
+  | "processing"
+  | "ready"
+  | "completed"
+  | "cancelled"
+
 export const useOrders = (
   activeTab: string,
   searchQuery: string
@@ -29,23 +36,52 @@ export const useOrders = (
   const [updateStatus] =
     useUpdateWooOrderStatusMutation()
 
-  const {
-    data: ordersData,
-    isLoading: ordersLoading,
-    error: ordersError
-  } = useGetWooOrdersQuery(
-    {
-      status: activeTab,
-      per_page: 100
-    },
-    {
-      pollingInterval: 15000
-    }
+ const {
+  data: ordersData,
+  isLoading: ordersLoading,
+  error: ordersError
+} = useGetWooOrdersQuery(
+  {
+    per_page: 100,
+    status: "any"
+  },
+  { pollingInterval: 15000 }
+)
+
+  const allOrders = ordersData ?? []
+
+  /**
+   * Фильтрация заказов
+   */
+  const orders = filterOrders(
+    allOrders.filter(order => order.status === activeTab),
+    searchQuery
   )
 
-  const orders =
-    filterOrders(ordersData, searchQuery)
+  /**
+   * Счётчики
+   */
+  const counts: Record<OrderStatus, number> = {
+    "on-hold": 0,
+    processing: 0,
+    ready: 0,
+    completed: 0,
+    cancelled: 0
+  }
 
+  allOrders.forEach(order => {
+
+    const status = order.status as OrderStatus
+
+    if (counts[status] !== undefined) {
+      counts[status]++
+    }
+
+  })
+
+  /**
+   * Обновление статуса
+   */
   const handleStatusUpdate = async (
     id: number,
     status: string
@@ -97,7 +133,6 @@ export const useOrders = (
       setProcessingIds(prev => {
 
         const next = new Set(prev)
-
         next.delete(id)
 
         return next
@@ -134,6 +169,8 @@ export const useOrders = (
     orders,
     ordersLoading,
     ordersError,
+
+    counts,
 
     processingIds,
     removingOrderIds,

@@ -12,37 +12,41 @@ import { OrderDetailsModal } from "@/components/Dashboard/OrderDetailsModal/Orde
 import { AddProductModal } from "@/components/Dashboard/AddProductModal/AddProductModal"
 import { EditProductModal } from "@/components/Dashboard/EditProductModal/EditProductModal"
 import { StatsModal } from "@/components/Dashboard/Stats/StatsModal"
+import { useGetWooOrdersQuery } from "@/app/services/wooCommerceApi"
 
 const DashboardLayout = () => {
+    const { data: ordersData } = useGetWooOrdersQuery({
+  per_page: 100
+})
+
+const ordersCount = ordersData?.length ?? 0
 
   const userName = useAppSelector(s => s.auth.userName)
   const { loading: authLoading, isAuthenticated } = useAuth()
 
-  const {
+const {
+  searchQuery,
+  setSearchQuery,
 
-    searchQuery,
-    setSearchQuery,
+  showStats,
+  setShowStats,
 
-    showStats,
-    setShowStats,
+  showSettings,
+  setShowSettings,
 
-    showSettings,
-    setShowSettings,
+  showAddProductModal,
+  setShowAddProductModal,
 
-    showAddProductModal,
-    setShowAddProductModal,
+  showEditProductModal,
+  setShowEditProductModal,
 
-    showEditProductModal,
-    setShowEditProductModal,
+  selectedProduct,
 
-    selectedProduct,
+  orderDetailsModal,
+  setOrderDetailsModal,
 
-    orderDetailsModal,
-    setOrderDetailsModal,
-
-    
-
-  } = useDashboardUI()
+  handleViewDetails
+} = useDashboardUI()
 
   if (!isAuthenticated && !authLoading) {
     return (
@@ -65,7 +69,7 @@ const DashboardLayout = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-4">
 
-        <SectionsNav />
+        <SectionsNav ordersCount={ordersCount} />
 
         <SearchBar
           value={searchQuery}
@@ -74,7 +78,7 @@ const DashboardLayout = () => {
         />
 
         <main className="mt-6">
-          <Outlet />
+          <Outlet context={{ handleViewDetails }} />
         </main>
 
       </div>
