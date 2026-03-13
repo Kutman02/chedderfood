@@ -8,10 +8,7 @@ import {
 
 import type { Product } from "../../../types"
 
-export const useProducts = (
-  mainSection: string,
-  searchQuery: string
-) => {
+export const useProducts = (searchQuery: string) => {
 
   const [selectedCategoryFilter, setSelectedCategoryFilter] =
     useState<number | null>(null)
@@ -26,24 +23,19 @@ export const useProducts = (
     useUpdateProductOrderMutation()
 
   const { data: categories } =
-    useGetProductCategoriesQuery(
-      { per_page: 100 },
-      { skip: mainSection !== "products" }
-    )
+    useGetProductCategoriesQuery({ per_page: 100 })
 
   const {
     data: productsData,
     isLoading: productsLoading
-  } = useGetProductsQuery(
-    {
-      search: searchQuery,
-      per_page: 100,
-      status: selectedStatusFilter === "all"
+  } = useGetProductsQuery({
+    search: searchQuery,
+    per_page: 100,
+    status:
+      selectedStatusFilter === "all"
         ? undefined
         : selectedStatusFilter
-    },
-    { skip: mainSection !== "products" }
-  )
+  })
 
   const products = useMemo(() => {
 
@@ -61,7 +53,7 @@ export const useProducts = (
 
   const sortedProducts = useMemo(() => {
 
-    return [...products].sort((a,b) => {
+    return [...products].sort((a, b) => {
       const orderA = a.menu_order || 0
       const orderB = b.menu_order || 0
       return orderA - orderB
@@ -107,20 +99,30 @@ export const useProducts = (
 
     const newOrder = [...sortedProducts]
 
-    const [removed] = newOrder.splice(draggedIndex,1)
+    const [removed] = newOrder.splice(draggedIndex, 1)
 
-    newOrder.splice(targetIndex,0,removed)
+    newOrder.splice(targetIndex, 0, removed)
 
     try {
 
-      for (let i = 0; i < newOrder.length; i++) {
+      // обновляем только те товары,
+      // у которых реально изменился menu_order
+      const updates = newOrder
+        .map((product, index) => ({
+          id: product.id,
+          newOrder: index + 1,
+          oldOrder: product.menu_order || 0
+        }))
+        .filter(p => p.newOrder !== p.oldOrder)
 
-        await updateProductOrder({
-          id: newOrder[i].id,
-          menu_order: i + 1
-        }).unwrap()
-
-      }
+      await Promise.all(
+        updates.map(p =>
+          updateProductOrder({
+            id: p.id,
+            menu_order: p.newOrder
+          }).unwrap()
+        )
+      )
 
     } catch (error) {
 

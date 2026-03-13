@@ -1,100 +1,123 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import type { ReactNode } from 'react';
-import { useEffect } from 'react';
-import { useAppSelector } from './app/hooks';
-import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
-import { ModalRedirectWrapper } from './components/ModalRedirectWrapper';
-import { Toast } from './components/Toast/Toast';
-import Dashboard from './pages/Dashboard/Dashboard';
-import Login from './pages/Login/Login';
-import Home from './pages/Home/Home';
-import AboutUs from './pages/AboutUs/AboutUs';
-import Contacts from './pages/Contacts/Contacts';
-import AuthTest from './components/AuthTest/AuthTest';
-import WooCommerceTest from './components/WooCommerceTest/WooCommerceTest';
-import NotFound from './pages/NotFound';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom"
+import type { ReactNode } from "react"
+import { useEffect } from "react"
 
-// Простая проверка: авторизован ли пользователь
+import { useAppSelector } from "./app/hooks"
+
+import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary"
+import { ModalRedirectWrapper } from "./components/ModalRedirectWrapper"
+import { Toast } from "./components/Toast/Toast"
+
+import DashboardLayout from "./pages/dashboard/DashboardLayout"
+import OrdersPage from "./pages/dashboard/orders/OrdersPage"
+import ProductsPage from "./pages/dashboard/products/ProductsPage"
+import CustomersPage from "./pages/dashboard/customers/CustomersPage"
+
+import Login from "./pages/Login/Login"
+import Home from "./pages/Home/Home"
+import AboutUs from "./pages/AboutUs/AboutUs"
+import Contacts from "./pages/Contacts/Contacts"
+
+import AuthTest from "./components/AuthTest/AuthTest"
+import WooCommerceTest from "./components/WooCommerceTest/WooCommerceTest"
+
+import NotFound from "./pages/NotFound"
+
+// Проверка авторизации
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
-  const token = useAppSelector((s) => s.auth.token);
-  return token ? children : <Navigate to="/login" />;
-};
+  const token = useAppSelector((s) => s.auth.token)
 
-// Компонент для редиректа на главную с query параметром
+  return token ? children : <Navigate to="/login" />
+}
+
+// редирект на главную с query параметром
 const ModalRedirect = ({ modal }: { modal: string }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+
   useEffect(() => {
-    navigate(`/?modal=${modal}`, { replace: true });
-  }, [navigate, modal]);
-  return null;
-};
+    navigate(`/?modal=${modal}`, { replace: true })
+  }, [navigate, modal])
+
+  return null
+}
 
 function App() {
   return (
     <ErrorBoundary>
       <Toast />
+
       <Router>
         <Routes>
-          {/* Публичный роут: Главная страница */}
+
+          {/* Главная */}
           <Route path="/" element={<Home />} />
 
-          {/* Публичный роут: Вход */}
-          <Route 
-            path="/login" 
+          {/* Login */}
+          <Route
+            path="/login"
             element={
               <ModalRedirectWrapper>
                 <Login />
               </ModalRedirectWrapper>
-            } 
+            }
           />
 
-          {/* Публичный роут: О нас */}
-          <Route 
-            path="/about" 
+          {/* About */}
+          <Route
+            path="/about"
             element={
               <ModalRedirectWrapper>
                 <AboutUs />
               </ModalRedirectWrapper>
-            } 
+            }
           />
 
-          {/* Публичный роут: Контакты */}
-          <Route 
-            path="/contacts" 
+          {/* Contacts */}
+          <Route
+            path="/contacts"
             element={
               <ModalRedirectWrapper>
                 <Contacts />
               </ModalRedirectWrapper>
-            } 
+            }
           />
 
-          {/* Маршруты для модальных окон */}
+          {/* Модалки */}
           <Route path="/cart" element={<ModalRedirect modal="cart" />} />
           <Route path="/mycheks" element={<ModalRedirect modal="mycheks" />} />
           <Route path="/myreceipts" element={<ModalRedirect modal="mycheks" />} />
 
-          {/* Тестовый роут: Проверка авторизации */}
+          {/* Тесты */}
           <Route path="/auth-test" element={<AuthTest />} />
-
-          {/* Тестовый роут: Проверка WooCommerce API */}
           <Route path="/woo-test" element={<WooCommerceTest />} />
 
-          {/* Приватный роут: Панель управления */}
-          <Route 
-            path="/dashboard" 
+          {/* DASHBOARD */}
+          <Route
+            path="/dashboard"
             element={
               <PrivateRoute>
-                <Dashboard />
+                <DashboardLayout />
               </PrivateRoute>
-            } 
-          />
+            }
+          >
 
-          {/* 404 страница - редирект на главную */}
+            <Route index element={<Navigate to="orders" />} />
+
+            <Route path="orders" element={<OrdersPage />} />
+
+            <Route path="products" element={<ProductsPage />} />
+
+            <Route path="customers" element={<CustomersPage />} />
+
+          </Route>
+
+          {/* 404 */}
           <Route path="*" element={<NotFound />} />
+
         </Routes>
       </Router>
     </ErrorBoundary>
-  );
+  )
 }
 
-export default App;
+export default App

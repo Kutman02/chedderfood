@@ -1,0 +1,113 @@
+import { Outlet } from "react-router-dom"
+
+import { Header } from "@/components/Dashboard/Header/Header"
+import { SectionsNav } from "./components/SectionsNav"
+import { SearchBar } from "./components/SearchBar"
+
+import { useDashboardUI } from "./hooks/useDashboardUI"
+import { useAuth } from "@/hooks/useAuth"
+import { useAppSelector } from "@/app/hooks"
+
+import { OrderDetailsModal } from "@/components/Dashboard/OrderDetailsModal/OrderDetailsModal"
+import { AddProductModal } from "@/components/Dashboard/AddProductModal/AddProductModal"
+import { EditProductModal } from "@/components/Dashboard/EditProductModal/EditProductModal"
+import { StatsModal } from "@/components/Dashboard/Stats/StatsModal"
+
+const DashboardLayout = () => {
+
+  const userName = useAppSelector(s => s.auth.userName)
+  const { loading: authLoading, isAuthenticated } = useAuth()
+
+  const {
+
+    searchQuery,
+    setSearchQuery,
+
+    showStats,
+    setShowStats,
+
+    showSettings,
+    setShowSettings,
+
+    showAddProductModal,
+    setShowAddProductModal,
+
+    showEditProductModal,
+    setShowEditProductModal,
+
+    selectedProduct,
+
+    orderDetailsModal,
+    setOrderDetailsModal,
+
+    
+
+  } = useDashboardUI()
+
+  if (!isAuthenticated && !authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        Требуется авторизация
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+
+      <Header
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        showStats={showStats}
+        setShowStats={setShowStats}
+        userName={userName}
+      />
+
+      <div className="max-w-7xl mx-auto px-4 py-4">
+
+        <SectionsNav />
+
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Поиск..."
+        />
+
+        <main className="mt-6">
+          <Outlet />
+        </main>
+
+      </div>
+
+      <OrderDetailsModal
+        isOpen={orderDetailsModal.isOpen}
+        order={orderDetailsModal.order}
+        onClose={() =>
+          setOrderDetailsModal({
+            isOpen: false,
+            order: null
+          })
+        }
+      />
+
+      <AddProductModal
+        isOpen={showAddProductModal}
+        onClose={() => setShowAddProductModal(false)}
+      />
+
+      <EditProductModal
+        isOpen={showEditProductModal}
+        product={selectedProduct}
+        onClose={() => setShowEditProductModal(false)}
+      />
+
+      <StatsModal
+        isOpen={showStats}
+        onClose={() => setShowStats(false)}
+      />
+
+    </div>
+  )
+}
+
+export default DashboardLayout

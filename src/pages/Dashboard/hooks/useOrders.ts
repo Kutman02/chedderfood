@@ -7,15 +7,16 @@ import {
 
 import { filterOrders } from "../../../utils/utils"
 
-
 export const useOrders = (
   activeTab: string,
-  searchQuery: string,
-  mainSection: string
+  searchQuery: string
 ) => {
 
-  const [processingIds, setProcessingIds] = useState<Set<number>>(new Set())
-  const [removingOrderIds, setRemovingOrderIds] = useState<Set<number>>(new Set())
+  const [processingIds, setProcessingIds] =
+    useState<Set<number>>(new Set())
+
+  const [removingOrderIds, setRemovingOrderIds] =
+    useState<Set<number>>(new Set())
 
   const [expandedConfirmation, setExpandedConfirmation] = useState<{
     orderId: number | null
@@ -25,33 +26,50 @@ export const useOrders = (
     action: null
   })
 
-  const [updateStatus] = useUpdateWooOrderStatusMutation()
+  const [updateStatus] =
+    useUpdateWooOrderStatusMutation()
 
   const {
     data: ordersData,
     isLoading: ordersLoading,
     error: ordersError
   } = useGetWooOrdersQuery(
-    { status: activeTab, per_page: 100 },
     {
-      pollingInterval: mainSection === "orders" ? 15000 : 0,
-      skip: mainSection !== "orders"
+      status: activeTab,
+      per_page: 100
+    },
+    {
+      pollingInterval: 15000
     }
   )
 
-  const orders = filterOrders(ordersData, searchQuery)
+  const orders =
+    filterOrders(ordersData, searchQuery)
 
-  const handleStatusUpdate = async (id: number, status: string) => {
+  const handleStatusUpdate = async (
+    id: number,
+    status: string
+  ) => {
 
-    setProcessingIds(prev => new Set(prev).add(id))
+    setProcessingIds(prev =>
+      new Set(prev).add(id)
+    )
 
     try {
 
-      await updateStatus({ id, status }).unwrap()
+      await updateStatus({
+        id,
+        status
+      }).unwrap()
 
-      if (["processing","ready","completed"].includes(status)) {
+      if (
+        ["processing", "ready", "completed"]
+          .includes(status)
+      ) {
 
-        setRemovingOrderIds(prev => new Set(prev).add(id))
+        setRemovingOrderIds(prev =>
+          new Set(prev).add(id)
+        )
 
         setTimeout(() => {
 
@@ -62,6 +80,7 @@ export const useOrders = (
           })
 
         }, 600)
+
       }
 
       setExpandedConfirmation({
@@ -76,12 +95,17 @@ export const useOrders = (
     } finally {
 
       setProcessingIds(prev => {
+
         const next = new Set(prev)
+
         next.delete(id)
+
         return next
+
       })
 
     }
+
   }
 
   const handleConfirmAction = (
@@ -120,4 +144,5 @@ export const useOrders = (
     handleConfirmStatusUpdate
 
   }
+
 }

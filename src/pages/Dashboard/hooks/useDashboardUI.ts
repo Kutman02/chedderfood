@@ -3,7 +3,6 @@ import type { Order, Product } from "../../../types"
 
 export const useDashboardUI = () => {
 
-  const [mainSection, setMainSection] = useState("orders")
   const [activeTab, setActiveTab] = useState("on-hold")
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -44,9 +43,10 @@ export const useDashboardUI = () => {
 
   }
 
-  const getPlaceholder = () => {
+  // placeholder для поиска
+  const getPlaceholder = (section: "orders" | "products" | "customers") => {
 
-    switch (mainSection) {
+    switch (section) {
 
       case "orders":
         return "Поиск заказа..."
@@ -65,9 +65,6 @@ export const useDashboardUI = () => {
   }
 
   return {
-
-    mainSection,
-    setMainSection,
 
     activeTab,
     setActiveTab,
