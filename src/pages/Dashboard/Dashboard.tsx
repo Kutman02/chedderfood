@@ -1,4 +1,4 @@
-import { Header } from "../../components/Dashboard/Header/Header";
+import { Header } from "@/components/Dashboard/Header/Header";
 
 import { useDashboard } from "./hooks/useDashboard";
 
@@ -10,12 +10,12 @@ import { OrdersSection } from "./components/OrdersSection";
 import { ProductsSection } from "./components/ProductsSection";
 import { CustomersSection } from "./components/CustomersSection";
 
-import { OrderDetailsModal } from "../../components/Dashboard/OrderDetailsModal/OrderDetailsModal";
-import { AddProductModal } from "../../components/Dashboard/AddProductModal/AddProductModal";
-import { EditProductModal } from "../../components/Dashboard/EditProductModal/EditProductModal";
-import { StatsModal } from "../../components/Dashboard/Stats/StatsModal";
+import { OrderDetailsModal } from "@/components/Dashboard/OrderDetailsModal/OrderDetailsModal";
+import { AddProductModal } from "@/components/Dashboard/AddProductModal/AddProductModal";
+import { EditProductModal } from "@/components/Dashboard/EditProductModal/EditProductModal";
+import { StatsModal } from "@/components/Dashboard/Stats/StatsModal";
 
-import { OrderSkeleton, ProductSkeleton } from "../../components/Skeleton/components";
+import { OrderSkeleton, ProductSkeleton } from "@/components/Skeleton/components";
 
 import { isAuthenticationError } from "./utils/isAuthenticationError";
 
