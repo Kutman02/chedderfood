@@ -32,6 +32,21 @@ const OrdersPage = () => {
   } = useOrders(activeTab, searchQuery)
 
   /**
+   * 🔐 запрос разрешения на уведомления
+   */
+  useEffect(() => {
+
+    if ("Notification" in window) {
+
+      if (Notification.permission === "default") {
+        Notification.requestPermission()
+      }
+
+    }
+
+  }, [])
+
+  /**
    * 🔔 звук нового заказа
    */
   useEffect(() => {
@@ -49,6 +64,18 @@ const OrdersPage = () => {
       audio.play().catch(() => {
         console.warn("Звук заблокирован браузером")
       })
+
+      /**
+       * 🖥 browser notification
+       */
+      if ("Notification" in window && Notification.permission === "granted") {
+
+        new Notification("Новый заказ!", {
+          body: `Поступил новый заказ. Всего новых: ${newCount}`,
+          icon: "/logo192.png"
+        })
+
+      }
 
     }
 
@@ -83,7 +110,7 @@ const OrdersPage = () => {
 
       visible = !visible
 
-    }, 1000)
+    }, 3000)
 
     return () => {
       clearInterval(interval)
