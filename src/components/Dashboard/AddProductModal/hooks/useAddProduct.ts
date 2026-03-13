@@ -130,7 +130,12 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
      CREATE PRODUCT
   =============================== */
 
-  const createNewProduct = async (imageIds: number[]) => {
+  const createNewProduct = async (
+    imageIds: number[],
+    customDescription?: string
+  ) => {
+
+    const finalDescription = customDescription ?? description
 
     const productData: Record<string, unknown> = {
 
@@ -144,9 +149,9 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
       images: imageIds.map(id => ({ id })),
 
-      description,
+      description: finalDescription,
 
-      short_description: description,
+      short_description: finalDescription,
 
       regular_price: regularPrice,
 
@@ -157,9 +162,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     }
 
     if (salePrice) {
-
       productData.sale_price = salePrice
-
     }
 
     await createProduct(productData).unwrap()
@@ -192,7 +195,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
      SUBMIT
   =============================== */
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (customDescription?: string) => {
 
     if (!validate()) return
 
@@ -202,7 +205,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
       const imageIds = await uploadImages()
 
-      await createNewProduct(imageIds)
+      await createNewProduct(imageIds, customDescription)
 
       resetForm()
 

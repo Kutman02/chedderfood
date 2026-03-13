@@ -7,6 +7,7 @@ interface ProductInfoProps {
 }
 
 export const ProductInfo = ({ product, onClose }: ProductInfoProps) => {
+
   const productPrice = product.sale_price || product.price || "0"
 
   const formatWeight = (weight: string | number) => {
@@ -19,17 +20,40 @@ export const ProductInfo = ({ product, onClose }: ProductInfoProps) => {
     return `${value} г`
   }
 
-  const description = product.description
+  /* =========================
+     CLEAN DESCRIPTION
+  ========================= */
+
+  const cleanDescription = product.description
     ? product.description
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/p>|<\/div>/gi, "\n")
         .replace(/<[^>]*>/g, "")
-        .split(",")
-        .map((i) => i.trim())
-        .join(", ")
-    : "Мясо, томатный соус, моцарелла, огурцы маринованные, томаты, лук красный, халапеньо"
+        .trim()
+    : ""
+
+  const lines = cleanDescription
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean)
+
+  const comboItems = lines
+    .filter(line => line.startsWith("•"))
+    .map(line => line.replace("•", "").trim())
+
+  const normalDescription = lines
+    .filter(
+      line =>
+        !line.startsWith("•") &&
+        !line.toLowerCase().includes("состав комбо")
+    )
+    .join(" ")
+
+  const isCombo = comboItems.length > 0
 
   return (
     <>
-      {/* Кнопка закрытия - только desktop */}
+      {/* CLOSE */}
       <button
         onClick={onClose}
         className="hidden md:block self-end p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors rounded-lg mb-2"
@@ -37,14 +61,16 @@ export const ProductInfo = ({ product, onClose }: ProductInfoProps) => {
         <FaTimes size={20} />
       </button>
 
-      {/* Название */}
+      {/* TITLE */}
       <h2 className="hidden md:block text-2xl font-black text-slate-800 mb-4">
         {product.name}
       </h2>
 
       <div className="flex-1 space-y-4">
-        {/* Цена */}
+
+        {/* PRICE */}
         <div className="flex items-center gap-3">
+
           <span className="text-2xl font-black text-orange-600">
             {productPrice} сом
           </span>
@@ -54,23 +80,45 @@ export const ProductInfo = ({ product, onClose }: ProductInfoProps) => {
               {product.regular_price} сом
             </span>
           )}
+
         </div>
 
-        {/* Вес */}
+
+        {/* WEIGHT */}
         {product.weight && (
           <div className="text-sm text-slate-600 font-medium">
             Вес: {formatWeight(product.weight)}
           </div>
         )}
 
-        {/* Описание */}
-        <div className="space-y-2">
-          <h3 className="font-bold text-lg text-slate-800">Описание</h3>
 
-          <div className="text-slate-700 text-sm">
-            {description}
+        {/* DESCRIPTION */}
+        {(normalDescription || isCombo) && (
+
+          <div className="space-y-2">
+
+            <h3 className="font-bold text-lg text-slate-800">
+              Описание
+            </h3>
+
+            {normalDescription && (
+              <p className="text-slate-700 text-sm">
+                {normalDescription}
+              </p>
+            )}
+
+            {isCombo && (
+              <ul className="text-slate-700 text-sm list-disc pl-5 space-y-1">
+                {comboItems.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            )}
+
           </div>
-        </div>
+
+        )}
+
       </div>
     </>
   )

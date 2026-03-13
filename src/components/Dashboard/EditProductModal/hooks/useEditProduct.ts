@@ -5,7 +5,7 @@ import {
   useUploadImageMutation
 } from "../../../../app/services/api"
 
-import type {  ProductStatus } from "../../../../types"
+import type { ProductStatus } from "../../../../types"
 import type { ImagePreview, UseEditProductProps } from "../types/editProduct.types"
 
 
@@ -43,7 +43,6 @@ export const useEditProduct = ({
 
     const tmp = document.createElement("div")
     tmp.innerHTML = html
-
     return tmp.textContent || ""
   }
 
@@ -113,7 +112,7 @@ export const useEditProduct = ({
   }
 
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (customDescription?: string) => {
 
     if (!product) return
 
@@ -153,18 +152,18 @@ export const useEditProduct = ({
 
       }
 
-
       const tags = productStatus === "none"
         ? []
         : [{ name: productStatus, slug: productStatus }]
 
+      const finalDescription = customDescription ?? description
 
       const productData: Record<string, unknown> = {
 
         name,
 
-        description,
-        short_description: description,
+        description: finalDescription,
+        short_description: finalDescription,
 
         categories: [{ id: selectedCategory }],
 

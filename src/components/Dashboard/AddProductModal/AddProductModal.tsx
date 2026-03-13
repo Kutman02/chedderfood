@@ -1,5 +1,3 @@
-
-
 import {
   AddProductHeader,
   ImageUploader,
@@ -27,6 +25,7 @@ export const AddProductModal = ({
 
       <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] md:max-h-[90vh] overflow-hidden flex flex-col">
 
+        {/* HEADER */}
         <AddProductHeader onClose={product.handleClose} />
 
         <div className="flex-1 overflow-y-auto">

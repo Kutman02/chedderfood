@@ -80,6 +80,6 @@ export interface UseEditProductReturn {
   handleImageSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
   removeImage: (id: string) => void
 
-  handleSubmit: () => Promise<void>
+  handleSubmit: (description?: string) => Promise<void>
   handleClose: () => void
 }

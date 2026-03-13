@@ -16,19 +16,35 @@ export const ProductInfo = ({
   children,
 }: ProductInfoProps) => {
 
-  const parsedDescription = description
+  const cleanDescription = description
     ? description
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/p>|<\/div>/gi, "\n")
         .replace(/<[^>]*>/g, "")
-        .split(",")
-        .map((item) => item.trim())
-        .join(", ")
-    : "Мясо, томатный соус, моцарелла, огурцы маринованные, томаты, лук красный, халапеньо"
+        .trim()
+    : ""
+
+  const lines = cleanDescription
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean)
+
+  const comboItems = lines
+    .filter(line => line.startsWith("•"))
+    .map(line => line.replace("•", "").trim())
+
+  const normalDescription = lines
+    .filter(line => !line.startsWith("•") && !line.toLowerCase().includes("состав комбо"))
+    .join(" ")
+
+  const isCombo = comboItems.length > 0
 
   return (
     <div className="p-6 space-y-4">
-      
+
       {/* Цена */}
       <div className="flex items-center gap-3">
+
         <span className="text-2xl font-black text-orange-600">
           {price} сом
         </span>
@@ -38,18 +54,37 @@ export const ProductInfo = ({
             {regularPrice} сом
           </span>
         )}
+
       </div>
+
 
       {/* Описание */}
-      <div className="space-y-2">
-        <h3 className="font-bold text-lg text-slate-800">
-          Описание
-        </h3>
+      {(normalDescription || isCombo) && (
 
-        <div className="text-sm text-slate-700">
-          {parsedDescription}
+        <div className="space-y-2">
+
+          <h3 className="font-bold text-lg text-slate-800">
+            Описание
+          </h3>
+
+          {normalDescription && (
+            <p className="text-sm text-slate-700">
+              {normalDescription}
+            </p>
+          )}
+
+          {isCombo && (
+            <ul className="text-sm text-slate-700 list-disc pl-5 space-y-1">
+              {comboItems.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          )}
+
         </div>
-      </div>
+
+      )}
+
 
       {/* Кнопка */}
       <div className="pt-4">
