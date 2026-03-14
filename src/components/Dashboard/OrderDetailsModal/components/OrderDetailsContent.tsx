@@ -3,7 +3,6 @@ import type { Order } from "@/types"
 import {
   OrderCustomerInfo,
   OrderTypeInfo,
-  OrderAddressInfo,
   OrderItemsList,
   OrderPricing,
   OrderPaymentInfo,
@@ -26,16 +25,12 @@ export const OrderDetailsContent = ({ order }: Props) => {
       {/* Комментарий клиента */}
       <OrderNote note={order.customer_note} />
 
-      {/* Тип заказа */}
+      {/* Тип заказа и адрес */}
       <OrderTypeInfo order={order} />
 
       {/* Клиент */}
       <OrderCustomerInfo order={order} />
 
-      {/* Адрес */}
-      {(order.shipping?.address_1 || order.billing?.address_1) && (
-        <OrderAddressInfo order={order} />
-      )}
 
       {/* Оплата */}
       <OrderPaymentInfo order={order} />

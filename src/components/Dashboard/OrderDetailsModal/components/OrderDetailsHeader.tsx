@@ -35,7 +35,7 @@ export const OrderDetailsHeader = ({
       <div>
 
         <h2 className="text-xl md:text-2xl font-black text-slate-900">
-          Заказ #{order.number}
+          Заказ # {order.number}
         </h2>
 
         <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
