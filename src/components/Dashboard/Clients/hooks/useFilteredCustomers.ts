@@ -4,7 +4,7 @@ import type { Customer } from "../../../../types"
 export const useFilteredCustomers = (
   customersData: Customer[] | undefined,
   searchQuery: string,
-  customerSortBy: "orders" | "spent"
+  customerSortBy: "newest" | "orders" | "spent" | "name"
 ) => {
 
   return useMemo(() => {
@@ -37,14 +37,33 @@ export const useFilteredCustomers = (
 
     return filtered.sort((a, b) => {
 
-      if (customerSortBy === "orders") {
-        return (b.orders_count || 0) - (a.orders_count || 0)
+      switch (customerSortBy) {
+
+        case "newest":
+          return (
+            new Date(b.date_created).getTime() -
+            new Date(a.date_created).getTime()
+          )
+
+        case "orders":
+          return (b.orders_count || 0) - (a.orders_count || 0)
+
+        case "spent":
+          return (
+            parseFloat(b.total_spent || "0") -
+            parseFloat(a.total_spent || "0")
+          )
+
+        case "name":
+          return (
+            `${a.first_name} ${a.last_name}`.localeCompare(
+              `${b.first_name} ${b.last_name}`
+            )
+          )
+
+        default:
+          return 0
       }
-
-      const spentA = parseFloat(a.total_spent || "0")
-      const spentB = parseFloat(b.total_spent || "0")
-
-      return spentB - spentA
 
     })
 

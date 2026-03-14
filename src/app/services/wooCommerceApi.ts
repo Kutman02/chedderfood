@@ -176,11 +176,8 @@ export const wooCommerceApi = createApi({
 
             customersMap.set(key, {
 
-              id: Math.abs(
-                key
-                  .split("")
-                  .reduce((acc, char) => acc + char.charCodeAt(0), 0)
-              ),
+              id: key,
+
 
               first_name: billing.first_name || "",
               last_name: billing.last_name || "",

@@ -25,7 +25,7 @@ export type CustomerAddress = {
 ========================= */
 
 export type Customer = {
-  id: number;
+  id: string;
 
   date_created: string;
   date_modified: string;

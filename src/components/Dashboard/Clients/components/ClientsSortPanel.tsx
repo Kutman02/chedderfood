@@ -1,8 +1,13 @@
-import { FaShoppingCart, FaDollarSign } from "react-icons/fa"
+import {
+  FaShoppingCart,
+  FaDollarSign,
+  FaUser,
+  FaClock
+} from "react-icons/fa"
 
 interface Props {
-  sortBy: "orders" | "spent"
-  setSortBy: (v: "orders" | "spent") => void
+  sortBy: "newest" | "orders" | "spent" | "name"
+  setSortBy: (value: "newest" | "orders" | "spent" | "name") => void
 }
 
 export const ClientsSortPanel = ({
@@ -12,11 +17,27 @@ export const ClientsSortPanel = ({
 
   return (
 
-    <div className="flex items-center gap-2 mb-6">
+    <div className="flex items-center gap-2 mb-6 flex-wrap">
 
       <span className="text-sm font-bold text-slate-600">
         Сортировка:
       </span>
+
+      {/* NEWEST */}
+
+      <button
+        onClick={() => setSortBy("newest")}
+        className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+          sortBy === "newest"
+            ? "bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-lg"
+            : "bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50"
+        }`}
+      >
+        <FaClock className="inline mr-2" size={12}/>
+        Новые
+      </button>
+
+      {/* ORDERS */}
 
       <button
         onClick={() => setSortBy("orders")}
@@ -30,6 +51,8 @@ export const ClientsSortPanel = ({
         По заказам
       </button>
 
+      {/* SPENT */}
+
       <button
         onClick={() => setSortBy("spent")}
         className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
@@ -40,6 +63,20 @@ export const ClientsSortPanel = ({
       >
         <FaDollarSign className="inline mr-2" size={12}/>
         По потраченному
+      </button>
+
+      {/* NAME */}
+
+      <button
+        onClick={() => setSortBy("name")}
+        className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+          sortBy === "name"
+            ? "bg-linear-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+            : "bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50"
+        }`}
+      >
+        <FaUser className="inline mr-2" size={12}/>
+        По имени
       </button>
 
     </div>

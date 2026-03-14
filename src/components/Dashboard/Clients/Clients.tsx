@@ -19,7 +19,13 @@ interface ClientsProps {
 export const Clients = ({ searchQuery }: ClientsProps) => {
 
   const [customerSortBy, setCustomerSortBy] =
-    useState<"orders" | "spent">("orders")
+  useState<
+    "newest" |
+    "orders" |
+    "spent" |
+    "name"
+  >("newest")
+
 
   const [page, setPage] = useState(1)
 
@@ -77,7 +83,7 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
           onClick={() => setPage(p => p - 1)}
           className="px-3 py-1 border rounded-md disabled:opacity-40"
         >
-          Prev
+          Предыдущая
         </button>
 
         {Array.from({ length: totalPages }).map((_, i) => {
@@ -104,7 +110,7 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
           onClick={() => setPage(p => p + 1)}
           className="px-3 py-1 border rounded-md disabled:opacity-40"
         >
-          Next
+          Следующая
         </button>
 
       </div>
