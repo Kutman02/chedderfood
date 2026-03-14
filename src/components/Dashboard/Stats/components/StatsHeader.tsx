@@ -1,20 +1,23 @@
-import { FaTimes, FaCalendarAlt } from "react-icons/fa"
+import { FaCalendarAlt } from "react-icons/fa"
 import { format, subDays } from "date-fns"
+import { useNavigate } from "react-router-dom"
+import { FaArrowLeft } from "react-icons/fa"
 
-interface StatsHeaderProps {
+
+
+export interface StatsHeaderProps {
   startDate: string
   endDate: string
-  setStartDate: (date: string) => void
-  setEndDate: (date: string) => void
-  onClose: () => void
+  setStartDate: (v: string) => void
+  setEndDate: (v: string) => void
 }
+
 
 export const StatsHeader = ({
   startDate,
   endDate,
   setStartDate,
-  setEndDate,
-  onClose
+  setEndDate
 }: StatsHeaderProps) => {
 
   const handleQuickRange = (days: number) => {
@@ -26,7 +29,7 @@ export const StatsHeader = ({
     setStartDate(format(start, "yyyy-MM-dd"))
 
   }
-
+const navigate = useNavigate()
   const getDateRangeText = () => {
 
     const start = format(new Date(startDate), "dd.MM.yyyy")
@@ -49,6 +52,7 @@ export const StatsHeader = ({
         {/* Быстрые диапазоны */}
 
         <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 w-full sm:w-auto">
+          
 
           <button
             onClick={() => handleQuickRange(7)}
@@ -114,12 +118,14 @@ export const StatsHeader = ({
 
       {/* Кнопка закрытия */}
 
-      <button
-        onClick={onClose}
-        className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-      >
-        <FaTimes size={20} />
-      </button>
+    <button
+  onClick={() => navigate(-1)}
+  className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition"
+>
+  <FaArrowLeft size={12} />
+  Назад
+</button>
+
 
     </div>
 

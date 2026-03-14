@@ -6,16 +6,12 @@ import { SettingsDropdown } from "./SettingsDropdown"
 interface Props {
   showSettings: boolean
   setShowSettings: (val: boolean) => void
-  showStats: boolean
-  setShowStats: (val: boolean) => void
   userName: string | null
 }
 
 export const HeaderActions = ({
   showSettings,
   setShowSettings,
-  showStats,
-  setShowStats,
   userName
 }: Props) => {
 
@@ -23,10 +19,7 @@ export const HeaderActions = ({
 
     <div className="flex items-center gap-3 relative">
 
-      <StatsButton
-        showStats={showStats}
-        setShowStats={setShowStats}
-      />
+      <StatsButton />
 
       <button
         onClick={() => setShowSettings(!showSettings)}

@@ -5,8 +5,6 @@ import { Logo, HeaderActions } from "./components"
 export const Header = ({
   showSettings,
   setShowSettings,
-  showStats,
-  setShowStats,
   userName
 }: HeaderProps) => {
 
@@ -21,8 +19,6 @@ export const Header = ({
         <HeaderActions
           showSettings={showSettings}
           setShowSettings={setShowSettings}
-          showStats={showStats}
-          setShowStats={setShowStats}
           userName={userName}
         />
 

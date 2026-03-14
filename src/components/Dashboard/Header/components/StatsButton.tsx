@@ -1,19 +1,14 @@
 import { FaChartBar } from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
 
-interface Props {
-  showStats: boolean
-  setShowStats: (val: boolean) => void
-}
+export const StatsButton = () => {
 
-export const StatsButton = ({
-  showStats,
-  setShowStats
-}: Props) => {
+  const navigate = useNavigate()
 
   return (
 
     <button
-      onClick={() => setShowStats(!showStats)}
+      onClick={() => navigate("/dashboard/stats")}
       className="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm flex items-center gap-2"
     >
 

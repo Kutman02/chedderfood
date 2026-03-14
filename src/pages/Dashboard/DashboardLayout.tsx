@@ -11,7 +11,6 @@ import { useAppSelector } from "@/app/hooks"
 import { OrderDetailsModal } from "@/components/Dashboard/OrderDetailsModal/OrderDetailsModal"
 import { AddProductModal } from "@/components/Dashboard/AddProductModal/AddProductModal"
 import { EditProductModal } from "@/components/Dashboard/EditProductModal/EditProductModal"
-import { StatsModal } from "@/components/Dashboard/Stats/StatsModal"
 import { useGetWooOrdersQuery } from "@/app/services/wooCommerceApi"
 
 const DashboardLayout = () => {
@@ -30,8 +29,6 @@ const {
   searchQuery,
   setSearchQuery,
 
-  showStats,
-  setShowStats,
 
   showSettings,
   setShowSettings,
@@ -63,12 +60,11 @@ const {
     <div className="min-h-screen bg-slate-50">
 
       <Header
-        showSettings={showSettings}
-        setShowSettings={setShowSettings}
-        showStats={showStats}
-        setShowStats={setShowStats}
-        userName={userName}
-      />
+  showSettings={showSettings}
+  setShowSettings={setShowSettings}
+  userName={userName}
+/>
+
 
       <div className="max-w-7xl mx-auto px-4 py-4">
 
@@ -112,11 +108,6 @@ const {
         isOpen={showEditProductModal}
         product={selectedProduct}
         onClose={() => setShowEditProductModal(false)}
-      />
-
-      <StatsModal
-        isOpen={showStats}
-        onClose={() => setShowStats(false)}
       />
 
     </div>
