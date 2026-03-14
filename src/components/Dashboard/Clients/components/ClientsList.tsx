@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { FaUsers, FaChevronDown } from "react-icons/fa"
+import { useState, Fragment } from "react"
+import { FaUsers, FaChevronDown, FaPhone } from "react-icons/fa"
 import type { Customer } from "../../../../types"
 
 interface Props {
@@ -73,12 +73,11 @@ export const ClientsList = ({ customers }: Props) => {
 
             return (
 
-              <>
+              <Fragment key={customer.id}>
 
                 {/* MAIN ROW */}
 
                 <tr
-                  key={customer.id}
                   onClick={() =>
                     setOpenId(isOpen ? null : customer.id)
                   }
@@ -90,19 +89,27 @@ export const ClientsList = ({ customers }: Props) => {
                   </td>
 
                   <td className="px-4 py-3 text-slate-700">
-  {phone !== "—" ? (
-    <a
-      href={`tel:${phone}`}
-      onClick={(e) => e.stopPropagation()}
-      className="text-blue-600 hover:underline"
-    >
-      {phone}
-    </a>
-  ) : (
-    "—"
-  )}
-</td>
 
+                    {phone !== "—" ? (
+
+                      <a
+                        href={`tel:${phone}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-blue-600 hover:underline flex items-center gap-1"
+                      >
+
+                        <FaPhone size={12} />
+                        {phone}
+
+                      </a>
+
+                    ) : (
+
+                      "—"
+
+                    )}
+
+                  </td>
 
                   <td className="px-4 py-3 text-slate-700">
                     {customer.orders_count}
@@ -111,7 +118,7 @@ export const ClientsList = ({ customers }: Props) => {
                   <td className="px-4 py-3 text-right">
 
                     <FaChevronDown
-                      className={`transition-transform ${
+                      className={`transition-transform duration-200 ${
                         isOpen ? "rotate-180" : ""
                       }`}
                       size={14}
@@ -163,7 +170,7 @@ export const ClientsList = ({ customers }: Props) => {
 
                 )}
 
-              </>
+              </Fragment>
 
             )
 
