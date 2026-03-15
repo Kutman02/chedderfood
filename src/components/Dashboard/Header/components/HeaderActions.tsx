@@ -1,4 +1,5 @@
 import { FaCog } from "react-icons/fa"
+import { useRef, useEffect } from "react"
 
 import { StatsButton } from "./StatsButton"
 import { SettingsDropdown } from "./SettingsDropdown"
@@ -15,29 +16,48 @@ export const HeaderActions = ({
   userName
 }: Props) => {
 
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setShowSettings(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+
+  }, [setShowSettings])
+
   return (
 
-    <div className="flex items-center gap-3 relative">
+    <div
+      ref={containerRef}
+      className="flex items-center gap-3 relative"
+    >
 
       <StatsButton />
 
       <button
-        onClick={() => setShowSettings(!showSettings)}
-        className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center"
+        onClick={() => setShowSettings(true)}
+        className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 transition"
       >
         <FaCog />
       </button>
 
       {showSettings && (
-
-        <SettingsDropdown
-          userName={userName}
-        />
-
+        <SettingsDropdown userName={userName} />
       )}
 
     </div>
 
   )
-
 }

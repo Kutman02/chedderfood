@@ -1,6 +1,7 @@
 import type { HeaderProps } from "./types"
 
-import { Logo, HeaderActions } from "./components"
+import { Logo } from "./components/Logo"
+import { HeaderActions } from "./components/HeaderActions"
 
 export const Header = ({
   showSettings,
@@ -10,9 +11,9 @@ export const Header = ({
 
   return (
 
-    <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm sticky top-0 z-50">
+    <header className="sticky top-0 z-50 border-b border-slate-200/50 bg-white/80 backdrop-blur-md shadow-sm">
 
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
 
         <Logo />
 
@@ -27,5 +28,4 @@ export const Header = ({
     </header>
 
   )
-
 }
