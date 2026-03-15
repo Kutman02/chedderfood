@@ -1,11 +1,24 @@
 import { useState } from "react"
 import type { Order, Product } from "../../../types"
 
+type SearchSection = "orders" | "products" | "customers"
+
 export const useDashboardUI = () => {
 
   const [activeTab, setActiveTab] = useState("on-hold")
 
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQueries, setSearchQueries] = useState({
+    orders: "",
+    products: "",
+    customers: ""
+  })
+
+  const setSearchQuery = (section: SearchSection, value: string) => {
+    setSearchQueries(prev => ({
+      ...prev,
+      [section]: value
+    }))
+  }
 
   const [showStats, setShowStats] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -24,32 +37,24 @@ export const useDashboardUI = () => {
     order: null
   })
 
-  // открыть детали заказа
   const handleViewDetails = (order: Order) => {
-
     setOrderDetailsModal({
       isOpen: true,
       order
     })
-
   }
 
-  // редактировать товар
   const handleEditProduct = (product: Product) => {
-
     setSelectedProduct(product)
-
     setShowEditProductModal(true)
-
   }
 
-  // placeholder для поиска
-  const getPlaceholder = (section: "orders" | "products" | "customers") => {
+  const getPlaceholder = (section: SearchSection) => {
 
     switch (section) {
 
       case "orders":
-        return "Поиск заказа..."
+        return "Поиск заказа по имени, телефону или адресу..."
 
       case "products":
         return "Поиск товара..."
@@ -69,7 +74,7 @@ export const useDashboardUI = () => {
     activeTab,
     setActiveTab,
 
-    searchQuery,
+    searchQueries,
     setSearchQuery,
 
     showStats,

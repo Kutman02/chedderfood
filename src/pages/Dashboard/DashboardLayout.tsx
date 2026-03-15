@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom"
+import { Outlet, useLocation } from "react-router-dom"
 
 import { Header } from "@/components/Dashboard/Header/Header"
 import { SectionsNav } from "./components/SectionsNav"
@@ -14,39 +14,52 @@ import { EditProductModal } from "@/components/Dashboard/EditProductModal/EditPr
 import { useGetWooOrdersQuery } from "@/app/services/wooCommerceApi"
 
 const DashboardLayout = () => {
-    const { data: ordersData } = useGetWooOrdersQuery({
-  per_page: 100,
-},
-{ pollingInterval: 15000 }
-)
 
-const ordersCount = ordersData?.length ?? 0
+  const location = useLocation()
+
+  const { data: ordersData } = useGetWooOrdersQuery(
+    { per_page: 100 },
+    { pollingInterval: 15000 }
+  )
+
+  const ordersCount = ordersData?.length ?? 0
 
   const userName = useAppSelector(s => s.auth.userName)
   const { loading: authLoading, isAuthenticated } = useAuth()
 
-const {
-  searchQuery,
-  setSearchQuery,
+  const {
 
+    searchQueries,
+    setSearchQuery,
 
-  showSettings,
-  setShowSettings,
+    showSettings,
+    setShowSettings,
 
-  showAddProductModal,
-  setShowAddProductModal,
+    showAddProductModal,
+    setShowAddProductModal,
 
-  showEditProductModal,
-  setShowEditProductModal,
+    showEditProductModal,
+    setShowEditProductModal,
 
-  selectedProduct,
+    selectedProduct,
 
-  orderDetailsModal,
-  setOrderDetailsModal,
+    orderDetailsModal,
+    setOrderDetailsModal,
 
-  handleViewDetails,
-  handleEditProduct,
-} = useDashboardUI()
+    handleViewDetails,
+    handleEditProduct,
+
+    getPlaceholder
+
+  } = useDashboardUI()
+
+  // определяем текущую секцию
+  const section =
+    location.pathname.includes("/products")
+      ? "products"
+      : location.pathname.includes("/customers")
+      ? "customers"
+      : "orders"
 
   if (!isAuthenticated && !authLoading) {
     return (
@@ -60,30 +73,30 @@ const {
     <div className="min-h-screen bg-slate-50">
 
       <Header
-  showSettings={showSettings}
-  setShowSettings={setShowSettings}
-  userName={userName}
-/>
-
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        userName={userName}
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-4">
 
         <SectionsNav ordersCount={ordersCount} />
 
         <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Поиск..."
+          value={searchQueries[section]}
+          onChange={(v) => setSearchQuery(section, v)}
+          placeholder={getPlaceholder(section)}
         />
 
         <main className="mt-6">
           <Outlet
-  context={{
-    handleViewDetails,
-    handleEditProduct,
-    setShowAddProductModal
-  }}
-/>
+            context={{
+              handleViewDetails,
+              handleEditProduct,
+              setShowAddProductModal,
+              searchQuery: searchQueries[section]
+            }}
+          />
         </main>
 
       </div>

@@ -1,9 +1,13 @@
+import { useOutletContext } from "react-router-dom"
 import { CustomersSection } from "../components/CustomersSection"
-import { useDashboardUI } from "../hooks/useDashboardUI"
+
+type OutletContext = {
+  searchQuery: string
+}
 
 const CustomersPage = () => {
 
-  const { searchQuery } = useDashboardUI()
+  const { searchQuery } = useOutletContext<OutletContext>()
 
   return (
     <CustomersSection

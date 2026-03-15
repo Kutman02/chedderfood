@@ -8,17 +8,19 @@ import { useDashboardUI } from "../hooks/useDashboardUI"
 import { useOrders } from "../hooks/useOrders"
 import { useOutletContext } from "react-router-dom"
 
+type OutletContext = {
+  handleViewDetails: (order: any) => void
+  searchQuery: string
+}
+
 const OrdersPage = () => {
+
+  const { handleViewDetails, searchQuery } = useOutletContext<OutletContext>()
 
   const {
     activeTab,
-    setActiveTab,
-    searchQuery
+    setActiveTab
   } = useDashboardUI()
-
-  const { handleViewDetails } = useOutletContext<{
-    handleViewDetails: (order: any) => void
-  }>()
 
   const {
     orders,
@@ -65,9 +67,6 @@ const OrdersPage = () => {
         console.warn("Звук заблокирован браузером")
       })
 
-      /**
-       * 🖥 browser notification
-       */
       if ("Notification" in window && Notification.permission === "granted") {
 
         new Notification("Новый заказ!", {
@@ -92,7 +91,6 @@ const OrdersPage = () => {
   useEffect(() => {
 
     const newOrders = counts["on-hold"] || 0
-
     const originalTitle = document.title
 
     if (newOrders <= 0) {
