@@ -21,11 +21,17 @@ export const api = createApi({
       // WooCommerce API endpoints: getProducts, getOrders, getCustomers, etc.
       // WordPress REST API endpoints: uploadImage
       const endpointStr = String(endpoint || '').toLowerCase();
-      const isWordPressMediaUpload = endpointStr === 'uploadimage' || endpointStr.includes('uploadimage');
-      const isWooCommerceAPI = !isWordPressMediaUpload; // Все остальные - WooCommerce API
+
+      const isWordPressEndpoint =
+  endpointStr === 'uploadimage' ||
+  endpointStr === 'getprofile' ||
+  endpointStr === 'updateprofile'
+
+      
+const isWooCommerceAPI = !isWordPressEndpoint;
       
       if (import.meta.env.DEV) {
-        console.log('Is WordPress Media Upload:', isWordPressMediaUpload);
+        console.log('Is WordPress Media Upload:', isWordPressEndpoint);
         console.log('Is WooCommerce API:', isWooCommerceAPI);
       }
       
@@ -148,6 +154,7 @@ export const api = createApi({
       },
       providesTags: ['Orders'],
     }),
+    
     // Метод для получения одного заказа с полной информацией
     getOrder: builder.query({
       query: (id) => ({
@@ -405,6 +412,45 @@ export const api = createApi({
       }),
       invalidatesTags: ['Orders'],
     }),
+
+    // ================= PROFILE =================
+
+// Получить профиль
+getProfile: builder.query({
+  query: () => ({
+    url: "wp/v2/users/me"
+  }),
+  providesTags: ["Profile"],
+  transformResponse: (user: any) => ({
+
+    id: user.id,
+
+    username: user.username,
+
+    display_name: user.name,
+
+    first_name: user.first_name || user.name || "",
+
+    last_name: user.last_name || "",
+
+    description: user.description || "",
+
+    avatar_url: user.avatar_url || user.avatar_urls?.["96"] || ""
+
+  })
+}),
+
+
+// обновить профиль
+updateProfile: builder.mutation({
+  query: (body) => ({
+    url: 'wp/v2/users/me',
+    method: 'POST',
+    body,
+    credentials: 'include',
+  }),
+}),
+
     // Метод для загрузки изображения
     uploadImage: builder.mutation({
       query: (formData) => {
@@ -415,7 +461,7 @@ export const api = createApi({
         
         // Проверяем наличие nonce перед загрузкой
         const nonce: string | null = localStorage.getItem('wp_nonce');
-        if (!nonce) {
+        if (!nonce && !WORDPRESS_APP_PASSWORD) {
           console.error('❌ CRITICAL: No nonce found! Media upload will fail.');
           console.error('Please make sure you are logged in as admin.');
           // Early return если nonce отсутствует и нет Application Password
@@ -497,4 +543,8 @@ export const {
   useUpdateProductOrderMutation,
   useCreateOrderMutation,
   useUploadImageMutation,
+  
+  useGetProfileQuery,
+useUpdateProfileMutation
+
 } = api;

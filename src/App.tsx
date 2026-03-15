@@ -21,6 +21,8 @@ import Contacts from "./pages/Contacts/Contacts"
 import AuthTest from "./components/AuthTest/AuthTest"
 import WooCommerceTest from "./components/WooCommerceTest/WooCommerceTest"
 import { StatsPage } from "./pages/dashboard/stats/StatsPage"
+import ProfilePage from "./pages/dashboard/profile/pages/ProfilePage"
+
 
 
 import NotFound from "./pages/NotFound"
@@ -111,6 +113,7 @@ function App() {
 
             <Route path="customers" element={<CustomersPage />} />
             <Route path="stats" element={<StatsPage />} />
+            <Route path="profile" element={<ProfilePage />} />
 
 
           </Route>
