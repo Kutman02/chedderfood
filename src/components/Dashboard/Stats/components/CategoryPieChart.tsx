@@ -35,7 +35,7 @@ export const CategoryPieChart = ({ categories }: Props) => {
 
       <div className="h-48 sm:h-64 lg:h-80">
 
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" aspect={1.6}>
 
           <PieChart>
 
