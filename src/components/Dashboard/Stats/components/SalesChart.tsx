@@ -22,9 +22,7 @@ interface SalesChartProps {
 
 export const SalesChart = ({ data }: SalesChartProps) => {
 
-  if (!data || data.length === 0) {
-    return null
-  }
+  if (!data || data.length === 0) return null
 
   return (
 
@@ -34,69 +32,66 @@ export const SalesChart = ({ data }: SalesChartProps) => {
         График продаж
       </h2>
 
-      <div className="h-48 sm:h-64 lg:h-80">
+      <ResponsiveContainer width="100%" height={320}>
 
-        <ResponsiveContainer width="100%" aspect={2}>
+        <LineChart
+          data={data}
+          margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+        >
 
-          <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
 
-            <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 10 }}
+          />
 
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 10 }}
-            />
+          <YAxis
+            tick={{ fontSize: 10 }}
+          />
 
-            <YAxis
-              tick={{ fontSize: 10 }}
-            />
+          <Tooltip
+            formatter={(value: number | string | undefined, name: string | undefined) => {
 
-            <Tooltip
-              formatter={(value: number | string | undefined, name: string | undefined) => {
+              const numericValue = Number(value ?? 0)
 
-                const numericValue = Number(value ?? 0)
+              if (name === "revenue") {
+                return [`${numericValue.toLocaleString()} сом`, "Выручка"]
+              }
 
-                if (name === "revenue") {
-                  return [`${numericValue.toLocaleString()} сом`, "Выручка"]
-                }
+              if (name === "orders") {
+                return [numericValue, "Заказы"]
+              }
 
-                if (name === "orders") {
-                  return [numericValue, "Заказы"]
-                }
+              return [numericValue, name ?? ""]
+            }}
+          />
 
-                return [numericValue, name ?? ""]
+          <Legend />
 
-              }}
-            />
+          <Line
+            type="monotone"
+            dataKey="revenue"
+            stroke="#3b82f6"
+            strokeWidth={2}
+            name="Выручка (сом)"
+            dot={false}
+          />
 
-            <Legend />
+          <Line
+            type="monotone"
+            dataKey="orders"
+            stroke="#10b981"
+            strokeWidth={2}
+            name="Заказы"
+            dot={false}
+          />
 
-            <Line
-              type="monotone"
-              dataKey="revenue"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              name="Выручка (сом)"
-              dot={false}
-            />
+        </LineChart>
 
-            <Line
-              type="monotone"
-              dataKey="orders"
-              stroke="#10b981"
-              strokeWidth={2}
-              name="Заказы"
-              dot={false}
-            />
-
-          </LineChart>
-
-        </ResponsiveContainer>
-
-      </div>
+      </ResponsiveContainer>
 
     </div>
 
   )
-
 }

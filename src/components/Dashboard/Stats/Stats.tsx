@@ -36,7 +36,7 @@ export const Stats = () => {
         setEndDate={setEndDate}
       />
 
-      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 min-w-0">
 
         {loading && (
 
@@ -48,27 +48,38 @@ export const Stats = () => {
 
         {!loading && analyticsData && (
 
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
 
             <StatsMetrics data={analyticsData} />
 
-            <SalesChart data={analyticsData.daily_stats} />
+            {/* график */}
+            <div className="min-w-0">
+              <SalesChart data={analyticsData.daily_stats} />
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0">
 
-              <TopCategories
-                categories={analyticsData.categories}
-              />
+              <div className="min-w-0">
+                <TopCategories
+                  categories={analyticsData.categories}
+                />
+              </div>
 
-              <TopProducts
-                products={analyticsData.products}
-              />
+              <div className="min-w-0">
+                <TopProducts
+                  products={analyticsData.products}
+                />
+              </div>
 
             </div>
 
-            <CategoryPieChart
-              categories={analyticsData.categories}
-            />
+            {/* pie chart */}
+            <div className="min-w-0">
+              <CategoryPieChart
+                categories={analyticsData.categories}
+              />
+            </div>
 
           </div>
 

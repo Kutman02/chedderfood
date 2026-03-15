@@ -28,7 +28,6 @@ const DashboardLayout = () => {
   const { loading: authLoading, isAuthenticated } = useAuth()
 
   const {
-
     searchQueries,
     setSearchQuery,
 
@@ -53,7 +52,6 @@ const DashboardLayout = () => {
 
   } = useDashboardUI()
 
-  // определяем текущую секцию
   const section =
     location.pathname.includes("/products")
       ? "products"
@@ -70,7 +68,7 @@ const DashboardLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 w-full">
 
       <Header
         showSettings={showSettings}
@@ -78,7 +76,7 @@ const DashboardLayout = () => {
         userName={userName}
       />
 
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="w-full max-w-7xl mx-auto px-4 py-4 min-w-0">
 
         <SectionsNav ordersCount={ordersCount} />
 
@@ -88,7 +86,7 @@ const DashboardLayout = () => {
           placeholder={getPlaceholder(section)}
         />
 
-        <main className="mt-6">
+        <main className="mt-6 w-full min-w-0">
           <Outlet
             context={{
               handleViewDetails,

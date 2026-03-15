@@ -33,49 +33,42 @@ export const CategoryPieChart = ({ categories }: Props) => {
         Распределение по категориям
       </h2>
 
-      <div className="h-48 sm:h-64 lg:h-80">
+      <ResponsiveContainer width="100%" height={320}>
 
-        <ResponsiveContainer width="100%" aspect={1.6}>
+        <PieChart>
 
-          <PieChart>
+          <Pie
+            data={categories}
+            cx="50%"
+            cy="50%"
+            outerRadius="80%"
+            dataKey="revenue"
+            nameKey="name"
+            label={({ name, percent }: { name?: string; percent?: number }) =>
+              `${name ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`
+            }
+          >
 
-            <Pie
-              data={categories}
-              cx="50%"
-              cy="50%"
-              outerRadius={90}
-              dataKey="revenue"
-              nameKey="name"
-              label={({ name, percent }: { name?: string; percent?: number }) =>
-                `${name ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`
-              }
-            >
+            {categories.map((_, index) => (
+              <Cell
+                key={index}
+                fill={COLORS[index % COLORS.length]}
+              />
+            ))}
 
-              {categories.map((_, index) => (
+          </Pie>
 
-                <Cell
-                  key={index}
-                  fill={COLORS[index % COLORS.length]}
-                />
+          <Tooltip
+            formatter={(value: number | string | undefined) =>
+              `${Number(value ?? 0).toLocaleString()} сом`
+            }
+          />
 
-              ))}
+        </PieChart>
 
-            </Pie>
-
-            <Tooltip
-              formatter={(value: number | string | undefined) =>
-                `${Number(value ?? 0).toLocaleString()} сом`
-              }
-            />
-
-          </PieChart>
-
-        </ResponsiveContainer>
-
-      </div>
+      </ResponsiveContainer>
 
     </div>
 
   )
-
 }
