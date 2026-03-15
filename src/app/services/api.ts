@@ -125,7 +125,16 @@ const isWooCommerceAPI = !isWordPressEndpoint;
       return headers;
     },
   }),
-  tagTypes: ['Orders', 'Order', 'Products', 'Product', 'Customers', 'Customer'],
+  tagTypes: [
+  'Orders',
+  'Order',
+  'Products',
+  'Product',
+  'Customers',
+  'Customer',
+  'Profile'
+],
+
   endpoints: (builder) => ({
     // Метод для получения заказов с фильтрами
     getOrders: builder.query({

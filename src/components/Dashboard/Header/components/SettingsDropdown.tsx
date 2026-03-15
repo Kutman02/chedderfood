@@ -1,4 +1,4 @@
-import { FaUser, FaCog } from "react-icons/fa"
+import { FaUser } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
 
 interface Props {
@@ -43,13 +43,7 @@ export const SettingsDropdown = ({ userName }: Props) => {
           Профиль
         </button>
 
-        <button
-          onClick={() => navigate("/dashboard/settings")}
-          className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100"
-        >
-          <FaCog />
-          Настройки
-        </button>
+       
 
       </div>
 

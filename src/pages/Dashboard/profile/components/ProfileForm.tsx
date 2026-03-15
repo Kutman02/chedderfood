@@ -93,7 +93,7 @@ export const ProfileForm = ({ profile }: Props) => {
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="border rounded-lg p-2 min-h-[100px]"
+          className="border rounded-lg p-2 min-h-100px"
         />
 
       </div>
