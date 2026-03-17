@@ -1,16 +1,15 @@
-import { useGetProfileQuery } from "@/app/services/api"
-
+import { useGetProfileQuery } from "@/api"
 import { ProfileHeader } from "../components/ProfileHeader"
 import { ProfileForm } from "../components/ProfileForm"
 import { ProfileSkeleton } from "../components/ProfileSkeleton"
 
 const ProfilePage = () => {
 
-  const {
-    data: profile,
-    isLoading,
-    isError
-  } = useGetProfileQuery(null)
+const {
+  data: profile,
+  isLoading,
+  isError
+} = useGetProfileQuery()
 
   if (isLoading) return <ProfileSkeleton />
 

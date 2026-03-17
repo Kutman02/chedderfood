@@ -1,5 +1,9 @@
 import { useState } from "react"
-import { wooCommerceApi } from "../../app/services/wooCommerceApi"
+
+import {
+  useGetOrdersQuery,
+  useGetProductsQuery
+} from "@/api"
 
 import type { TestResult } from "./types"
 
@@ -15,13 +19,13 @@ const WooCommerceTest = () => {
     data: ordersData,
     error: ordersError,
     isLoading: ordersLoading,
-  } = wooCommerceApi.useGetWooOrdersQuery({ status: "on-hold" })
+  } = useGetOrdersQuery({ status: "on-hold", per_page: 100 })
 
   const {
     data: productsData,
     error: productsError,
     isLoading: productsLoading,
-  } = wooCommerceApi.useGetWooProductsQuery({})
+  } = useGetProductsQuery({ per_page: 100 })
 
   const testWooCommerceOrders = () => {
     if (ordersError) {

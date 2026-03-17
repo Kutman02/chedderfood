@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react"
+
 import {
   useGetProductCategoriesQuery,
   useUpdateProductMutation,
   useUploadImageMutation
-} from "../../../../app/services/api"
+} from "@/api"
 
-import type { ProductStatus } from "../../../../types"
+import type { ProductStatus } from "@/types"
 import type { ImagePreview, UseEditProductProps } from "../types/editProduct.types"
-
 
 export const useEditProduct = ({
   product,
@@ -33,7 +33,8 @@ export const useEditProduct = ({
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-  const { data: categories } = useGetProductCategoriesQuery({ per_page: 100 })
+  const { data: categories } =
+    useGetProductCategoriesQuery({ per_page: 100 })
 
   const [updateProduct] = useUpdateProductMutation()
   const [uploadImage] = useUploadImageMutation()
@@ -81,7 +82,6 @@ export const useEditProduct = ({
 
   }, [product, isOpen])
 
-
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 
     const files = Array.from(e.target.files || [])
@@ -89,12 +89,11 @@ export const useEditProduct = ({
     const newImages: ImagePreview[] = files.map(file => ({
       file,
       preview: URL.createObjectURL(file),
-      id: Math.random().toString(36).substring(2, 9)
+      id: crypto.randomUUID() // ✅ лучше чем Math.random
     }))
 
     setImages(prev => [...prev, ...newImages])
   }
-
 
   const removeImage = (id: string) => {
 
@@ -110,7 +109,6 @@ export const useEditProduct = ({
 
     })
   }
-
 
   const handleSubmit = async (customDescription?: string) => {
 
@@ -176,11 +174,9 @@ export const useEditProduct = ({
         weight: weight || "",
 
         tags
-
       }
 
-      if (salePrice) productData.sale_price = salePrice
-      else productData.sale_price = ""
+      productData.sale_price = salePrice || ""
 
       await updateProduct({
         id: product.id,
@@ -192,7 +188,6 @@ export const useEditProduct = ({
     } catch (error) {
 
       console.error("Update product error:", error)
-
       alert("Ошибка обновления товара")
 
     } finally {
@@ -200,9 +195,7 @@ export const useEditProduct = ({
       setIsSubmitting(false)
 
     }
-
   }
-
 
   const handleClose = () => {
 
@@ -211,9 +204,7 @@ export const useEditProduct = ({
     })
 
     onClose()
-
   }
-
 
   return {
 
@@ -255,7 +246,5 @@ export const useEditProduct = ({
 
     handleSubmit,
     handleClose
-
   }
-
 }

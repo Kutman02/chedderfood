@@ -1,13 +1,14 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { CustomerData, ReceiptData } from '@/types';
+import { STORAGE_KEYS } from "@/constants/storage"
 
 type ReceiptsState = {
   receipts: ReceiptData[];
   customerData: CustomerData | null;
 };
 
-const RECEIPTS_KEY = 'chedderfood_receipts';
-const CUSTOMER_DATA_KEY = 'chedderfood_customer_data';
+const RECEIPTS_KEY = STORAGE_KEYS.RECEIPTS
+const CUSTOMER_DATA_KEY = STORAGE_KEYS.CUSTOMER_DATA
 
 const loadReceipts = (): ReceiptData[] => {
   try {

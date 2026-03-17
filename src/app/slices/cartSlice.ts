@@ -1,11 +1,12 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { CartMap, Product } from "@/types";
+import { STORAGE_KEYS } from "@/constants/storage" 
 
 type CartState = {
   items: CartMap;
 };
 
-const CART_KEY = "chedderfood_cart";
+const CART_KEY = STORAGE_KEYS.CART;
 
 const loadCart = (): CartMap => {
   try {

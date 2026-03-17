@@ -1,9 +1,9 @@
 import { useState } from "react"
 
 import {
-  useGetWooOrdersQuery,
-  useUpdateWooOrderStatusMutation
-} from "../../../app/services/wooCommerceApi"
+  useGetOrdersQuery,
+  useUpdateOrderStatusMutation
+} from "@/api"
 
 import { filterOrders } from "../../../utils/utils"
 
@@ -33,17 +33,17 @@ export const useOrders = (
     action: null
   })
 
-  const [updateStatus] =
-    useUpdateWooOrderStatusMutation()
+const [updateStatus] =
+  useUpdateOrderStatusMutation()
 
- const {
+const {
   data: ordersData,
   isLoading: ordersLoading,
   error: ordersError
-} = useGetWooOrdersQuery(
+} = useGetOrdersQuery(
   {
     per_page: 100,
-    status: "any"
+    status: "all"
   },
   { pollingInterval: 15000 }
 )

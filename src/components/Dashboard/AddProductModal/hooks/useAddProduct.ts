@@ -4,7 +4,7 @@ import {
   useGetProductCategoriesQuery,
   useCreateProductMutation,
   useUploadImageMutation
-} from "../../../../app/services/api"
+} from "@/api"
 
 interface ImagePreview {
   file: File
@@ -19,7 +19,6 @@ interface UseAddProductProps {
 export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
   const [images, setImages] = useState<ImagePreview[]>([])
-
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
 
   const [name, setName] = useState("")
@@ -32,7 +31,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const { data: categories } = useGetProductCategoriesQuery({
     per_page: 100
@@ -52,7 +51,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     const newImages: ImagePreview[] = files.map(file => ({
       file,
       preview: URL.createObjectURL(file),
-      id: crypto.randomUUID()
+      id: crypto.randomUUID() // ✅ безопаснее
     }))
 
     setImages(prev => [...prev, ...newImages])
@@ -75,7 +74,6 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
       return prev.filter(img => img.id !== id)
 
     })
-
   }
 
   /* ===============================
@@ -85,16 +83,12 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
   const validate = () => {
 
     if (!name || !selectedCategory || images.length === 0 || !regularPrice) {
-
       alert("Заполните обязательные поля")
-
       return false
     }
 
     if (weight && (isNaN(parseFloat(weight)) || parseFloat(weight) < 0)) {
-
       alert("Вес должен быть положительным числом")
-
       return false
     }
 
@@ -111,8 +105,9 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
     for (const image of images) {
 
-      const formData = new FormData()
+      if (!image.file) continue // ✅ safety
 
+      const formData = new FormData()
       formData.append("file", image.file, image.file.name)
 
       const result = await uploadImage(formData).unwrap()
@@ -142,7 +137,6 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
       name,
 
       type: "simple",
-
       status: "publish",
 
       categories: [{ id: selectedCategory }],
@@ -150,7 +144,6 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
       images: imageIds.map(id => ({ id })),
 
       description: finalDescription,
-
       short_description: finalDescription,
 
       regular_price: regularPrice,
@@ -158,15 +151,12 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
       stock_status: "instock",
 
       weight: weight || ""
-
     }
 
-    if (salePrice) {
-      productData.sale_price = salePrice
-    }
+    // ✅ фикс: всегда отправляем поле
+    productData.sale_price = salePrice || ""
 
     await createProduct(productData).unwrap()
-
   }
 
   /* ===============================
@@ -188,7 +178,6 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     setWeight("")
 
     setSelectedCategory(null)
-
   }
 
   /* ===============================
@@ -208,21 +197,17 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
       await createNewProduct(imageIds, customDescription)
 
       resetForm()
-
       onClose()
 
     } catch (error) {
 
       console.error("Ошибка создания товара", error)
-
       alert("Ошибка при создании товара")
 
     } finally {
 
       setIsSubmitting(false)
-
     }
-
   }
 
   /* ===============================
@@ -232,9 +217,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
   const handleClose = () => {
 
     resetForm()
-
     onClose()
-
   }
 
   return {
@@ -266,13 +249,9 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     isSubmitting,
 
     handleImageSelect,
-
     removeImage,
 
     handleSubmit,
-
     handleClose
-
   }
-
 }

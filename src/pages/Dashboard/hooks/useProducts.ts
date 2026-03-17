@@ -4,9 +4,9 @@ import {
   useGetProductsQuery,
   useGetProductCategoriesQuery,
   useUpdateProductOrderMutation
-} from "../../../app/services/api"
+} from "@/api"
 
-import type { Product } from "../../../types"
+import type { Product } from "@/types"
 
 export const useProducts = (searchQuery: string) => {
 
@@ -33,23 +33,24 @@ export const useProducts = (searchQuery: string) => {
     per_page: 100,
     status:
       selectedStatusFilter === "all"
-        ? undefined
+        ? "all" // ✅ фикс
         : selectedStatusFilter
   })
 
-  const products = useMemo(() => {
+  // ✅ фикс типа
+  const allProducts: Product[] = productsData || []
 
-    const allProducts = productsData || []
+  const products = useMemo(() => {
 
     if (!selectedCategoryFilter) return allProducts
 
-    return allProducts.filter((product: Product) =>
+    return allProducts.filter((product) =>
       product.categories?.some(
         cat => cat.id === selectedCategoryFilter
       )
     )
 
-  }, [productsData, selectedCategoryFilter])
+  }, [allProducts, selectedCategoryFilter])
 
   const sortedProducts = useMemo(() => {
 
@@ -105,8 +106,6 @@ export const useProducts = (searchQuery: string) => {
 
     try {
 
-      // обновляем только те товары,
-      // у которых реально изменился menu_order
       const updates = newOrder
         .map((product, index) => ({
           id: product.id,

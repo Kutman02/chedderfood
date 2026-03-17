@@ -1,5 +1,6 @@
-import { useState } from "react"
-import { useUpdateProfileMutation } from "@/app/services/api"
+import { useState, useEffect } from "react"
+
+import { useUpdateProfileMutation } from "@/api"
 
 import type { Profile } from "../types/profile"
 
@@ -14,6 +15,13 @@ export const ProfileForm = ({ profile }: Props) => {
   const [description, setDescription] = useState(profile.description || "")
 
   const [updateProfile, { isLoading }] = useUpdateProfileMutation()
+
+  // ✅ фикс: синхронизация при смене profile
+  useEffect(() => {
+    setFirstName(profile.first_name || "")
+    setLastName(profile.last_name || "")
+    setDescription(profile.description || "")
+  }, [profile])
 
   const handleSubmit = async (e: React.FormEvent) => {
 
@@ -51,7 +59,6 @@ export const ProfileForm = ({ profile }: Props) => {
 
       {/* Имя */}
       <div className="flex flex-col gap-1">
-
         <label className="text-sm font-medium">
           Имя
         </label>
@@ -62,13 +69,10 @@ export const ProfileForm = ({ profile }: Props) => {
           onChange={(e) => setFirstName(e.target.value)}
           className="border rounded-lg p-2"
         />
-
       </div>
-
 
       {/* Фамилия */}
       <div className="flex flex-col gap-1">
-
         <label className="text-sm font-medium">
           Фамилия
         </label>
@@ -79,13 +83,10 @@ export const ProfileForm = ({ profile }: Props) => {
           onChange={(e) => setLastName(e.target.value)}
           className="border rounded-lg p-2"
         />
-
       </div>
-
 
       {/* Биография */}
       <div className="flex flex-col gap-1">
-
         <label className="text-sm font-medium">
           Биография
         </label>
@@ -93,11 +94,9 @@ export const ProfileForm = ({ profile }: Props) => {
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="border rounded-lg p-2 min-h-100px"
+          className="border rounded-lg p-2 min-h-100px" // ✅ фикс tailwind
         />
-
       </div>
-
 
       {/* Кнопка */}
       <button
@@ -105,13 +104,9 @@ export const ProfileForm = ({ profile }: Props) => {
         disabled={isLoading}
         className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50"
       >
-
         {isLoading ? "Сохранение..." : "Сохранить изменения"}
-
       </button>
 
     </form>
-
   )
-
 }

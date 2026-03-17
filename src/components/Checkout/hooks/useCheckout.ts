@@ -1,230 +1,263 @@
-import { useState, useEffect, useLayoutEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useLayoutEffect } from "react"
+import { useNavigate } from "react-router-dom"
 
-import { useCreateOrderMutation } from "@/app/services/api";
-import { useCheckActiveOrdersCountQuery } from "@/app/services/publicApi";
+import { useCreateOrderMutation } from "@/api"
+import { useCheckActiveOrdersCountQuery } from "@/app/services/publicApi"
 
-import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { addReceipt, setCustomerData } from "@/app/slices/receiptsSlice";
-import { clearCart } from "@/app/slices/cartSlice";
+import { useAppDispatch, useAppSelector } from "@/app/hooks"
+import { addReceipt, setCustomerData } from "@/app/slices/receiptsSlice"
+import { clearCart } from "@/app/slices/cartSlice"
 
-import { useScrollLockStore } from "@/stores/scrollLockStore";
+import { useScrollLockStore } from "@/stores/scrollLockStore"
 
-import { CIS_COUNTRIES } from "../constants/countries";
-import { RESTAURANT } from "@/config/restaurant";
-import type { CheckoutFormData, PublicOrder } from "@/types";
+import { CIS_COUNTRIES } from "../constants/countries"
+import { RESTAURANT } from "@/config/restaurant"
+
+import type {
+  CheckoutFormData,
+  PublicOrder,
+  CartMap
+} from "@/types"
 
 interface UseCheckoutProps {
-  onClose: () => void;
-  onSuccess: () => void;
-  onShowReceipt?: (order: PublicOrder) => void;
+  onClose: () => void
+  onSuccess: () => void
+  onShowReceipt?: (order: PublicOrder) => void
 }
 
-export const useCheckout = ({
-  onClose,
-}: UseCheckoutProps) => {
+export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
-  const cart = useAppSelector((s) => s.cart.items);
-  const savedCustomerData = useAppSelector((s) => s.receipts.customerData);
+  const cart = useAppSelector((s) => s.cart.items)
+  const savedCustomerData = useAppSelector((s) => s.receipts.customerData)
 
-  const lockScroll = useScrollLockStore((s) => s.lock);
-  const unlockScroll = useScrollLockStore((s) => s.unlock);
+  const lockScroll = useScrollLockStore((s) => s.lock)
+  const unlockScroll = useScrollLockStore((s) => s.unlock)
 
-  const [createOrder] = useCreateOrderMutation();
-
-
+  const [createOrder] = useCreateOrderMutation()
 
   const { data: activeOrdersData } = useCheckActiveOrdersCountQuery(undefined, {
     pollingInterval: 0,
-  });
+  })
 
-  const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
+  const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery")
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const [selectedCountry, setSelectedCountry] = useState(CIS_COUNTRIES[0]);
-
-  const [phoneNumber, setPhoneNumber] = useState("");
-
-  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(CIS_COUNTRIES[0])
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
 
   const [formData, setFormData] = useState<CheckoutFormData>({
     first_name: "",
     address: "",
     phone: "",
     customer_note: "",
-  });
+  })
 
-  const [errors, setErrors] = useState<Partial<CheckoutFormData>>({});
+  const [errors, setErrors] = useState<Partial<CheckoutFormData>>({})
+
+  /* ===============================
+     SCROLL LOCK
+  =============================== */
 
   useLayoutEffect(() => {
-    lockScroll();
-    return () => unlockScroll();
-  }, [lockScroll, unlockScroll]);
+    lockScroll()
+    return () => unlockScroll()
+  }, [lockScroll, unlockScroll])
+
+  /* ===============================
+     PHONE SYNC
+  =============================== */
 
   useEffect(() => {
     const fullPhone = phoneNumber
       ? `${selectedCountry.code}${phoneNumber}`
-      : "";
+      : ""
 
     setFormData((prev) => ({
       ...prev,
       phone: fullPhone,
-    }));
-  }, [selectedCountry, phoneNumber]);
+    }))
+  }, [selectedCountry, phoneNumber])
 
- const cartItems = Object.values(cart).map((item) => ({
-  product_id: item.id,
-  quantity: item.quantity,
-}));
+  /* ===============================
+     CART (FIX TYPES)
+  =============================== */
 
- const totalAmount = Object.values(cart).reduce((sum: number, item) => {
-  const price = parseFloat(item.sale_price || item.price || "0");
-  return sum + price * item.quantity;
-}, 0);
+  const cartValues = Object.values(cart as CartMap)
+
+  const cartItems = cartValues.map((item) => ({
+    product_id: item.id,
+    quantity: item.quantity,
+  }))
+
+  const totalAmount = cartValues.reduce((sum, item) => {
+    const price = parseFloat(item.sale_price || item.price || "0") || 0
+    return sum + price * item.quantity
+  }, 0)
+
+  /* ===============================
+     INPUTS
+  =============================== */
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
+
+    const { name, value } = e.target
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
+    }))
 
     if (errors[name as keyof CheckoutFormData]) {
       setErrors((prev) => ({
         ...prev,
         [name]: "",
-      }));
+      }))
     }
-  };
+  }
 
   const handlePhoneNumberChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const value = e.target.value.replace(/\D/g, "");
 
-    const limited = value.slice(0, selectedCountry.digits);
+    const value = e.target.value.replace(/\D/g, "")
+    const limited = value.slice(0, selectedCountry.digits)
 
-    setPhoneNumber(limited);
+    setPhoneNumber(limited)
 
     if (errors.phone) {
       setErrors((prev) => ({
         ...prev,
         phone: "",
-      }));
+      }))
     }
-  };
+  }
+
+  /* ===============================
+     UI
+  =============================== */
 
   const handleCountrySelect = (country: typeof CIS_COUNTRIES[0]) => {
-    setSelectedCountry(country);
-    setIsCountryDropdownOpen(false);
-  };
+    setSelectedCountry(country)
+    setIsCountryDropdownOpen(false)
+  }
 
   const toggleCountryDropdown = () => {
-    setIsCountryDropdownOpen((prev) => !prev);
-  };
+    setIsCountryDropdownOpen((prev) => !prev)
+  }
 
   const handleOrderTypeChange = (type: "delivery" | "pickup") => {
-    setOrderType(type);
-  };
+    setOrderType(type)
+  }
+
+  /* ===============================
+     VALIDATION
+  =============================== */
 
   const validateForm = () => {
-    const newErrors: Partial<CheckoutFormData> = {};
+
+    const newErrors: Partial<CheckoutFormData> = {}
 
     if (!formData.first_name.trim()) {
-      newErrors.first_name = "Введите имя";
+      newErrors.first_name = "Введите имя"
     }
 
     if (orderType === "delivery" && !formData.address.trim()) {
-      newErrors.address = "Введите адрес";
+      newErrors.address = "Введите адрес"
     }
 
     if (!phoneNumber.trim()) {
-      newErrors.phone = "Введите номер телефона";
+      newErrors.phone = "Введите номер телефона"
     }
 
-    setErrors(newErrors);
+    setErrors(newErrors)
 
-    return Object.keys(newErrors).length === 0;
-  };
+    return Object.keys(newErrors).length === 0
+  }
+
+  /* ===============================
+     AUTOFILL
+  =============================== */
 
   const handleAutoFill = () => {
-    if (!savedCustomerData) return;
+
+    if (!savedCustomerData) return
 
     setFormData({
       first_name: savedCustomerData.first_name,
       address: savedCustomerData.address,
       phone: savedCustomerData.phone,
       customer_note: "",
-    });
-  };
+    })
+  }
+
+  /* ===============================
+     SUBMIT
+  =============================== */
 
   const handleSubmit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
 
-    if (!validateForm()) return;
+    if (e) e.preventDefault()
 
-    if (cartItems.length === 0) return;
+    if (!validateForm()) return
+    if (cartItems.length === 0) return
 
-    setShowConfirmModal(true);
-  };
+    setShowConfirmModal(true)
+  }
+
+  /* ===============================
+     CONFIRM ORDER
+  =============================== */
 
   const handleConfirmOrder = async () => {
-    setIsSubmitting(true);
+
+    setIsSubmitting(true)
 
     try {
-      if (activeOrdersData && activeOrdersData.length >= 3) {
-        setErrorMessage(
-          "У вас уже есть 3 активных заказа. Дождитесь их выполнения."
-        );
-        return;
+
+      if ((activeOrdersData?.length || 0) >= 3) {
+        setErrorMessage("У вас уже есть 3 активных заказа")
+        setIsSubmitting(false)
+        return
       }
 
-const orderData = {
-  status: "on-hold",
-  customer_id: 0,
+      const orderData = {
+        status: "on-hold",
+        customer_id: 0,
 
-  billing: {
-    first_name: formData.first_name,
-    address_1:
-      orderType === "pickup"
-        ? RESTAURANT.address
-        : formData.address,
-    phone: formData.phone,
-  },
-  customer_note: formData.customer_note,
+        billing: {
+          first_name: formData.first_name,
+          address_1:
+            orderType === "pickup"
+              ? RESTAURANT.address
+              : formData.address,
+          phone: formData.phone,
+        },
 
-  line_items: cartItems,
+        customer_note: formData.customer_note,
 
-  total: totalAmount.toString(),
-  currency: "KGS",
+        line_items: cartItems,
 
- meta_data: [
-  {
-    key: "order_type",
-    value: orderType,
-  },
-  {
-    key: "pickup_address",
-    value: RESTAURANT.address,
-  },
-],
-};
+        total: totalAmount.toString(),
+        currency: "KGS",
 
-      const order = await createOrder(orderData).unwrap();
+        meta_data: [
+          { key: "order_type", value: orderType },
+          { key: "pickup_address", value: RESTAURANT.address },
+        ],
+      }
 
-      dispatch(addReceipt(order));
-      dispatch(clearCart());
+      const order = await createOrder(orderData).unwrap()
+
+      dispatch(addReceipt(order))
+      dispatch(clearCart())
 
       dispatch(
         setCustomerData({
@@ -232,27 +265,36 @@ const orderData = {
           address: formData.address,
           phone: formData.phone,
         })
-      );
+      )
 
-     onClose();
+      onClose()
 
-navigate(`/?modal=mycheks&order=${order.id}`, { replace: true });
+      navigate(`/?modal=mycheks&order=${order.id}`, { replace: true })
+
     } catch (err) {
-      console.error(err);
-      setErrorMessage("Ошибка создания заказа");
+
+      console.error(err)
+      setErrorMessage("Ошибка создания заказа")
+
     } finally {
-      setIsSubmitting(false);
+
+      setIsSubmitting(false)
     }
-  };
+  }
+
+  /* ===============================
+     CANCEL
+  =============================== */
 
   const handleCancelConfirm = () => {
-    setShowConfirmModal(false);
-    setErrorMessage("");
-  };
+    setShowConfirmModal(false)
+    setErrorMessage("")
+  }
 
   return {
     formData,
     errors,
+
     orderType,
     selectedCountry,
     phoneNumber,
@@ -267,6 +309,7 @@ navigate(`/?modal=mycheks&order=${order.id}`, { replace: true });
 
     handleInputChange,
     handlePhoneNumberChange,
+
     handleCountrySelect,
     toggleCountryDropdown,
     handleOrderTypeChange,
@@ -275,5 +318,5 @@ navigate(`/?modal=mycheks&order=${order.id}`, { replace: true });
     handleConfirmOrder,
     handleCancelConfirm,
     handleAutoFill,
-  };
-};
+  }
+}

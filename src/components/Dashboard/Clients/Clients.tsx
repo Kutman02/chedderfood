@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 
-import { useGetAllWooCustomersQuery } from "@/app/services/wooCommerceApi"
+import { useGetAllCustomersQuery } from "@/api"
 
 import {
   ClientsSortPanel,
@@ -19,13 +19,7 @@ interface ClientsProps {
 export const Clients = ({ searchQuery }: ClientsProps) => {
 
   const [customerSortBy, setCustomerSortBy] =
-  useState<
-    "newest" |
-    "orders" |
-    "spent" |
-    "name"
-  >("newest")
-
+    useState<"newest" | "orders" | "spent" | "name">("newest")
 
   const [page, setPage] = useState(1)
 
@@ -35,10 +29,12 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
     data: customersData,
     isLoading,
     error
-  } = useGetAllWooCustomersQuery() // ✅ без аргументов
+  } = useGetAllCustomersQuery({ per_page: 100 }) // ✅ фикс
+
+  const customers = customersData || [] // ✅ безопасно
 
   const filteredCustomers = useFilteredCustomers(
-    customersData,
+    customers,
     searchQuery,
     customerSortBy
   )

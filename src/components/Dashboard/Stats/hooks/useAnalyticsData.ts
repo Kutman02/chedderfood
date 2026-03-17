@@ -4,7 +4,7 @@ import { format } from "date-fns"
 import {
   useGetAnalyticsOrdersQuery,
   useGetAnalyticsProductsQuery
-} from "../../../../app/services/api"
+} from "@/api"
 
 import type { OrderItem } from "../../../../types"
 import type { AnalyticsData } from "../types"
@@ -50,14 +50,10 @@ export const useAnalyticsData = (
       )
 
     const processingOrders =
-      ordersData.filter(
-        o => o.status === "processing"
-      )
+      ordersData.filter(o => o.status === "processing")
 
     const completedOrders =
-      ordersData.filter(
-        o => o.status === "completed"
-      )
+      ordersData.filter(o => o.status === "completed")
 
     const revenue =
       validOrders.reduce(
@@ -87,7 +83,6 @@ export const useAnalyticsData = (
     const productMap = new Map()
 
     validOrders.forEach(order => {
-
       order.line_items.forEach((item: OrderItem) => {
 
         const existing =
@@ -96,17 +91,16 @@ export const useAnalyticsData = (
             quantity: 0,
             revenue: 0,
             price:
-              parseFloat(item.total || "0") /
-              item.quantity
+              item.quantity > 0
+                ? parseFloat(item.total || "0") / item.quantity
+                : 0
           }
 
         existing.quantity += item.quantity
         existing.revenue += parseFloat(item.total || "0")
 
         productMap.set(item.name, existing)
-
       })
-
     })
 
     const products =
@@ -123,19 +117,15 @@ export const useAnalyticsData = (
     /* ---------- CATEGORIES ---------- */
 
     const categoryMap = new Map()
-
     const productCategoryMap = new Map()
 
-    productsData.forEach(product => {
-
+    ;(productsData || []).forEach(product => {
       productCategoryMap.set(product.name, {
         categories: product.categories || []
       })
-
     })
 
     validOrders.forEach(order => {
-
       order.line_items.forEach((item: OrderItem) => {
 
         const productInfo =
@@ -149,14 +139,12 @@ export const useAnalyticsData = (
           const name = "Без категории"
 
           if (!categoryMap.has(name)) {
-
             categoryMap.set(name, {
               name,
               items_sold: 0,
               revenue: 0,
               orders: 0
             })
-
           }
 
           const cat = categoryMap.get(name)
@@ -167,16 +155,15 @@ export const useAnalyticsData = (
 
         } else {
 
-categories.forEach((category: { id: number; name: string; slug: string }) => {
-            if (!categoryMap.has(category.name)) {
+          categories.forEach((category: { id: number; name: string; slug: string }) => {
 
+            if (!categoryMap.has(category.name)) {
               categoryMap.set(category.name, {
                 name: category.name,
                 items_sold: 0,
                 revenue: 0,
                 orders: 0
               })
-
             }
 
             const cat = categoryMap.get(category.name)
@@ -184,13 +171,9 @@ categories.forEach((category: { id: number; name: string; slug: string }) => {
             cat.items_sold += item.quantity
             cat.revenue += parseFloat(item.total || "0")
             cat.orders += 1
-
           })
-
         }
-
       })
-
     })
 
     const categories =
@@ -198,15 +181,14 @@ categories.forEach((category: { id: number; name: string; slug: string }) => {
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 8)
 
-    /* ---------- DAILY STATS ---------- */
+    /* ---------- DAILY STATS (оптимизировано) ---------- */
 
-    const dailyStats = validOrders.reduce((acc, order) => {
+    const dailyMap = new Map()
+
+    validOrders.forEach(order => {
 
       const date =
         format(new Date(order.date_created), "dd.MM")
-
-      const existing =
-        acc.find(item => item.date === date)
 
       const items =
         order.line_items.reduce(
@@ -215,26 +197,24 @@ categories.forEach((category: { id: number; name: string; slug: string }) => {
           0
         )
 
-      if (existing) {
+      const existing = dailyMap.get(date)
 
+      if (existing) {
         existing.revenue += parseFloat(order.total || "0")
         existing.orders += 1
         existing.items_sold += items
-
       } else {
-
-        acc.push({
+        dailyMap.set(date, {
           date,
           revenue: parseFloat(order.total || "0"),
           orders: 1,
           items_sold: items
         })
-
       }
 
-      return acc
+    })
 
-    }, [] as AnalyticsData["daily_stats"])
+    const dailyStats = Array.from(dailyMap.values())
 
     return {
       revenue,
@@ -258,5 +238,4 @@ categories.forEach((category: { id: number; name: string; slug: string }) => {
     analyticsData,
     loading: ordersLoading || productsLoading
   }
-
 }

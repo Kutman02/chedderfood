@@ -11,16 +11,15 @@ import { useAppSelector } from "@/app/hooks"
 import { OrderDetailsModal } from "@/components/Dashboard/OrderDetailsModal/OrderDetailsModal"
 import { AddProductModal } from "@/components/Dashboard/AddProductModal/AddProductModal"
 import { EditProductModal } from "@/components/Dashboard/EditProductModal/EditProductModal"
-import { useGetWooOrdersQuery } from "@/app/services/wooCommerceApi"
-
+import { useGetOrdersQuery } from "@/api"
 const DashboardLayout = () => {
 
   const location = useLocation()
 
-  const { data: ordersData } = useGetWooOrdersQuery(
-    { per_page: 100 },
-    { pollingInterval: 15000 }
-  )
+  const { data: ordersData } = useGetOrdersQuery(
+  { per_page: 100, status: "all" },
+  { pollingInterval: 15000 }
+)
 
   const ordersCount = ordersData?.length ?? 0
 

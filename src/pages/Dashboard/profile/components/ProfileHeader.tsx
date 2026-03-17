@@ -1,5 +1,10 @@
-import { useState } from "react"
-import { useUploadImageMutation, useUpdateProfileMutation } from "@/app/services/api"
+import { useState, useEffect } from "react"
+
+import {
+  useUploadImageMutation,
+  useUpdateProfileMutation
+} from "@/api"
+
 import type { Profile } from "../types/profile"
 
 interface Props {
@@ -13,6 +18,11 @@ export const ProfileHeader = ({ profile }: Props) => {
   const [uploadImage] = useUploadImageMutation()
   const [updateProfile] = useUpdateProfileMutation()
 
+  // ✅ синхронизация preview при обновлении профиля
+  useEffect(() => {
+    setPreview(profile.avatar_url || null)
+  }, [profile.avatar_url])
+
   const initials =
     `${profile.first_name?.[0] || ""}${profile.last_name?.[0] || ""}`.toUpperCase()
 
@@ -21,19 +31,24 @@ export const ProfileHeader = ({ profile }: Props) => {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // ✅ проверка типа файла
+    if (!file.type.startsWith("image/")) {
+      alert("Можно загружать только изображения")
+      return
+    }
+
     const formData = new FormData()
     formData.append("file", file)
 
     try {
 
-      // upload в WordPress media
       const res = await uploadImage(formData).unwrap()
 
-      const avatarUrl = res.source_url || null
+      const avatarUrl = res?.source_url || null
 
+      // ✅ сразу показываем
       setPreview(avatarUrl)
 
-      // сохранить avatar в user meta
       await updateProfile({
         avatar_url: avatarUrl
       }).unwrap()
@@ -43,6 +58,7 @@ export const ProfileHeader = ({ profile }: Props) => {
     } catch (error) {
 
       console.error("Ошибка загрузки аватара", error)
+      alert("Ошибка загрузки изображения")
 
     }
 
@@ -62,10 +78,10 @@ export const ProfileHeader = ({ profile }: Props) => {
 
         <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-700 overflow-hidden">
 
-          {preview || profile.avatar_url ? (
+          {preview ? (
 
             <img
-              src={preview || profile.avatar_url || ""}
+              src={preview}
               alt="avatar"
               className="w-full h-full object-cover"
             />
@@ -78,7 +94,7 @@ export const ProfileHeader = ({ profile }: Props) => {
 
         </div>
 
-        {/* Upload button */}
+        {/* Upload */}
         <label className="absolute -bottom-1 -right-1 bg-white border rounded-full p-1 cursor-pointer text-xs shadow">
 
           📷
@@ -94,7 +110,7 @@ export const ProfileHeader = ({ profile }: Props) => {
 
       </div>
 
-      {/* User info */}
+      {/* Info */}
       <div>
 
         <h2 className="text-xl font-bold">
@@ -116,5 +132,4 @@ export const ProfileHeader = ({ profile }: Props) => {
     </div>
 
   )
-
 }
