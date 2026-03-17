@@ -1,31 +1,21 @@
-import { baseApi } from "../base/baseApi"
+import { baseApi } from "../base/baseApi";
 
 export const authApi = baseApi.injectEndpoints({
-
   endpoints: (builder) => ({
-
     // =========================
     // CHECK AUTH (login)
     // =========================
     getMe: builder.query<any, void>({
-
       query: () => ({
         url: "wp/v2/users/me",
         method: "GET",
-        credentials: "include"
       }),
 
-      providesTags: ["Profile"]
-
-    })
-
+      providesTags: ["Profile"],
+    }),
   }),
 
-  overrideExisting: false
+  overrideExisting: false,
+});
 
-})
-
-export const {
-  useGetMeQuery,
-  useLazyGetMeQuery
-} = authApi
+export const { useGetMeQuery, useLazyGetMeQuery } = authApi;
