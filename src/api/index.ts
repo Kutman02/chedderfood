@@ -1,5 +1,9 @@
 // базовый API
 export { baseApi } from "./base/baseApi"
+// ===== Auth =====
+export {
+  useGetMeQuery
+} from "./auth/auth.api"
 
 
 // ===== Orders =====

@@ -1,81 +1,41 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-
+import type { RootState } from "@/app/store"
 import {
   API_BASE_URL,
   WORDPRESS_USERNAME,
-  WORDPRESS_APP_PASSWORD,
-  WOOCOMMERCE_CONSUMER_KEY,
-  WOOCOMMERCE_CONSUMER_SECRET
+  WORDPRESS_APP_PASSWORD
 } from "@/app/services/apiConfig"
 
-
-// helper для WordPress Application Password
-const createAppPasswordAuth = () => {
-
-  if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
-    return null
-  }
+// 🔑 Application Password
+const createAuthHeader = () => {
+  if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) return null
 
   const cleanPassword = WORDPRESS_APP_PASSWORD.replace(/\s+/g, "")
-
-  const credentials = `${WORDPRESS_USERNAME}:${cleanPassword}`
-
-  return `Basic ${btoa(credentials)}`
+  return `Basic ${btoa(`${WORDPRESS_USERNAME}:${cleanPassword}`)}`
 }
-
-
-// helper для WooCommerce Basic Auth
-const createWooAuth = () => {
-
-  if (!WOOCOMMERCE_CONSUMER_KEY || !WOOCOMMERCE_CONSUMER_SECRET) {
-    return null
-  }
-
-  const credentials =
-    `${WOOCOMMERCE_CONSUMER_KEY}:${WOOCOMMERCE_CONSUMER_SECRET}`
-
-  return `Basic ${btoa(credentials)}`
-}
-
 
 export const baseApi = createApi({
 
-  reducerPath: "api",
+  reducerPath: "baseApi",
 
   baseQuery: fetchBaseQuery({
 
     baseUrl: API_BASE_URL,
 
-    credentials: "include",
+    prepareHeaders: (headers, { getState }) => {
 
-    prepareHeaders: (headers, { endpoint }) => {
+      const token = (getState() as RootState).auth.token
 
-      const endpointName = String(endpoint).toLowerCase()
+      // ✅ 1. WordPress App Password (основа)
+      const authHeader = createAuthHeader()
 
+      if (authHeader) {
+        headers.set("Authorization", authHeader)
+      }
 
-      // endpoints WordPress
-      const isWordPressEndpoint =
-        endpointName === "uploadimage" ||
-        endpointName === "getprofile" ||
-        endpointName === "updateprofile"
-
-
-      if (isWordPressEndpoint) {
-
-        const auth = createAppPasswordAuth()
-
-        if (auth) {
-          headers.set("Authorization", auth)
-        }
-
-      } else {
-
-        const auth = createWooAuth()
-
-        if (auth) {
-          headers.set("Authorization", auth)
-        }
-
+      // ✅ 2. fallback JWT (если вдруг используешь)
+      if (token && token !== "app_password_authenticated") {
+        headers.set("authorization", `Bearer ${token}`)
       }
 
       return headers
@@ -94,4 +54,5 @@ export const baseApi = createApi({
   ],
 
   endpoints: () => ({})
+
 })
