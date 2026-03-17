@@ -2,7 +2,8 @@
 export { baseApi } from "./base/baseApi"
 // ===== Auth =====
 export {
-  useGetMeQuery
+  useGetMeQuery,
+  useLazyGetMeQuery
 } from "./auth/auth.api"
 
 

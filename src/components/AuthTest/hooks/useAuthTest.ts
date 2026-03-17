@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { authService } from "@/app/services/authService"
-import { userService } from "@/app/services/userService"
+
+import { useLazyGetMeQuery } from "@/api"
 import {
   API_BASE_URL,
   WOOCOMMERCE_CONSUMER_KEY,
@@ -16,51 +16,86 @@ export const useAuthTest = () => {
   const [result, setResult] = useState<AuthResult | null>(null)
   const [loading, setLoading] = useState(false)
 
+  // ✅ RTK Query
+  const [getMe] = useLazyGetMeQuery()
+
+  // =========================
+  // TEST LOGIN (через RTK)
+  // =========================
   const testLogin = async () => {
+
     setLoading(true)
     setResult(null)
 
     try {
-      const data = await authService.login({ username, password })
-      setResult(data)
+
+      const user = await getMe().unwrap()
+
+      setResult({
+        success: true,
+        message: "Login success",
+        data: user
+      })
+
     } catch (error) {
-      setResult({ error: (error as Error).message })
+
+      setResult({
+        success: false,
+        error: "Auth failed"
+      })
+
     } finally {
       setLoading(false)
     }
   }
 
+  // =========================
+  // TEST CURRENT USER
+  // =========================
   const testGetCurrentUser = async () => {
-    try {
-      const user = await userService.getCurrentUser()
 
-      if (user) {
-        setResult({
-          data: { ...user },
-          message: "Current user fetched successfully",
-          success: true
-        })
-      } else {
-        setResult({
-          message: "Failed to get current user"
-        })
-      }
+    try {
+
+      const user = await getMe().unwrap()
+
+      setResult({
+        success: true,
+        message: "Current user fetched",
+        data: user
+      })
+
     } catch (error) {
-      setResult({ error: (error as Error).message })
+
+      setResult({
+        success: false,
+        message: "Failed to get current user"
+      })
+
     }
+
   }
 
+  // =========================
+  // TEST APP PASSWORD CONFIG
+  // =========================
   const testAppPassword = () => {
-    const hasAppPassword = authService.hasAppPassword()
+
+    const isConfigured =
+      !!WOOCOMMERCE_CONSUMER_KEY &&
+      !!WOOCOMMERCE_CONSUMER_SECRET
 
     setResult({
-      message: hasAppPassword
-        ? "Application Password configured ✅"
-        : "Application Password NOT configured ❌",
-      success: hasAppPassword
+      success: isConfigured,
+      message: isConfigured
+        ? "API keys configured ✅"
+        : "API keys NOT configured ❌"
     })
+
   }
 
+  // =========================
+  // TEST WooCommerce API
+  // =========================
   const testWooCommerceAPI = async () => {
 
     try {
@@ -92,8 +127,9 @@ export const useAuthTest = () => {
         const data = await response.json()
 
         setResult({
+          success: true,
           data: { count: data.length },
-          message: `WooCommerce API working`
+          message: "WooCommerce API working"
         })
 
       } else {
@@ -114,16 +150,27 @@ export const useAuthTest = () => {
 
   }
 
+  // =========================
+  // DEBUG
+  // =========================
   const testDebugAuth = () => {
-    userService.debugAuthStatus()
-    setResult({ message: "Debug info logged to console" })
+
+    console.log("🔍 Debug Auth:")
+    console.log("Base URL:", API_BASE_URL)
+
+    setResult({
+      message: "Debug info logged"
+    })
+
   }
 
   return {
+
     username,
     password,
     setUsername,
     setPassword,
+
     result,
     loading,
 
@@ -132,6 +179,7 @@ export const useAuthTest = () => {
     testAppPassword,
     testWooCommerceAPI,
     testDebugAuth
+
   }
 
 }

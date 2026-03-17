@@ -26,5 +26,6 @@ export const authApi = baseApi.injectEndpoints({
 })
 
 export const {
-  useGetMeQuery
+  useGetMeQuery,
+  useLazyGetMeQuery
 } = authApi

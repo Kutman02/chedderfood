@@ -1,56 +1,58 @@
-import { useState } from "react";
-import { authService } from "../../../app/services/authService";
-import { useAppDispatch } from "../../../app/hooks";
-import { setCredentials } from "../../../app/slices/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react"
+import { useLazyGetMeQuery } from "@/api"
+import { useAppDispatch } from "@/app/hooks"
+import { setCredentials } from "@/app/slices/authSlice"
+import { useNavigate } from "react-router-dom"
 
 export const useLogin = () => {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
-  const login = async (username: string, password: string) => {
-    setIsLoading(true);
-    setError(null);
+  const [getMe] = useLazyGetMeQuery()
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const login = async () => {
+
+    setIsLoading(true)
+    setError(null)
 
     try {
-      const result = await authService.login({ username, password });
 
-      if (result.success && result.user) {
-        dispatch(
-          setCredentials({
-            token: "app_password_authenticated",
-            userName: result.user.name || "User",
-          })
-        );
+      // ✅ проверка через WP
+      const user = await getMe().unwrap()
 
-        console.log(
-          "👤 Login successful with Application Password for:",
-          result.user.name
-        );
+      dispatch(
+        setCredentials({
+          token: "app_password_authenticated",
+          userName: user.name || "User"
+        })
+      )
 
-        navigate("/dashboard");
-      } else {
-        console.error("❌ Login failed:", result.message || "Unknown error");
+      console.log("👤 Login successful:", user.name)
 
-        setError(
-          result.message ||
-            "Ошибка входа. Проверьте настройки Application Password."
-        );
-      }
+      navigate("/dashboard")
+
     } catch (err) {
-      console.error("Login error:", err);
-      setError("Ошибка сети. Попробуйте еще раз.");
+
+      console.error("❌ Login failed:", err)
+
+      setError("Ошибка авторизации. Проверь Application Password.")
+
     } finally {
-      setIsLoading(false);
+
+      setIsLoading(false)
+
     }
-  };
+
+  }
 
   return {
     login,
     isLoading,
-    error,
-  };
-};
+    error
+  }
+
+}
