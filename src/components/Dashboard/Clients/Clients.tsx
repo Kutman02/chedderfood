@@ -79,7 +79,7 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
           onClick={() => setPage(p => p - 1)}
           className="px-3 py-1 border rounded-md disabled:opacity-40"
         >
-          Предыдущая
+          ← Назад
         </button>
 
         {Array.from({ length: totalPages }).map((_, i) => {
@@ -106,7 +106,7 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
           onClick={() => setPage(p => p + 1)}
           className="px-3 py-1 border rounded-md disabled:opacity-40"
         >
-          Следующая
+          Вперёд →
         </button>
 
       </div>

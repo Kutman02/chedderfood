@@ -6,10 +6,10 @@ export const ordersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // =========================
-    // GET ORDERS
+    // GET ORDERS (🔥 ОБНОВЛЁН)
     // =========================
     getOrders: builder.query<
-      Order[],
+      { data: Order[]; totalPages: number },
       {
         status?: string
         search?: string
@@ -42,7 +42,18 @@ export const ordersApi = baseApi.injectEndpoints({
           url: `wc/v3/orders?${params.toString()}`,
           credentials: "omit"
         }
+      },
 
+      // 🔥 ВАЖНО: достаём totalPages из headers
+      transformResponse: (response: Order[], meta) => {
+        const totalPages = Number(
+          meta?.response?.headers.get("X-WP-TotalPages") || 1
+        )
+
+        return {
+          data: response,
+          totalPages
+        }
       },
 
       providesTags: ["Orders"]

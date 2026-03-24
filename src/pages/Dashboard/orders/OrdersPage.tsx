@@ -25,7 +25,8 @@ const OrdersPage = () => {
     orders,
     ordersLoading,
     counts,
-    countsRaw, // ✅ ДОБАВИЛИ
+    countsRaw,
+    totalPages, // ✅ ВАЖНО
     processingIds,
     removingOrderIds,
     expandedConfirmation,
@@ -74,7 +75,7 @@ const OrdersPage = () => {
       String(newCount)
     )
 
-  }, [countsRaw["on-hold"], activeTab]) // ✅ фикс
+  }, [countsRaw["on-hold"], activeTab])
 
   /**
    * 🔴 мигающий title
@@ -106,7 +107,7 @@ const OrdersPage = () => {
       document.title = originalTitle
     }
 
-  }, [countsRaw["on-hold"], activeTab]) // ✅ фикс
+  }, [countsRaw["on-hold"], activeTab])
 
   if (ordersLoading) {
     return <OrderSkeleton count={5} />
@@ -117,7 +118,7 @@ const OrdersPage = () => {
       <OrderTabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        counts={counts} // 👈 UI ("15+")
+        counts={counts}
       />
 
       {/* ✅ empty state */}
@@ -138,24 +139,61 @@ const OrdersPage = () => {
         />
       )}
 
-      {/* ✅ Pagination */}
-      <div className="flex gap-2 mt-4 justify-center">
+      {/* 🔥 НОВАЯ PAGINATION */}
+      <div className="flex items-center justify-center gap-2 mt-6">
 
+        {/* Previous */}
         <button
           onClick={() => setPage(p => Math.max(p - 1, 1))}
-          className="px-3 py-1 bg-gray-200 rounded"
           disabled={page === 1}
+          className="px-3 py-1 text-gray-600 disabled:opacity-50"
         >
-          Назад
+          ← Назад
         </button>
 
-        <span className="px-2">Страница {page}</span>
+        {/* Pages */}
+        {Array.from({ length: totalPages }, (_, i) => i + 1)
+          .filter(p => {
+            return (
+              p === 1 ||
+              p === totalPages ||
+              Math.abs(p - page) <= 1
+            )
+          })
+          .map((p, index, arr) => {
 
+            const prev = arr[index - 1]
+
+            return (
+              <span key={p} className="flex items-center">
+
+                {/* dots */}
+                {prev && p - prev > 1 && (
+                  <span className="px-2 text-gray-400">...</span>
+                )}
+
+                <button
+                  onClick={() => setPage(p)}
+                  className={`px-3 py-1 rounded ${
+                    p === page
+                      ? "bg-gray-200 font-semibold"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {p}
+                </button>
+
+              </span>
+            )
+          })}
+
+        {/* Next */}
         <button
-          onClick={() => setPage(p => p + 1)}
-          className="px-3 py-1 bg-gray-200 rounded"
+          onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+          disabled={page === totalPages}
+          className="px-3 py-1 text-gray-600 disabled:opacity-50"
         >
-          Вперёд
+          Вперёд →
         </button>
 
       </div>

@@ -38,10 +38,10 @@ export const useOrders = (
     useUpdateOrderStatusMutation()
 
   // =========================
-  // 🔥 ОСНОВНОЙ СПИСОК
+  // 🔥 ОСНОВНОЙ СПИСОК (ОБНОВЛЁН)
   // =========================
   const {
-    data: ordersData = [],
+    data: result,
     isLoading: ordersLoading,
     error: ordersError
   } = useGetOrdersQuery(
@@ -58,19 +58,28 @@ export const useOrders = (
     }
   )
 
+  const ordersData = result?.data ?? []
+  const totalPages = result?.totalPages ?? 1
+
   const orders = filterOrders(ordersData, searchQuery)
 
   // =========================
-  // 🔥 ЗАПРОСЫ ДЛЯ COUNTS
+  // 🔥 COUNTS (ТОЖЕ ОБНОВЛЁН)
   // =========================
-  const { data: onHold = [] } = useGetOrdersQuery({ status: "on-hold", per_page: 15 })
-  const { data: processing = [] } = useGetOrdersQuery({ status: "processing", per_page: 15 })
-  const { data: ready = [] } = useGetOrdersQuery({ status: "ready", per_page: 15 })
-  const { data: completed = [] } = useGetOrdersQuery({ status: "completed", per_page: 15 })
-  const { data: cancelled = [] } = useGetOrdersQuery({ status: "cancelled", per_page: 15 })
+  const { data: onHoldRes } = useGetOrdersQuery({ status: "on-hold", per_page: 15 })
+  const { data: processingRes } = useGetOrdersQuery({ status: "processing", per_page: 15 })
+  const { data: readyRes } = useGetOrdersQuery({ status: "ready", per_page: 15 })
+  const { data: completedRes } = useGetOrdersQuery({ status: "completed", per_page: 15 })
+  const { data: cancelledRes } = useGetOrdersQuery({ status: "cancelled", per_page: 15 })
+
+  const onHold = onHoldRes?.data ?? []
+  const processing = processingRes?.data ?? []
+  const ready = readyRes?.data ?? []
+  const completed = completedRes?.data ?? []
+  const cancelled = cancelledRes?.data ?? []
 
   // =========================
-  // 🔥 RAW COUNTS (для логики)
+  // 🔥 RAW COUNTS
   // =========================
   const countsRaw: Record<OrderStatus, number> = {
     "on-hold": onHold.length,
@@ -178,8 +187,10 @@ export const useOrders = (
     ordersLoading,
     ordersError,
 
-    counts,     // 👈 для UI
-    countsRaw,  // 👈 для логики
+    totalPages, // 🔥 ВАЖНО для pagination
+
+    counts,
+    countsRaw,
 
     processingIds,
     removingOrderIds,
