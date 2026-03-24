@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom"
 import { ShoppingBag, Package, Users } from "lucide-react"
 
 interface SectionsNavProps {
-  ordersCount: number
+  ordersCount?: number
 }
 
 const baseStyle =
@@ -17,7 +17,7 @@ const inactiveStyle =
 const badgeStyle =
   "ml-1 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full"
 
-const SectionsNav = ({ ordersCount }: SectionsNavProps) => {
+const SectionsNav = ({ ordersCount = 0 }: SectionsNavProps) => {
 
   return (
     <nav className="flex gap-3 mb-6">
@@ -31,7 +31,7 @@ const SectionsNav = ({ ordersCount }: SectionsNavProps) => {
         <ShoppingBag size={18} />
         Заказы
 
-        {ordersCount > 0 && (
+        {ordersCount >  0 && (
           <span className={badgeStyle}>
             {ordersCount}
           </span>

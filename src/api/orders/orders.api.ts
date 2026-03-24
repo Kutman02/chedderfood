@@ -16,23 +16,26 @@ export const ordersApi = baseApi.injectEndpoints({
         per_page?: number
         orderby?: string
         order?: string
+        page?: number
       }
     >({
 
       query: ({
-        status = "on-hold",
+        status,
         search = "",
-        per_page = 100,
+        per_page = 15,
         orderby = "date",
-        order = "desc"
+        order = "desc",
+        page = 1
       }) => {
 
         const params = new URLSearchParams({
           per_page: per_page.toString(),
+          page: page.toString(),
           orderby,
           order,
-          ...(status !== "all" && { status }),
-          ...(search && { search })
+          ...(status && status !== "all" ? { status } : {}),
+          ...(search ? { search } : {})
         })
 
         return {
@@ -63,7 +66,7 @@ export const ordersApi = baseApi.injectEndpoints({
     }),
 
     // =========================
-    // CREATE ORDER ✅ (ВАЖНО)
+    // CREATE ORDER
     // =========================
     createOrder: builder.mutation<Order, any>({
 
@@ -122,15 +125,10 @@ export const ordersApi = baseApi.injectEndpoints({
 
 })
 
-
 export const {
-
   useGetOrdersQuery,
   useGetOrderQuery,
-
-  useCreateOrderMutation, // ✅ ДОБАВЛЕНО
-
+  useCreateOrderMutation,
   useUpdateOrderStatusMutation,
   useUpdateOrderMutation
-
 } = ordersApi

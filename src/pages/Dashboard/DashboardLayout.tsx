@@ -11,17 +11,10 @@ import { useAppSelector } from "@/app/hooks"
 import { OrderDetailsModal } from "@/components/Dashboard/OrderDetailsModal/OrderDetailsModal"
 import { AddProductModal } from "@/components/Dashboard/AddProductModal/AddProductModal"
 import { EditProductModal } from "@/components/Dashboard/EditProductModal/EditProductModal"
-import { useGetOrdersQuery } from "@/api"
+
 const DashboardLayout = () => {
 
   const location = useLocation()
-
-  const { data: ordersData } = useGetOrdersQuery(
-  { per_page: 100, status: "all" },
-  { pollingInterval: 15000 }
-)
-
-  const ordersCount = ordersData?.length ?? 0
 
   const userName = useAppSelector(s => s.auth.userName)
   const { loading: authLoading, isAuthenticated } = useAuth()
@@ -48,7 +41,6 @@ const DashboardLayout = () => {
     handleEditProduct,
 
     getPlaceholder
-
   } = useDashboardUI()
 
   const section =
@@ -77,7 +69,8 @@ const DashboardLayout = () => {
 
       <div className="w-full max-w-7xl mx-auto px-4 py-4 min-w-0">
 
-        <SectionsNav ordersCount={ordersCount} />
+        {/* ❗ ordersCount временно убрали */}
+        <SectionsNav />
 
         <SearchBar
           value={searchQueries[section]}

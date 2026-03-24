@@ -16,7 +16,8 @@ type OrderStatus =
 
 export const useOrders = (
   activeTab: string,
-  searchQuery: string
+  searchQuery: string,
+  page: number
 ) => {
 
   const [processingIds, setProcessingIds] =
@@ -33,33 +34,35 @@ export const useOrders = (
     action: null
   })
 
-const [updateStatus] =
-  useUpdateOrderStatusMutation()
+  const [updateStatus] =
+    useUpdateOrderStatusMutation()
 
-const {
-  data: ordersData,
-  isLoading: ordersLoading,
-  error: ordersError
-} = useGetOrdersQuery(
-  {
-    per_page: 100,
-    status: "all"
-  },
-  { pollingInterval: 15000 }
-)
-
-  const allOrders = ordersData ?? []
-
-  /**
-   * Фильтрация заказов
-   */
-  const orders = filterOrders(
-    allOrders.filter(order => order.status === activeTab),
-    searchQuery
+  // ✅ ОСНОВНОЙ ЗАПРОС
+  const {
+    data: ordersData = [],
+    isLoading: ordersLoading,
+    error: ordersError
+  } = useGetOrdersQuery(
+    {
+      status: activeTab === "all" ? undefined : activeTab,
+      search: searchQuery,
+      page,
+      per_page: 15,            // ✅ последние 15
+      orderby: "date",         // ✅ сортировка
+      order: "desc"
+    },
+    {
+      pollingInterval: activeTab === "on-hold" ? 15000 : 0
+    }
   )
 
   /**
-   * Счётчики
+   * ✅ Фильтрация (только поиск, статус уже с API)
+   */
+  const orders = filterOrders(ordersData, searchQuery)
+
+  /**
+   * ⚠️ Счётчики (пока по текущей странице)
    */
   const counts: Record<OrderStatus, number> = {
     "on-hold": 0,
@@ -69,18 +72,16 @@ const {
     cancelled: 0
   }
 
-  allOrders.forEach(order => {
-
+  ordersData.forEach(order => {
     const status = order.status as OrderStatus
 
     if (counts[status] !== undefined) {
       counts[status]++
     }
-
   })
 
   /**
-   * Обновление статуса
+   * 🔄 Обновление статуса
    */
   const handleStatusUpdate = async (
     id: number,
@@ -131,12 +132,9 @@ const {
     } finally {
 
       setProcessingIds(prev => {
-
         const next = new Set(prev)
         next.delete(id)
-
         return next
-
       })
 
     }
@@ -147,25 +145,20 @@ const {
     orderId: number,
     action: string
   ) => {
-
     setExpandedConfirmation({
       orderId,
       action
     })
-
   }
 
   const handleConfirmStatusUpdate = async (
     orderId: number,
     status: string
   ) => {
-
     await handleStatusUpdate(orderId, status)
-
   }
 
   return {
-
     orders,
     ordersLoading,
     ordersError,
@@ -179,7 +172,5 @@ const {
 
     handleConfirmAction,
     handleConfirmStatusUpdate
-
   }
-
 }
