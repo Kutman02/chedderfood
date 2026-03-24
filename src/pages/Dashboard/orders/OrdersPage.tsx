@@ -25,6 +25,7 @@ const OrdersPage = () => {
     orders,
     ordersLoading,
     counts,
+    countsRaw, // ✅ ДОБАВИЛИ
     processingIds,
     removingOrderIds,
     expandedConfirmation,
@@ -46,7 +47,8 @@ const OrdersPage = () => {
 
     if (activeTab !== "on-hold") return
 
-    const newCount = counts["on-hold"] || 0
+    const newCount = countsRaw["on-hold"] || 0
+
     const prevCount = Number(
       sessionStorage.getItem("orders_on_hold_count") || 0
     )
@@ -72,16 +74,16 @@ const OrdersPage = () => {
       String(newCount)
     )
 
-  }, [counts["on-hold"], activeTab]) // ✅ фикс зависимости
+  }, [countsRaw["on-hold"], activeTab]) // ✅ фикс
 
   /**
-   * 🔴 мигающий title (только on-hold)
+   * 🔴 мигающий title
    */
   useEffect(() => {
 
     if (activeTab !== "on-hold") return
 
-    const newOrders = counts["on-hold"] || 0
+    const newOrders = countsRaw["on-hold"] || 0
     const originalTitle = document.title
 
     if (newOrders <= 0) {
@@ -104,7 +106,7 @@ const OrdersPage = () => {
       document.title = originalTitle
     }
 
-  }, [counts["on-hold"], activeTab]) // ✅ фикс зависимости
+  }, [countsRaw["on-hold"], activeTab]) // ✅ фикс
 
   if (ordersLoading) {
     return <OrderSkeleton count={5} />
@@ -115,10 +117,10 @@ const OrdersPage = () => {
       <OrderTabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        counts={counts}
+        counts={counts} // 👈 UI ("15+")
       />
 
-      {/* ✅ если нет заказов */}
+      {/* ✅ empty state */}
       {orders.length === 0 ? (
         <div className="text-center mt-10 text-gray-500">
           Нет заказов

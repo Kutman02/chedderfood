@@ -37,7 +37,9 @@ export const useOrders = (
   const [updateStatus] =
     useUpdateOrderStatusMutation()
 
-  // ✅ ОСНОВНОЙ ЗАПРОС
+  // =========================
+  // 🔥 ОСНОВНОЙ СПИСОК
+  // =========================
   const {
     data: ordersData = [],
     isLoading: ordersLoading,
@@ -47,8 +49,8 @@ export const useOrders = (
       status: activeTab === "all" ? undefined : activeTab,
       search: searchQuery,
       page,
-      per_page: 15,            // ✅ последние 15
-      orderby: "date",         // ✅ сортировка
+      per_page: 15,
+      orderby: "date",
       order: "desc"
     },
     {
@@ -56,33 +58,46 @@ export const useOrders = (
     }
   )
 
-  /**
-   * ✅ Фильтрация (только поиск, статус уже с API)
-   */
   const orders = filterOrders(ordersData, searchQuery)
 
-  /**
-   * ⚠️ Счётчики (пока по текущей странице)
-   */
-  const counts: Record<OrderStatus, number> = {
-    "on-hold": 0,
-    processing: 0,
-    ready: 0,
-    completed: 0,
-    cancelled: 0
+  // =========================
+  // 🔥 ЗАПРОСЫ ДЛЯ COUNTS
+  // =========================
+  const { data: onHold = [] } = useGetOrdersQuery({ status: "on-hold", per_page: 15 })
+  const { data: processing = [] } = useGetOrdersQuery({ status: "processing", per_page: 15 })
+  const { data: ready = [] } = useGetOrdersQuery({ status: "ready", per_page: 15 })
+  const { data: completed = [] } = useGetOrdersQuery({ status: "completed", per_page: 15 })
+  const { data: cancelled = [] } = useGetOrdersQuery({ status: "cancelled", per_page: 15 })
+
+  // =========================
+  // 🔥 RAW COUNTS (для логики)
+  // =========================
+  const countsRaw: Record<OrderStatus, number> = {
+    "on-hold": onHold.length,
+    processing: processing.length,
+    ready: ready.length,
+    completed: completed.length,
+    cancelled: cancelled.length
   }
 
-  ordersData.forEach(order => {
-    const status = order.status as OrderStatus
+  // =========================
+  // 🔥 UI COUNTS (15+)
+  // =========================
+  const formatCount = (count: number) => {
+    return count >= 15 ? "15+" : count
+  }
 
-    if (counts[status] !== undefined) {
-      counts[status]++
-    }
-  })
+  const counts: Record<OrderStatus, number | string> = {
+    "on-hold": formatCount(onHold.length),
+    processing: formatCount(processing.length),
+    ready: formatCount(ready.length),
+    completed: formatCount(completed.length),
+    cancelled: formatCount(cancelled.length)
+  }
 
-  /**
-   * 🔄 Обновление статуса
-   */
+  // =========================
+  // 🔄 ОБНОВЛЕНИЕ СТАТУСА
+  // =========================
   const handleStatusUpdate = async (
     id: number,
     status: string
@@ -163,7 +178,8 @@ export const useOrders = (
     ordersLoading,
     ordersError,
 
-    counts,
+    counts,     // 👈 для UI
+    countsRaw,  // 👈 для логики
 
     processingIds,
     removingOrderIds,

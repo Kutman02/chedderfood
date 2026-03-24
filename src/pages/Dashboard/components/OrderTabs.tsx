@@ -1,7 +1,7 @@
 interface OrderTabsProps {
   activeTab: string
   setActiveTab: (tab: string) => void
-  counts: Record<string, number>
+  counts: Record<string, number | string>
 }
 
 const tabs = [
