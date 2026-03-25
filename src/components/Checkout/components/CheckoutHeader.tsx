@@ -17,6 +17,7 @@ export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
       {/* Close button */}
       <button
         onClick={onClose}
+        aria-label="Закрыть"
         className="fixed top-3 right-3 md:top-4 md:right-4 z-10 w-9 h-9 md:w-10 md:h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-all active:scale-95"
       >
         <FaTimes size={18} />
@@ -30,6 +31,7 @@ export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
 
           <button
             onClick={onBack}
+            aria-label="Назад"
             className="p-2 md:p-3 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors active:scale-95"
           >
             <FaArrowLeft size={16} />

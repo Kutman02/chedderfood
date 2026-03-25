@@ -2,7 +2,7 @@ import { useState, useLayoutEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { addToCart, clearCart, removeFromCart } from "@/app/slices/cartSlice";
-import { closeCart, openReceipts } from "@/app/slices/uiSlice";
+import { closeCart} from "@/app/slices/uiSlice";
 
 import { useScrollLockStore } from "@/stores/scrollLockStore";
 
@@ -19,28 +19,31 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
   const dispatch = useAppDispatch();
   const cart = useAppSelector((s) => s.cart.items);
 
-  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
-
   const [createdOrderData, setCreatedOrderData] =
     useState<PublicOrder | null>(null);
 
   const lockScroll = useScrollLockStore((s) => s.lock);
   const unlockScroll = useScrollLockStore((s) => s.unlock);
 
+  /* =========================
+     URL STATE
+  ========================= */
+
+  const step = searchParams.get("step"); // cart | checkout
 
   /* =========================
      SCROLL LOCK
   ========================= */
 
   useLayoutEffect(() => {
-    if (!showCheckoutForm) {
+    if (step === "cart") {
       lockScroll();
       return () => unlockScroll();
     }
 
     return undefined;
-  }, [showCheckoutForm, lockScroll, unlockScroll]);
+  }, [step, lockScroll, unlockScroll]);
 
   /* =========================
      CART ITEMS
@@ -62,9 +65,9 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
      CART ACTIONS
   ========================= */
 
- const handleAdd = (product: Product) => {
-  dispatch(addToCart(product));
-};
+  const handleAdd = (product: Product) => {
+    dispatch(addToCart(product));
+  };
 
   const handleRemove = (productId: number) => {
     dispatch(removeFromCart(productId));
@@ -77,29 +80,36 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
   const handleCloseCart = () => {
     dispatch(closeCart());
 
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete("modal");
+    const params = new URLSearchParams(searchParams);
+    params.delete("modal");
+    params.delete("step");
 
-    setSearchParams(newParams);
+    setSearchParams(params);
   };
 
   /* =========================
-     CHECKOUT
+     NAVIGATION (ВАЖНО)
   ========================= */
 
   const handleCheckout = () => {
-    setShowCheckoutForm(true);
+    const params = new URLSearchParams(searchParams);
+    params.set("modal", "cart");
+    params.set("step", "checkout");
+
+    setSearchParams(params);
   };
 
-  const handleCheckoutBack = () => {
-    setShowCheckoutForm(false);
+  const handleBackToCart = () => {
+    const params = new URLSearchParams(searchParams);
+    params.set("modal", "cart");
+    params.set("step", "cart");
+
+    setSearchParams(params);
   };
 
-  const handleCheckoutSuccess = () => {
-    dispatch(clearCart());
-    setShowCheckoutForm(false);
-    dispatch(openReceipts());
-  };
+  /* =========================
+     RECEIPT
+  ========================= */
 
   const handleCheckoutShowReceipt = (orderData: PublicOrder) => {
     dispatch(clearCart());
@@ -108,41 +118,37 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
     setShowReceipt(true);
   };
 
-  /* =========================
-     RECEIPT
-  ========================= */
-
   const handleReceiptClose = () => {
     setShowReceipt(false);
-    setShowCheckoutForm(false);
 
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("modal", "mycheks");
+    const params = new URLSearchParams(searchParams);
+    params.set("modal", "mycheks");
+    params.delete("step");
 
-    setSearchParams(newParams);
+    setSearchParams(params);
   };
 
   const handleReceiptNewOrder = () => {
     setShowReceipt(false);
-    setShowCheckoutForm(false);
 
     dispatch(closeCart());
 
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete("modal");
+    const params = new URLSearchParams(searchParams);
+    params.delete("modal");
+    params.delete("step");
 
-    setSearchParams(newParams);
+    setSearchParams(params);
   };
 
   return {
     siteUrl: SITE_URL,
 
-
     cartItems,
     totalAmount,
     totalItems,
 
-    showCheckoutForm,
+    step,
+
     showReceipt,
     createdOrderData,
 
@@ -152,8 +158,8 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
     handleCloseCart,
 
     handleCheckout,
-    handleCheckoutBack,
-    handleCheckoutSuccess,
+    handleBackToCart,
+
     handleCheckoutShowReceipt,
 
     handleReceiptClose,

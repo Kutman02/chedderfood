@@ -1,17 +1,9 @@
-
 import { useSearchParams } from "react-router-dom";
 
-import { Checkout } from "@/components/Checkout/Checkout"
-import { OrderReceipt } from "@/components/OrderReceipt/OrderReceipt"
+import { Checkout } from "@/components/Checkout/Checkout";
+import { OrderReceipt } from "@/components/OrderReceipt/OrderReceipt";
 
-import {
-  CartHeader,
-  CartList,
-  CartFooter,
-  CartEmpty
-} from "@/components/Cart/components"
-
-import { useCart } from "@/components/Cart/hooks/useCart"
+import { useCart } from "@/components/Cart/hooks/useCart";
 
 export const Cart = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,56 +13,44 @@ export const Cart = () => {
     setSearchParams,
   });
 
+  const modal = searchParams.get("modal");
+
+  /* =========================
+     RECEIPT
+  ========================= */
+
   if (cart.showReceipt && cart.createdOrderData) {
     return (
       <OrderReceipt
-  orderData={cart.createdOrderData}
-  products={cart.cartItems}
-  onClose={cart.handleReceiptClose}
-  onNewOrder={cart.handleReceiptNewOrder}
-/>
+        orderData={cart.createdOrderData}
+        products={cart.cartItems}
+        onClose={cart.handleReceiptClose}
+        onNewOrder={cart.handleReceiptNewOrder}
+      />
     );
   }
 
-  if (cart.showCheckoutForm) {
+  /* =========================
+     CHECKOUT FLOW
+  ========================= */
+
+  if (modal === "cart") {
     return (
       <Checkout
         onClose={cart.handleCloseCart}
-        onBack={cart.handleCheckoutBack}
-        onSuccess={cart.handleCheckoutSuccess}
         onShowReceipt={cart.handleCheckoutShowReceipt}
+        cartData={{
+          items: cart.cartItems,
+          totalAmount: cart.totalAmount,
+          totalItems: cart.totalItems,
+          onAdd: cart.handleAdd,
+          onRemove: cart.handleRemove,
+          onClear: cart.handleClearCart,
+          siteUrl: cart.siteUrl,
+        }}
       />
     );
   }
 
-  return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col h-100dvh">
-
-      <CartHeader
-        totalItems={cart.totalItems}
-        onClose={cart.handleCloseCart}
-        onClearCart={cart.handleClearCart}
-        hasItems={cart.cartItems.length > 0}
-      />
-
-      {cart.cartItems.length === 0 ? (
-        <CartEmpty onClose={cart.handleCloseCart} />
-      ) : (
-        <CartList
-          items={cart.cartItems}
-          onAdd={cart.handleAdd}
-          onRemove={cart.handleRemove}
-          siteUrl={cart.siteUrl}
-        />
-      )}
-
-      {cart.cartItems.length > 0 && (
-        <CartFooter
-          totalAmount={cart.totalAmount}
-          onCheckout={cart.handleCheckout}
-        />
-      )}
-
-    </div>
-  );
+  return null;
 };

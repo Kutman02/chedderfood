@@ -1,35 +1,81 @@
 import React from "react";
-import {
-  CheckoutHeader,
-  CheckoutForm,
-  CheckoutFooter,
-  ConfirmOrderModal
-} from "@/components/Checkout/components"
-import type { PublicOrder } from "@/types"
-import { useCheckout } from "@/components/Checkout/hooks/useCheckout"
+import { useSearchParams } from "react-router-dom";
+
+import { CartStep } from "@/components/Checkout/steps/CartStep";
+import { CheckoutStep } from "@/components/Checkout/steps/CheckoutStep";
+
+import { ConfirmOrderModal } from "@/components/Checkout/components";
+
+import type { PublicOrder, Product, CartItem } from "@/types";
+import { useCheckout } from "@/components/Checkout/hooks/useCheckout";
+
+/* ===============================
+   cartData тип
+=============================== */
+
+interface CartData {
+  items: CartItem[];
+  totalAmount: number;
+  totalItems: number;
+
+  onAdd: (product: Product) => void;
+  onRemove: (id: number) => void;
+  onClear: () => void;
+
+  siteUrl: string;
+}
+
+/* ===============================
+   PROPS
+=============================== */
 
 interface CheckoutProps {
   onClose: () => void;
-  onBack: () => void;
-  onSuccess: () => void;
   onShowReceipt?: (orderData: PublicOrder) => void;
+
+  cartData: CartData;
 }
 
 export const Checkout: React.FC<CheckoutProps> = ({
   onClose,
-  onBack,
-  onSuccess,
-  onShowReceipt,
+  cartData,
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const step = searchParams.get("step") || "cart";
+
+  /* ===============================
+     NAVIGATION
+  =============================== */
+
+  const goToCheckout = () => {
+    const params = new URLSearchParams(searchParams);
+    params.set("modal", "cart");
+    params.set("step", "checkout");
+    setSearchParams(params);
+  };
+
+  const goToCart = () => {
+    const params = new URLSearchParams(searchParams);
+    params.set("modal", "cart");
+    params.set("step", "cart");
+    setSearchParams(params);
+  };
+
+  /* ===============================
+     CHECKOUT HOOK
+  =============================== */
+
   const checkout = useCheckout({
     onClose,
-    onSuccess,
-    onShowReceipt,
   });
+
+  /* ===============================
+     RENDER
+  =============================== */
 
   return (
     <>
-      {/* Модалка подтверждения */}
       <ConfirmOrderModal
         open={checkout.showConfirmModal}
         formData={checkout.formData}
@@ -43,35 +89,56 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
       <div className="fixed inset-0 z-50 bg-white flex flex-col h-100dvh">
 
-        {/* HEADER */}
-        <CheckoutHeader
-          onClose={onClose}
-          onBack={onBack}
-          onAutoFill={checkout.handleAutoFill}
-        />
+        {/* ===============================
+            STEP: CART
+        =============================== */}
+        {step === "cart" && (
+          <CartStep
+            items={cartData.items}
+            totalAmount={cartData.totalAmount}
+            totalItems={cartData.totalItems}
 
-        {/* FORM */}
-        <CheckoutForm
-          formData={checkout.formData}
-          errors={checkout.errors}
-          orderType={checkout.orderType}
-          selectedCountry={checkout.selectedCountry}
-          phoneNumber={checkout.phoneNumber}
-          isCountryDropdownOpen={checkout.isCountryDropdownOpen}
-          onInputChange={checkout.handleInputChange}
-          onPhoneChange={checkout.handlePhoneNumberChange}
-          onCountrySelect={checkout.handleCountrySelect}
-          onToggleCountryDropdown={checkout.toggleCountryDropdown}
-          onOrderTypeChange={checkout.handleOrderTypeChange}
-        />
+            onAdd={cartData.onAdd}
+            onRemove={cartData.onRemove}
+            onClear={cartData.onClear}
+            onClose={onClose}
 
-        {/* FOOTER */}
-        <CheckoutFooter
-          totalAmount={checkout.totalAmount}
-          cartItemsCount={checkout.cartItems.length}
-          isSubmitting={checkout.isSubmitting}
-          onSubmit={checkout.handleSubmit}
-        />
+            onNext={goToCheckout}
+
+            siteUrl={cartData.siteUrl}
+          />
+        )}
+
+        {/* ===============================
+            STEP: CHECKOUT
+        =============================== */}
+        {step === "checkout" && (
+          <CheckoutStep
+            onClose={onClose}
+            onBack={goToCart}
+
+            formData={checkout.formData}
+            errors={checkout.errors}
+            orderType={checkout.orderType}
+
+            selectedCountry={checkout.selectedCountry}
+            phoneNumber={checkout.phoneNumber}
+            isCountryDropdownOpen={checkout.isCountryDropdownOpen}
+
+            onInputChange={checkout.handleInputChange}
+            onPhoneChange={checkout.handlePhoneNumberChange}
+            onCountrySelect={checkout.handleCountrySelect}
+            onToggleCountryDropdown={checkout.toggleCountryDropdown}
+            onOrderTypeChange={checkout.setOrderType}
+
+            totalAmount={checkout.totalAmount}
+            cartItemsCount={cartData.items.length}
+            isSubmitting={checkout.isSubmitting}
+            onSubmit={checkout.handleSubmit}
+
+            onAutoFill={checkout.handleAutoFill}
+          />
+        )}
 
       </div>
     </>
