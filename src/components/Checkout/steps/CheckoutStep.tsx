@@ -81,6 +81,7 @@ export const CheckoutStep: React.FC<CheckoutStepProps> = ({
         onCountrySelect={onCountrySelect}
         onToggleCountryDropdown={onToggleCountryDropdown}
         onOrderTypeChange={onOrderTypeChange}
+        onAutoFill={onAutoFill} // ✅ ВОТ ЭТО ТЫ ЗАБЫЛ
       />
 
       <CheckoutFooter

@@ -2,7 +2,6 @@ import { useState, useLayoutEffect } from "react"
 
 import { useCheckActiveOrdersCountQuery } from "@/app/services/publicApi"
 
-import { useAppSelector } from "@/app/hooks"
 import { useScrollLockStore } from "@/stores/scrollLockStore"
 
 import { CIS_COUNTRIES } from "../constants/countries"
@@ -10,6 +9,7 @@ import { CIS_COUNTRIES } from "../constants/countries"
 import { useCartSummary } from "./useCartSummary"
 import { useCheckoutForm } from "./useCheckoutForm"
 import { useCreateOrder } from "./useCreateOrder"
+import { useEffect } from "react"
 
 interface UseCheckoutProps {
   onClose: () => void
@@ -35,7 +35,6 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
   const { create } = useCreateOrder()
 
-  const savedCustomerData = useAppSelector((s) => s.receipts.customerData)
 
   const lockScroll = useScrollLockStore((s) => s.lock)
   const unlockScroll = useScrollLockStore((s) => s.unlock)
@@ -100,15 +99,27 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
   =============================== */
 
   const handleAutoFill = () => {
-    if (!savedCustomerData) return
+  try {
+    const saved = localStorage.getItem("checkout_form")
+    if (!saved) return
 
-    setFormData({
-      first_name: savedCustomerData.first_name,
-      address: savedCustomerData.address,
-      phone: savedCustomerData.phone,
-      customer_note: "",
-    })
+    const parsed = JSON.parse(saved)
+
+    setFormData((prev) => ({
+      ...prev,
+      ...parsed,
+    }))
+
+    // синхронизация телефона (ВАЖНО)
+   if (parsed.phone?.startsWith(selectedCountry.code)) {
+  const phoneWithoutCode = parsed.phone.slice(selectedCountry.code.length)
+  setPhoneNumber(phoneWithoutCode)
+}
+
+  } catch (e) {
+    console.error("autofill error", e)
   }
+}
 
   /* ===============================
      SUBMIT
@@ -166,6 +177,15 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     setShowConfirmModal(false)
     setErrorMessage("")
   }
+
+useEffect(() => {
+  if (!phoneNumber) return
+
+  setFormData((prev) => ({
+    ...prev,
+    phone: fullPhone,
+  }))
+}, [fullPhone, phoneNumber])
 
   /* ===============================
      RETURN

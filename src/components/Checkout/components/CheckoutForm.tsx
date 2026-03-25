@@ -10,6 +10,7 @@ import type { CheckoutFormData } from "@/types";
 interface CheckoutFormProps {
   formData: CheckoutFormData;
   errors: Partial<CheckoutFormData>;
+  onAutoFill: () => void;
 
   orderType: "delivery" | "pickup";
 
@@ -33,6 +34,7 @@ interface CheckoutFormProps {
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   formData,
   errors,
+  onAutoFill, // ✅ FIX
 
   orderType,
 
@@ -50,9 +52,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   return (
     <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6 pb-32 md:pb-6">
       <div className="max-w-2xl mx-auto">
-
         <form className="space-y-6">
-
           {/* Тип заказа */}
           <OrderTypeSelector
             value={orderType}
@@ -86,7 +86,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
           {/* Адрес / Самовывоз */}
           {orderType === "delivery" ? (
-
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
                 <FaMapMarkerAlt size={14} />
@@ -110,11 +109,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 </p>
               )}
             </div>
-
           ) : (
-
             <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-
               <p className="font-bold text-green-700 mb-1">
                 Самовывоз
               </p>
@@ -125,20 +121,27 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
               <p className="font-bold text-lg text-green-800">
                 {RESTAURANT.address}
-</p>
+              </p>
 
-<a
-    href={RESTAURANT.map2gis}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="inline-block mt-2 text-sm font-semibold text-green-700 underline hover:text-green-900"
->
-  Открыть в 2ГИС
-</a>
-
+              <a
+                href={RESTAURANT.map2gis}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-2 text-sm font-semibold text-green-700 underline hover:text-green-900"
+              >
+                Открыть в 2ГИС
+              </a>
             </div>
-
           )}
+
+          {/* Autofill button */}
+          <button
+            type="button" // ✅ FIX (очень важно)
+            onClick={onAutoFill}
+            className="px-3 py-1.5 md:px-4 md:py-2 bg-orange-100 text-orange-700 rounded-lg font-medium hover:bg-orange-200 transition-colors text-xs md:text-sm active:scale-95"
+          >
+            Автозаполнение
+          </button>
 
           {/* Телефон */}
           <PhoneInput
@@ -167,9 +170,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
               className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
             />
           </div>
-
         </form>
-
       </div>
     </div>
   );

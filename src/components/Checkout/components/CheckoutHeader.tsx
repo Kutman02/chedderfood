@@ -10,7 +10,6 @@ interface CheckoutHeaderProps {
 export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
   onClose,
   onBack,
-  onAutoFill,
 }) => {
   return (
     <>
@@ -49,13 +48,7 @@ export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
 
         </div>
 
-        {/* Autofill button */}
-        <button
-          onClick={onAutoFill}
-          className="px-3 py-1.5 md:px-4 md:py-2 bg-orange-100 text-orange-700 rounded-lg font-medium hover:bg-orange-200 transition-colors text-xs md:text-sm active:scale-95"
-        >
-          Автозаполнение
-        </button>
+    
 
       </div>
     </>
