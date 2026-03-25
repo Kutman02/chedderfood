@@ -111,6 +111,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
           <select
             value={selectedCategory || ""}
+            aria-label="Выберите категорию товара"
             onChange={(e) => setSelectedCategory(parseInt(e.target.value))}
             className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-orange-500 outline-none font-semibold bg-white"
           >
@@ -168,6 +169,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         <div className="flex items-center gap-3">
 
           <input
+          aria-label="Отметьте, если товар является комбо"
             type="checkbox"
             checked={isCombo}
             onChange={() => setIsCombo(!isCombo)}

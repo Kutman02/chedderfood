@@ -48,6 +48,7 @@ export const HeaderActions = ({
 
       <button
         onClick={() => setShowSettings(true)}
+        aria-label="Открыть настройки"
         className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 transition"
       >
         <FaCog />

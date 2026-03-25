@@ -24,6 +24,7 @@ export const EditImageUploader = ({
       <div className="sticky top-6">
 
         <input
+          aria-label="Загрузите изображения товара"
           ref={fileInputRef}
           type="file"
           multiple
@@ -73,6 +74,7 @@ export const EditImageUploader = ({
 
               <button
                 onClick={() => onRemove(images[0].id)}
+                aria-label="Удалить изображение"
                 className="absolute top-4 right-4 w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
               >
                 <FaTrash size={14} />

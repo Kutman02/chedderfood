@@ -1,6 +1,6 @@
 import React from "react"
 import { FaCheckCircle, FaTimesCircle, FaInfoCircle, FaTimes } from "react-icons/fa"
-import { useToastStore } from "../../../stores/toastStore"
+import { useToastStore } from "@/stores/toastStore"
 import type { ToastType } from "../types"
 
 interface ToastItemProps {
@@ -36,6 +36,7 @@ export const ToastItem: React.FC<ToastItemProps> = ({ toast }) => {
 
       <button
         onClick={() => removeToast(toast.id)}
+        aria-label="Закрыть уведомление"
         className="text-slate-400 hover:text-slate-600 transition-colors"
       >
         <FaTimes size={14} />

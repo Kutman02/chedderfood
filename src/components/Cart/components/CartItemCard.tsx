@@ -60,6 +60,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
 
             <button
               onClick={onRemove}
+              aria-label="Удалить один товар"
               className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-orange-600 text-white rounded-md md:rounded-lg hover:bg-orange-700 transition-colors duration-200 active:scale-95"
             >
               <FaMinus size={12} />
@@ -71,6 +72,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
 
             <button
               onClick={onAdd}
+              aria-label="Добавить один товар"
               className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-orange-600 text-white rounded-md md:rounded-lg hover:bg-orange-700 transition-colors duration-200 active:scale-95"
             >
               <FaPlus size={12} />

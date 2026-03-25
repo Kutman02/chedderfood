@@ -55,6 +55,7 @@ export const ProductInfo = ({ product, onClose }: ProductInfoProps) => {
     <>
       {/* CLOSE */}
       <button
+      aria-label="Закрыть"
         onClick={onClose}
         className="hidden md:block self-end p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors rounded-lg mb-2"
       >

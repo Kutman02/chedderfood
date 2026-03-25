@@ -64,6 +64,7 @@ export const ProfileForm = ({ profile }: Props) => {
         </label>
 
         <input
+        aria-label="Имя"
           type="text"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
@@ -78,6 +79,7 @@ export const ProfileForm = ({ profile }: Props) => {
         </label>
 
         <input
+        aria-label="Фамилия"
           type="text"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
@@ -92,6 +94,7 @@ export const ProfileForm = ({ profile }: Props) => {
         </label>
 
         <textarea
+        aria-label="Биография"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="border rounded-lg p-2 min-h-100px" // ✅ фикс tailwind

@@ -1,5 +1,5 @@
 import { FaTimes, FaCheckCircle, FaUserTie } from "react-icons/fa"
-import type { Order } from "../../../../types"
+import type { Order } from "@/types"
 
 export const OrderActions = ({
   order,
@@ -26,6 +26,7 @@ export const OrderActions = ({
 
         <button
           onClick={() => onConfirmAction(order.id, "cancelled", "отменить")}
+          aria-label="Отменить заказ"
           className="px-4 bg-red-50 text-red-600 rounded-xl"
         >
           <FaTimes />
@@ -50,6 +51,7 @@ export const OrderActions = ({
 
         <button
           onClick={() => onConfirmAction(order.id, "cancelled", "отменить")}
+          aria-label="Отменить заказ"
           className="px-4 bg-red-50 text-red-600 rounded-xl"
         >
           <FaTimes />
@@ -74,6 +76,7 @@ export const OrderActions = ({
 
         <button
           onClick={() => onConfirmAction(order.id, "cancelled", "отменить")}
+          aria-label="Отменить заказ"
           className="px-4 bg-red-50 text-red-600 rounded-xl"
         >
           <FaTimes />

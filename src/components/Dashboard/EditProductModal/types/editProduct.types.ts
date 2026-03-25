@@ -1,4 +1,4 @@
-import type { Product, ProductStatus } from "../../../../types"
+import type { Product, ProductStatus } from "@/types"
 import type { RefObject } from "react"
 
 /* =========================

@@ -6,7 +6,7 @@ import { closeCart} from "@/app/slices/uiSlice";
 
 import { useScrollLockStore } from "@/stores/scrollLockStore";
 
-import type { Product, PublicOrder, CartItem } from "../../../types";
+import type { Product, PublicOrder, CartItem } from "@/types";
 
 interface UseCartProps {
   searchParams: URLSearchParams;

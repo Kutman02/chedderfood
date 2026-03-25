@@ -5,7 +5,7 @@ import {
   useUpdateOrderStatusMutation
 } from "@/api"
 
-import { filterOrders } from "../../../utils/utils"
+import { filterOrders } from "@/utils/utils"
 
 type OrderStatus =
   | "on-hold"

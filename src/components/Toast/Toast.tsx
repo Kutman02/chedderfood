@@ -1,5 +1,5 @@
 import React from "react"
-import { useToastStore } from "../../stores/toastStore"
+import { useToastStore } from "@/stores/toastStore"
 import { ToastItem } from "./components/ToastItem"
 
 export const Toast: React.FC = () => {

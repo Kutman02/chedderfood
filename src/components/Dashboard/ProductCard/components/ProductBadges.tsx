@@ -1,5 +1,5 @@
 import { FaFire, FaStar, FaGift, FaEyeSlash } from "react-icons/fa"
-import type { Product } from "../../../../types"
+import type { Product } from "@/types"
 
 export const ProductBadges = ({ product }: { product: Product }) => {
 

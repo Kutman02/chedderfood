@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 
 interface SwipeWrapperProps {
   children: React.ReactNode
@@ -12,8 +12,9 @@ export const SwipeWrapper = ({
   onClose,
 }: SwipeWrapperProps) => {
   const [isDragging, setIsDragging] = useState(false)
-  const [startY, setStartY] = useState(0)
-  const [currentY, setCurrentY] = useState(0)
+
+  const startYRef = useRef(0)
+  const currentYRef = useRef(0)
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const modal = modalRef.current
@@ -23,34 +24,52 @@ export const SwipeWrapper = ({
     const modalRect = modal.getBoundingClientRect()
     const relativeY = touchY - modalRect.top
 
-    // свайп для закрытия только если начали с верхней части
+    // свайп только с верхней зоны
     if (relativeY <= 50) {
       setIsDragging(true)
-      setStartY(touchY)
-      setCurrentY(touchY)
+      startYRef.current = touchY
+      currentYRef.current = touchY
+
+      // убираем transition во время драга
+      modal.style.transition = "none"
     }
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return
 
+    const modal = modalRef.current
+    if (!modal) return
+
     const y = e.touches[0].clientY
-    setCurrentY(y)
+    currentYRef.current = y
 
-    const deltaY = startY - y
+    const deltaY = y - startYRef.current
 
-    if (deltaY < 0) {
-      e.preventDefault()
+    if (deltaY > 0) {
+      e.preventDefault() // блокируем скролл
+
+      const offset = Math.max(0, deltaY)
+      modal.style.transform = `translateY(${offset}px)`
     }
   }
 
   const handleTouchEnd = () => {
     if (!isDragging) return
 
-    const deltaY = startY - currentY
+    const modal = modalRef.current
+    if (!modal) return
 
-    if (deltaY < -100) {
+    const deltaY = currentYRef.current - startYRef.current
+
+    // возвращаем transition
+    modal.style.transition = "transform 0.3s ease-out"
+
+    if (deltaY > 100) {
       onClose()
+    } else {
+      // возврат назад
+      modal.style.transform = "translateY(0)"
     }
 
     setIsDragging(false)
@@ -58,17 +77,11 @@ export const SwipeWrapper = ({
 
   return (
     <div
+      ref={modalRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className={`${
-        isDragging ? "transition-none" : "transition-all duration-300 ease-out"
-      }`}
-      style={{
-        transform: isDragging
-          ? `translateY(${Math.max(0, currentY - startY)}px)`
-          : "translateY(0)",
-      }}
+      className="will-change-transform"
     >
       {children}
     </div>

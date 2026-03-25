@@ -1,5 +1,5 @@
 import { FaEdit } from "react-icons/fa"
-import type { Product } from "../../../../types"
+import type { Product } from "@/types"
 
 interface Props {
   product: Product
@@ -16,6 +16,7 @@ export const ProductEditButton = ({
     <div className="absolute top-2 right-2">
 
       <button
+      aria-label="Редактировать товар"
         onClick={(e) => {
           e.stopPropagation()
           onEdit(product)

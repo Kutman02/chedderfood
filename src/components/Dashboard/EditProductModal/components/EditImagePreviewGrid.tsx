@@ -32,6 +32,7 @@ export const EditImagePreviewGrid = ({
 
           <button
             onClick={() => onRemove(image.id)}
+            aria-label="Удалить изображение"
             className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <FaTrash size={10} />

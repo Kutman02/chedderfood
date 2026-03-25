@@ -14,6 +14,7 @@ export const MenuHeader = ({ onClose }: Props) => (
 
     <button
       onClick={onClose}
+      aria-label="Закрыть меню"
       className="flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
     >
       <FaTimes size={18} />

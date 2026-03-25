@@ -1,4 +1,4 @@
-import { Clients } from "../../../components/Dashboard/Clients/Clients"
+import { Clients } from "@/components/Dashboard/Clients/Clients"
 
 type CustomersSectionProps = {
   searchQuery: string

@@ -1,4 +1,4 @@
-import type { Order, TabConfig } from "../../../../types"
+import type { Order, TabConfig } from "@/types"
 
 /* =========================
    ORDER CARD PROPS

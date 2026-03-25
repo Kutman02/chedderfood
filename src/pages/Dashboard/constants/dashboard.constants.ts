@@ -8,7 +8,7 @@ import {
   FaShoppingBag
 } from "react-icons/fa"
 
-import type { TabConfig } from "../../../types"
+import type { TabConfig } from "@/types"
 
 
 export const ORDER_TABS: TabConfig[] = [

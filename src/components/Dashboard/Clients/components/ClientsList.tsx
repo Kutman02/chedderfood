@@ -1,6 +1,6 @@
 import { useState, Fragment } from "react"
 import { FaUsers, FaChevronDown, FaPhone } from "react-icons/fa"
-import type { Customer } from "../../../../types"
+import type { Customer } from "@/types"
 
 interface Props {
   customers: Customer[]

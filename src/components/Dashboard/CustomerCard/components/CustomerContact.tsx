@@ -1,5 +1,5 @@
 import { FaPhone } from "react-icons/fa"
-import type { Customer } from "../../../../types"
+import type { Customer } from "@/types"
 
 interface Props {
   customer: Customer

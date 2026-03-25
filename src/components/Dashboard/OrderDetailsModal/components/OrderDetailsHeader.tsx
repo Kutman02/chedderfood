@@ -63,6 +63,7 @@ export const OrderDetailsHeader = ({
 
           <button
             onClick={() => setShowShareMenu(!showShareMenu)}
+            aria-label="Поделиться заказом"
             className="w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors"
           >
             <FaShare />
@@ -76,6 +77,7 @@ export const OrderDetailsHeader = ({
 
         <button
           onClick={onClose}
+          aria-label="Закрыть детали заказа"
           className="w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
         >
           <FaTimes />

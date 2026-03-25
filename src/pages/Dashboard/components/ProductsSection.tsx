@@ -5,9 +5,9 @@ import {
   FaEyeSlash
 } from "react-icons/fa"
 
-import { ProductCard } from "../../../components/Dashboard/ProductCard/ProductCard"
+import { ProductCard } from "@/components/Dashboard/ProductCard/ProductCard"
 
-import type { Product } from "../../../types"
+import type { Product } from "@/types"
 
 type Category = {
   id: number

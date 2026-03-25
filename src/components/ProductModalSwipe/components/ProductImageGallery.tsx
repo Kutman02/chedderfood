@@ -80,6 +80,7 @@ export const ProductImageGallery = ({ product }: ProductImageGalleryProps) => {
         {productImages.length > 1 && (
           <>
             <button
+            aria-label="Предыдущее изображение"
               onClick={handlePrevImage}
               disabled={currentImageIndex === 0}
               className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-full z-10"
@@ -100,6 +101,7 @@ export const ProductImageGallery = ({ product }: ProductImageGalleryProps) => {
             </button>
 
             <button
+            aria-label="Следующее изображение"
               onClick={handleNextImage}
               disabled={currentImageIndex === productImages.length - 1}
               className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-full z-10"

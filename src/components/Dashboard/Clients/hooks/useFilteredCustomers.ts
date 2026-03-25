@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import type { Customer } from "../../../../types"
+import type { Customer } from "@/types"
 
 export const useFilteredCustomers = (
   customersData: Customer[] | undefined,

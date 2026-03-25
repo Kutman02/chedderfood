@@ -1,8 +1,8 @@
-import { OrderCard } from "../../../components/Dashboard/OrderCard/OrderCard"
+import { OrderCard } from "@/components/Dashboard/OrderCard/OrderCard"
 
 import { ORDER_TABS } from "../constants/dashboard.constants"
 
-import type { Order } from "../../../types"
+import type { Order } from "@/types"
 
 type Props = {
   orders: Order[]

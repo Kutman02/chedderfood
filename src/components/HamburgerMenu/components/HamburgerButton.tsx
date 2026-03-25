@@ -7,6 +7,7 @@ interface Props {
 export const HamburgerButton = ({ onClick }: Props) => (
 
   <button
+  aria-label="Открыть меню"
     onClick={(e) => {
       e.stopPropagation()
       console.log("Hamburger clicked")

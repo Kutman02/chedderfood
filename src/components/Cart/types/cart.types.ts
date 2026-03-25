@@ -1,4 +1,4 @@
-import type { Product, PublicOrder } from "../../../types";
+import type { Product, PublicOrder } from "@/types";
 
 /* =========================
    CART ITEM

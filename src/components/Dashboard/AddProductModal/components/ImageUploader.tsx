@@ -27,6 +27,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       <div className="sticky top-6">
 
         <input
+          aria-label="Выберите изображения для загрузки"
           ref={fileInputRef}
           type="file"
           multiple
@@ -73,6 +74,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
               <button
                 onClick={() => onRemove(images[0].id)}
+                aria-label="Удалить главное изображение"
                 className="absolute top-4 right-4 w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
               >
                 <FaTrash size={14} />
@@ -98,6 +100,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
                     <button
                       onClick={() => onRemove(image.id)}
+                      aria-label="Удалить изображение"
                       className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <FaTrash size={10} />

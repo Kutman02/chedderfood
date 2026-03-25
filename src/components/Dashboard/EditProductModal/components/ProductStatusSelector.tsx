@@ -1,5 +1,5 @@
 import { FaStar, FaFire, FaGift } from "react-icons/fa"
-import type { ProductStatus } from "../../../../types"
+import type { ProductStatus } from "@/types"
 
 interface ProductStatusSelectorProps {
   value: ProductStatus

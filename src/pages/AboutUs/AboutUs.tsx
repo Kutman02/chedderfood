@@ -1,5 +1,5 @@
-import { PublicHeader } from "../../components/PublicHeader/PublicHeader";
-import { PublicFooter } from "../../components/PublicFooter/PublicFooter";
+import { PublicHeader } from "@/components/PublicHeader/PublicHeader";
+import { PublicFooter } from "@/components/PublicFooter/PublicFooter";
 
 import { HeroSection } from "./components/HeroSection";
 import { HistorySection } from "./components/HistorySection";

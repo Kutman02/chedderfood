@@ -15,7 +15,7 @@ export const OrderCardHeader = ({
           className={`w-14 h-14 rounded-xl bg-linear-to-br ${activeTabData?.color}
           flex items-center justify-center text-white font-black`}
         >
-          #{order.number}
+          # {order.number}
         </div>
 
         <div>

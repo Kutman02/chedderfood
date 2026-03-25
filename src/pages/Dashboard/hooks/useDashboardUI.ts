@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { Order, Product } from "../../../types"
+import type { Order, Product } from "@/types"
 
 type SearchSection = "orders" | "products" | "customers"
 

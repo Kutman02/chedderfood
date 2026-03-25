@@ -1,4 +1,4 @@
-import type { PublicOrder, OrderMetaData } from "../../../types"
+import type { PublicOrder, OrderMetaData } from "@/types"
 
 export const getOrderType = (order: PublicOrder): string => {
   const orderTypeData = order.meta_data?.find(

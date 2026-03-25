@@ -118,6 +118,7 @@ export const EditProductForm = ({ edit }: EditProductFormProps) => {
 
           <select
             value={edit.selectedCategory || ""}
+            aria-label="Выберите категорию товара"
             onChange={(e) => edit.setSelectedCategory(parseInt(e.target.value))}
             className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-orange-500 outline-none font-semibold bg-white"
           >
@@ -172,6 +173,7 @@ export const EditProductForm = ({ edit }: EditProductFormProps) => {
         <div className="flex items-center gap-3">
 
           <input
+          aria-label="Отметьте, если товар является комбо"
             type="checkbox"
             checked={isCombo}
             onChange={() => setIsCombo(!isCombo)}
