@@ -9,53 +9,86 @@ interface User {
   roles?: string[];
 }
 
+// ===============================
+// Лог-метки
+// ===============================
+
+const LOG = {
+  info: '🔍',
+  success: '✅',
+  error: '❌',
+  warn: '⚠️',
+};
+
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const token = useAppSelector((s) => s.auth.token);
   const userName = useAppSelector((s) => s.auth.userName);
 
   useEffect(() => {
     const checkUserAuth = async () => {
       try {
+        // ===============================
+        // Если есть токен (локальная авторизация)
+        // ===============================
         if (token) {
-          setUser({ id: 0, name: userName ?? 'User', email: '' });
+          console.log(`${LOG.info} Авторизация через токен`);
+
+          setUser({
+            id: 0,
+            name: userName ?? 'Пользователь',
+            email: '',
+          });
+
           setError(null);
           setLoading(false);
           return;
         }
 
-        console.log('🔍 Auth Hook: Starting authentication check');
-        userService.debugAuthStatus(); // Debug current auth status
+        // ===============================
+        // Проверка через WordPress API
+        // ===============================
+        console.log(`${LOG.info} Проверка авторизации через API`);
+
+        userService.debugAuthStatus();
+
         setLoading(true);
         setError(null);
-        
+
         const userData = await userService.getCurrentUser();
-        
-        console.log('🔍 Auth Hook: User data received:', userData);
-        
+
+        console.log(`${LOG.info} Ответ от API:`, userData);
+
         if (userData) {
-          console.log('🔍 Auth Hook: User is authenticated');
+          console.log(`${LOG.success} Пользователь авторизован`);
           setUser(userData);
         } else {
-          console.log('🔍 Auth Hook: User is not authenticated');
+          console.log(`${LOG.warn} Пользователь не авторизован`);
           setUser(null);
         }
+
       } catch (err) {
-        console.log('🔍 Auth Hook: Authentication error:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to check authentication';
-        
-        // Не считаем 401 ошибкой критической - это просто означает что пользователь не залогинен
-        if (errorMessage.includes('HTTP error! status: 401')) {
-          console.log('🔍 Auth Hook: User not logged in (401), this is expected');
-          setError(null); // Не устанавливаем ошибку для 401
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : 'Ошибка проверки авторизации';
+
+        console.error(`${LOG.error} Ошибка авторизации:`, errorMessage);
+
+        // 401 — это нормальная ситуация (не залогинен)
+        if (errorMessage.includes('401')) {
+          console.log(`${LOG.info} Пользователь не залогинен (401 — это нормально)`);
+          setError(null);
         } else {
-          console.log('🔍 Auth Hook: Unexpected authentication error');
+          console.warn(`${LOG.warn} Неожиданная ошибка авторизации`);
           setError(errorMessage);
         }
-        
+
         setUser(null);
+
       } finally {
         setLoading(false);
       }
@@ -64,12 +97,20 @@ export const useAuth = () => {
     checkUserAuth();
   }, [token, userName]);
 
+  // ===============================
+  // Logout
+  // ===============================
   const logout = async () => {
     try {
+      console.log(`${LOG.info} Выход из системы`);
+
       await userService.logout();
+
       setUser(null);
+
+      console.log(`${LOG.success} Пользователь вышел`);
     } catch (err) {
-      console.error('Logout failed:', err);
+      console.error(`${LOG.error} Ошибка при выходе:`, err);
     }
   };
 

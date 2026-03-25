@@ -2,116 +2,202 @@
 // ВСЕ URL должны браться из переменной окружения VITE_API_BASE_URL
 // Для dev и prod должен быть полный URL (например: https://your-site.com/wp-json/)
 // ОБЯЗАТЕЛЬНО: Добавьте VITE_API_BASE_URL в .env файл
-// Хардкод URL удален - все URL берутся только из переменных окружения
 
 const envApiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
+// Унифицированные метки логов
+const LOG = {
+  info: '🔍',
+  success: '✅',
+  error: '❌',
+  warn: '⚠️',
+  set: 'Установлен',
+  notSet: 'Не установлен',
+};
+
+// Проверка API URL при инициализации
 if (!envApiBaseUrl) {
-  const errorMsg = '❌ КРИТИЧЕСКАЯ ОШИБКА: VITE_API_BASE_URL не установлен в .env файле!\n' +
-    'Добавьте в .env файл:\n' +
-    'VITE_API_BASE_URL=https://your-wordpress-site.com/wp-json/';
+  const errorMsg =
+    `${LOG.error} КРИТИЧЕСКАЯ ОШИБКА: VITE_API_BASE_URL не установлен!\n` +
+    `Добавьте в .env:\n` +
+    `VITE_API_BASE_URL=https://your-wordpress-site.com/wp-json/`;
+
   console.error(errorMsg);
+
   if (import.meta.env.DEV) {
-    // В dev режиме выбрасываем ошибку, чтобы разработчик сразу заметил проблему
     throw new Error(errorMsg);
   }
-  // В продакшне используем пустую строку, но это приведет к ошибкам запросов
-  console.error('⚠️ ВНИМАНИЕ: Приложение не будет работать без VITE_API_BASE_URL!');
+
+  console.error(`${LOG.warn} Приложение не будет работать без API URL`);
 }
 
 export const API_BASE_URL = envApiBaseUrl || '';
 
-// Application Password для WordPress REST API медиа загрузки
-// Получите его в WordPress: Users > Your Profile > Application Passwords
-// Формат: username:application_password
-// Пароль может быть с пробелами (например: "bKqU J9VH rE0n NhkD NKuZ iwkJ")
-// Пробелы будут автоматически удалены при использовании
-// Если не указан, будет использоваться nonce + cookie auth
-export const WORDPRESS_APP_PASSWORD = import.meta.env.VITE_WP_APP_PASSWORD || null;
-export const WORDPRESS_USERNAME = import.meta.env.VITE_WP_USERNAME || null;
+// ===============================
+// WordPress Application Password
+// ===============================
 
-// WooCommerce API ключи
-// Получите их в WordPress: WooCommerce > Settings > Advanced > REST API
-// Создайте новый ключ с правами Read/Write
-// ОБЯЗАТЕЛЬНО: Добавьте в .env файл для продакшна!
-export const WOOCOMMERCE_CONSUMER_KEY = import.meta.env.VITE_WC_CONSUMER_KEY || null;
-export const WOOCOMMERCE_CONSUMER_SECRET = import.meta.env.VITE_WC_CONSUMER_SECRET || null;
+export const WORDPRESS_APP_PASSWORD =
+  import.meta.env.VITE_WP_APP_PASSWORD || null;
 
-// Утилита для диагностики конфигурации Application Password
+export const WORDPRESS_USERNAME =
+  import.meta.env.VITE_WP_USERNAME || null;
+
+// ===============================
+// WooCommerce API
+// ===============================
+
+export const WOOCOMMERCE_CONSUMER_KEY =
+  import.meta.env.VITE_WC_CONSUMER_KEY || null;
+
+export const WOOCOMMERCE_CONSUMER_SECRET =
+  import.meta.env.VITE_WC_CONSUMER_SECRET || null;
+
+// ===============================
+// Проверка Application Password
+// ===============================
+
 export const checkAppPasswordConfig = () => {
   const hasUsername = !!WORDPRESS_USERNAME;
   const hasPassword = !!WORDPRESS_APP_PASSWORD;
   const isConfigured = hasUsername && hasPassword;
-  
-  console.log('🔍 Application Password Configuration Check:');
-  console.log('  - VITE_WP_USERNAME:', hasUsername ? `✅ SET (${WORDPRESS_USERNAME})` : '❌ NOT SET');
-  console.log('  - VITE_WP_APP_PASSWORD:', hasPassword ? '✅ SET (***hidden***)' : '❌ NOT SET');
-  console.log('  - Status:', isConfigured ? '✅ FULLY CONFIGURED' : '⚠️ NOT CONFIGURED');
-  
+
+  console.log(`${LOG.info} Проверка Application Password:`);
+
+  console.log(
+    '  - VITE_WP_USERNAME:',
+    hasUsername
+      ? `${LOG.success} ${LOG.set} (${WORDPRESS_USERNAME})`
+      : `${LOG.error} ${LOG.notSet}`
+  );
+
+  console.log(
+    '  - VITE_WP_APP_PASSWORD:',
+    hasPassword
+      ? `${LOG.success} ${LOG.set} (скрыт)`
+      : `${LOG.error} ${LOG.notSet}`
+  );
+
+  console.log(
+    '  - Статус:',
+    isConfigured
+      ? `${LOG.success} Полностью настроено`
+      : `${LOG.warn} Не настроено`
+  );
+
   if (!isConfigured) {
-    console.warn('⚠️ Application Password is not configured!');
-    console.warn('⚠️ Media uploads will use nonce + cookies, which may fail if session expires.');
-    console.warn('💡 To configure:');
-    console.warn('   1. Go to WordPress: Users > Your Profile > Application Passwords');
-    console.warn('   2. Create a new Application Password');
-    console.warn('   3. Add to .env file:');
+    console.warn(`${LOG.warn} Application Password не настроен`);
+    console.warn(
+      `${LOG.warn} Загрузка медиа будет через cookies (может отвалиться)`
+    );
+
+    console.warn('💡 Как настроить:');
+    console.warn('   1. WordPress → Users → Profile → Application Passwords');
+    console.warn('   2. Создать новый пароль');
+    console.warn('   3. Добавить в .env:');
     console.warn('      VITE_WP_USERNAME=your_username');
-    console.warn('      VITE_WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx');
-    console.warn('   4. Restart dev server');
+    console.warn('      VITE_WP_APP_PASSWORD=xxxx xxxx xxxx xxxx');
+    console.warn('   4. Перезапустить dev сервер');
   }
-  
+
   return isConfigured;
 };
 
-// Утилита для диагностики конфигурации API URL
+// ===============================
+// Проверка API URL
+// ===============================
+
 export const checkApiUrlConfig = () => {
   const hasEnvUrl = !!import.meta.env.VITE_API_BASE_URL;
   const currentUrl = API_BASE_URL;
-  
-  console.log('🔍 API Base URL Configuration Check:');
-  console.log('  - VITE_API_BASE_URL:', hasEnvUrl ? `✅ SET (${import.meta.env.VITE_API_BASE_URL})` : '❌ NOT SET');
-  console.log('  - Current API_BASE_URL:', currentUrl || '(empty - will cause errors!)');
-  
+
+  console.log(`${LOG.info} Проверка API URL:`);
+
+  console.log(
+    '  - VITE_API_BASE_URL:',
+    hasEnvUrl
+      ? `${LOG.success} ${LOG.set} (${import.meta.env.VITE_API_BASE_URL})`
+      : `${LOG.error} ${LOG.notSet}`
+  );
+
+  console.log(
+    '  - Текущий API_BASE_URL:',
+    currentUrl || `${LOG.error} Пусто (будут ошибки!)`
+  );
+
   if (!hasEnvUrl) {
-    console.error('❌ КРИТИЧЕСКАЯ ОШИБКА: VITE_API_BASE_URL не установлен в .env файле!');
-    console.error('❌ Все API запросы будут падать с ошибками!');
-    console.error('💡 Добавьте в .env файл:');
-    console.error('   VITE_API_BASE_URL=https://your-wordpress-site.com/wp-json/');
+    console.error(
+      `${LOG.error} КРИТИЧЕСКАЯ ОШИБКА: API URL не установлен`
+    );
+
+    console.error('💡 Добавьте в .env:');
+    console.error(
+      '   VITE_API_BASE_URL=https://your-wordpress-site.com/wp-json/'
+    );
   } else {
-    console.log('✅ Все URL берутся из переменных окружения - хардкод удален');
+    console.log(`${LOG.success} Конфигурация API корректна`);
   }
-  
+
   return hasEnvUrl;
 };
 
-// Утилита для диагностики конфигурации WooCommerce API ключей
+// ===============================
+// Проверка WooCommerce
+// ===============================
+
 export const checkWooCommerceConfig = () => {
   const hasKey = !!WOOCOMMERCE_CONSUMER_KEY;
   const hasSecret = !!WOOCOMMERCE_CONSUMER_SECRET;
   const isConfigured = hasKey && hasSecret;
-  
+
   if (import.meta.env.DEV) {
-    console.log('🔍 WooCommerce API Configuration Check:');
-    console.log('  - VITE_WC_CONSUMER_KEY:', hasKey ? '✅ SET (***hidden***)' : '❌ NOT SET');
-    console.log('  - VITE_WC_CONSUMER_SECRET:', hasSecret ? '✅ SET (***hidden***)' : '❌ NOT SET');
-    console.log('  - Status:', isConfigured ? '✅ FULLY CONFIGURED' : '❌ NOT CONFIGURED');
-    
+    console.log(`${LOG.info} Проверка WooCommerce API:`);
+
+    console.log(
+      '  - VITE_WC_CONSUMER_KEY:',
+      hasKey
+        ? `${LOG.success} ${LOG.set} (скрыт)`
+        : `${LOG.error} ${LOG.notSet}`
+    );
+
+    console.log(
+      '  - VITE_WC_CONSUMER_SECRET:',
+      hasSecret
+        ? `${LOG.success} ${LOG.set} (скрыт)`
+        : `${LOG.error} ${LOG.notSet}`
+    );
+
+    console.log(
+      '  - Статус:',
+      isConfigured
+        ? `${LOG.success} Полностью настроено`
+        : `${LOG.error} Не настроено`
+    );
+
     if (!isConfigured) {
-      console.error('❌ КРИТИЧЕСКАЯ ОШИБКА: WooCommerce API ключи не установлены!');
-      console.error('❌ WooCommerce API запросы не будут работать!');
-      console.error('💡 Добавьте в .env файл:');
-      console.error('   VITE_WC_CONSUMER_KEY=ck_your_consumer_key_here');
-      console.error('   VITE_WC_CONSUMER_SECRET=cs_your_consumer_secret_here');
+      console.error(
+        `${LOG.error} WooCommerce API ключи не установлены`
+      );
+
+      console.error('💡 Добавьте в .env:');
+      console.error(
+        '   VITE_WC_CONSUMER_KEY=ck_xxxxxxxxxxxxxxxxx'
+      );
+      console.error(
+        '   VITE_WC_CONSUMER_SECRET=cs_xxxxxxxxxxxxxxxxx'
+      );
     }
   }
-  
+
   return isConfigured;
 };
 
-// Автоматически проверяем конфигурацию при импорте модуля (только в dev)
+// ===============================
+// Автопроверка (только dev)
+// ===============================
+
 if (import.meta.env.DEV) {
   checkApiUrlConfig();
   checkAppPasswordConfig();
   checkWooCommerceConfig();
 }
-

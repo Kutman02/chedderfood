@@ -53,7 +53,7 @@ export const ProfileHeader = ({ profile }: Props) => {
         avatar_url: avatarUrl
       }).unwrap()
 
-      console.log("Uploaded avatar:", res)
+      console.log("Обновленный профиль:", res)
 
     } catch (error) {
 

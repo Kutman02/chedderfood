@@ -31,13 +31,13 @@ export const useLogin = () => {
         })
       )
 
-      console.log("👤 Login successful:", user.name)
+      console.log("👤 Успешная авторизация:", user.name)
 
       navigate("/dashboard")
 
     } catch (err) {
 
-      console.error("❌ Login failed:", err)
+      console.error("❌ Ошибка авторизации:", err)
 
       setError("Ошибка авторизации. Проверь Application Password.")
 

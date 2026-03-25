@@ -1,6 +1,8 @@
 import { API_BASE_URL, WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD } from './apiConfig';
 
-// Сервис для работы с пользователем WordPress через Application Password
+// ===============================
+// Тип пользователя WordPress
+// ===============================
 
 interface User {
   id: number;
@@ -16,14 +18,33 @@ interface User {
   };
 }
 
-// Функция для создания Basic Auth заголовка с Application Password
+// ===============================
+// Лог-метки (единый стиль)
+// ===============================
+
+const LOG = {
+  info: '🔍',
+  success: '✅',
+  error: '❌',
+  warn: '⚠️',
+  set: 'Установлен',
+  notSet: 'Не установлен',
+};
+
+// ===============================
+// Basic Auth (Application Password)
+// ===============================
+
 const createAppPasswordAuth = (username: string, appPassword: string): string => {
   const cleanPassword = appPassword.replace(/\s+/g, '');
   const credentials = `${username}:${cleanPassword}`;
   return `Basic ${btoa(credentials)}`;
 };
 
-// Явный тип для userService для предотвращения ошибок TypeScript
+// ===============================
+// Интерфейс сервиса
+// ===============================
+
 export interface UserService {
   debugAuthStatus(): void;
   getCurrentUser(): Promise<User | null>;
@@ -31,73 +52,126 @@ export interface UserService {
   logout(): Promise<void>;
 }
 
+// ===============================
+// Реализация сервиса
+// ===============================
+
 export const userService: UserService = {
-  // Debug utility to check authentication status
+  // Проверка состояния авторизации (debug)
   debugAuthStatus(): void {
-    console.log('🔍 Debug Auth Status:');
-    console.log('  - Application Password configured:', !!(WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD));
-    console.log('  - Username:', WORDPRESS_USERNAME || 'NOT SET');
-    console.log('  - App Password:', WORDPRESS_APP_PASSWORD ? 'SET (***hidden***)' : 'NOT SET');
-    console.log('  - LocalStorage keys:', Object.keys(localStorage));
+    const isConfigured = !!(WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD);
+
+    console.log(`${LOG.info} Проверка авторизации:`);
+
+    console.log(
+      '  - Application Password:',
+      isConfigured
+        ? `${LOG.success} Настроен`
+        : `${LOG.error} Не настроен`
+    );
+
+    console.log(
+      '  - Username:',
+      WORDPRESS_USERNAME
+        ? `${LOG.success} ${WORDPRESS_USERNAME}`
+        : `${LOG.error} ${LOG.notSet}`
+    );
+
+    console.log(
+      '  - App Password:',
+      WORDPRESS_APP_PASSWORD
+        ? `${LOG.success} ${LOG.set} (скрыт)`
+        : `${LOG.error} ${LOG.notSet}`
+    );
+
+    console.log(
+      '  - LocalStorage ключи:',
+      Object.keys(localStorage)
+    );
   },
 
-  // Получение текущего пользователя через Application Password
+  // ===============================
+  // Получение текущего пользователя
+  // ===============================
+
   async getCurrentUser(): Promise<User | null> {
     try {
       if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
-        console.error('❌ Application Password не настроен!');
+        console.error(`${LOG.error} Application Password не настроен`);
         return null;
       }
 
-      const authHeader = createAppPasswordAuth(WORDPRESS_USERNAME, WORDPRESS_APP_PASSWORD);
-      
-      console.log('🔍 Debug: Getting current user with Application Password');
-      console.log('🔍 Debug: Request URL:', `${API_BASE_URL}wp/v2/users/me`);
-      
+      const authHeader = createAppPasswordAuth(
+        WORDPRESS_USERNAME,
+        WORDPRESS_APP_PASSWORD
+      );
+
+      console.log(`${LOG.info} Получение текущего пользователя`);
+      console.log('  - URL:', `${API_BASE_URL}wp/v2/users/me`);
+
       const res = await fetch(`${API_BASE_URL}wp/v2/users/me`, {
         method: 'GET',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': authHeader,
+          Authorization: authHeader,
         },
       });
 
-      console.log('🔍 Debug: Response status:', res.status);
+      console.log('  - Статус ответа:', res.status);
 
       if (!res.ok) {
         const errorText = await res.text();
-        console.log('🔍 Debug: Error response body:', errorText);
+        console.error(`${LOG.error} Ошибка ответа от сервера:`);
+        console.error(errorText);
         return null;
       }
 
       const data = await res.json();
-      console.log('Current user data:', data);
+
+      console.log(`${LOG.success} Пользователь получен:`, data);
+
       return data;
     } catch (error) {
-      console.error('Error getting current user:', error);
+      console.error(`${LOG.error} Ошибка при получении пользователя:`, error);
       return null;
     }
   },
 
+  // ===============================
   // Проверка авторизации
+  // ===============================
+
   async checkAuth(): Promise<boolean> {
     try {
       const user = await this.getCurrentUser();
-      return user !== null && !!user.id;
+
+      const isAuth = user !== null && !!user.id;
+
+      console.log(
+        '  - Авторизация:',
+        isAuth
+          ? `${LOG.success} Пользователь авторизован`
+          : `${LOG.warn} Пользователь не авторизован`
+      );
+
+      return isAuth;
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error(`${LOG.error} Ошибка проверки авторизации:`, error);
       return false;
     }
   },
 
-  // Выход (Application Password не требует серверного logout)
+  // ===============================
+  // Logout
+  // ===============================
+
   async logout(): Promise<void> {
     try {
-      console.log('🔍 Debug: Logout - Application Password auth cleared');
-      // Application Password не требует серверного logout
+      console.log(`${LOG.info} Выход из системы`);
+      console.log('  - Application Password не требует серверного logout');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error(`${LOG.error} Ошибка при выходе:`, error);
     }
   },
 };

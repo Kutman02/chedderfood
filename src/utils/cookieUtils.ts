@@ -1,26 +1,35 @@
 // Утилиты для работы с куки
-// Помогают решить проблемы с конфликтующими куки в обычном браузере
+
+// ===============================
+// Лог-метки
+// ===============================
+
+const LOG = {
+  info: '🔍',
+  success: '✅',
+  error: '❌',
+  warn: '⚠️',
+  cookie: '🍪',
+};
 
 /**
- * Удаляет куки по имени для текущего домена
- * @param name - имя куки
- * @param path - путь куки (по умолчанию '/')
- * @param domain - домен куки (опционально)
+ * Удаляет куки по имени
  */
-export function deleteCookie(name: string, path: string = '/', domain?: string): void {
-  // Удаляем куки для текущего домена
+export function deleteCookie(
+  name: string,
+  path: string = '/',
+  domain?: string
+): void {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`;
-  
-  // Если указан домен, пытаемся удалить и для него
+
   if (domain) {
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain};`;
-    // Также пробуем без точки в начале домена
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=.${domain};`;
   }
-  
-  // Удаляем для родительского домена (если есть)
+
   const hostname = window.location.hostname;
   const parts = hostname.split('.');
+
   if (parts.length > 1) {
     const parentDomain = '.' + parts.slice(-2).join('.');
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${parentDomain};`;
@@ -28,13 +37,11 @@ export function deleteCookie(name: string, path: string = '/', domain?: string):
 }
 
 /**
- * Очищает все WordPress-связанные куки перед логином
- * Это помогает избежать конфликтов со старыми сессиями
+ * Очистка WordPress куки
  */
 export function clearWordPressCookies(): void {
-  console.log('🍪 Clearing WordPress cookies before login...');
-  
-  // Список типичных WordPress куки
+  console.log(`${LOG.cookie} Очистка WordPress куки перед логином`);
+
   const wpCookies = [
     'wordpress_logged_in',
     'wordpress_',
@@ -43,93 +50,134 @@ export function clearWordPressCookies(): void {
     'wordpress_test_cookie',
     'PHPSESSID',
   ];
-  
-  // Очищаем каждую куку
-  wpCookies.forEach(cookieName => {
+
+  wpCookies.forEach((cookieName) => {
     deleteCookie(cookieName);
-    // Также пробуем с префиксом для поддоменов
     deleteCookie(cookieName, '/', window.location.hostname);
   });
-  
-  // Очищаем все куки, которые начинаются с 'wordpress'
+
   const allCookies = document.cookie.split(';');
-  allCookies.forEach(cookie => {
+
+  allCookies.forEach((cookie) => {
     const cookieName = cookie.split('=')[0].trim();
-    if (cookieName.startsWith('wordpress') || cookieName.startsWith('wp-')) {
+
+    if (
+      cookieName.startsWith('wordpress') ||
+      cookieName.startsWith('wp-')
+    ) {
       deleteCookie(cookieName);
     }
   });
-  
-  console.log('🍪 WordPress cookies cleared');
+
+  console.log(`${LOG.success} WordPress куки очищены`);
 }
 
 /**
- * Очищает все куки текущего домена (используйте с осторожностью!)
+ * Очистка всех куки (осторожно!)
  */
 export function clearAllCookies(): void {
-  console.log('🍪 Clearing all cookies...');
+  console.log(`${LOG.cookie} Очистка ВСЕХ куки`);
+
   const allCookies = document.cookie.split(';');
-  allCookies.forEach(cookie => {
+
+  allCookies.forEach((cookie) => {
     const cookieName = cookie.split('=')[0].trim();
     deleteCookie(cookieName);
   });
-  console.log('🍪 All cookies cleared');
+
+  console.log(`${LOG.warn} Все куки удалены`);
 }
 
 /**
- * Получает значение куки по имени
+ * Получение куки
  */
 export function getCookie(name: string): string | null {
   const nameEQ = name + '=';
   const cookies = document.cookie.split(';');
+
   for (let i = 0; i < cookies.length; i++) {
     let cookie = cookies[i];
-    while (cookie.charAt(0) === ' ') cookie = cookie.substring(1, cookie.length);
+
+    while (cookie.charAt(0) === ' ') {
+      cookie = cookie.substring(1);
+    }
+
     if (cookie.indexOf(nameEQ) === 0) {
-      return cookie.substring(nameEQ.length, cookie.length);
+      return cookie.substring(nameEQ.length);
     }
   }
+
   return null;
 }
 
 /**
- * Устанавливает куки
+ * Установка куки
  */
-export function setCookie(name: string, value: string, days: number = 7, path: string = '/'): void {
+export function setCookie(
+  name: string,
+  value: string,
+  days: number = 7,
+  path: string = '/'
+): void {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=${path}; SameSite=Lax`;
+
+  document.cookie =
+    `${name}=${value}; ` +
+    `expires=${expires.toUTCString()}; ` +
+    `path=${path}; ` +
+    `SameSite=Lax`;
 }
 
 /**
- * Проверяет наличие WordPress куки
- * Возвращает true, если найдены WordPress куки
+ * Есть ли WordPress куки
  */
 export function hasWordPressCookies(): boolean {
   const allCookies = document.cookie.split(';');
-  return allCookies.some(cookie => {
+
+  return allCookies.some((cookie) => {
     const cookieName = cookie.split('=')[0].trim();
-    return cookieName.startsWith('wordpress') || cookieName.startsWith('wp-');
+
+    return (
+      cookieName.startsWith('wordpress') ||
+      cookieName.startsWith('wp-')
+    );
   });
 }
 
 /**
- * Логирует все текущие куки (для отладки)
+ * Лог всех куки (debug)
  */
 export function logAllCookies(): void {
-  console.log('🍪 Current cookies:');
+  console.log(`${LOG.cookie} Текущие куки:`);
+
   const allCookies = document.cookie.split(';');
-  if (allCookies.length === 0 || (allCookies.length === 1 && !allCookies[0])) {
-    console.log('  No cookies found');
+
+  if (
+    allCookies.length === 0 ||
+    (allCookies.length === 1 && !allCookies[0])
+  ) {
+    console.log('  Нет куки');
     return;
   }
-  allCookies.forEach(cookie => {
-    const [name, value] = cookie.split('=').map(s => s.trim());
-    console.log(`  ${name}: ${value ? value.substring(0, 50) + (value.length > 50 ? '...' : '') : '(empty)'}`);
+
+  allCookies.forEach((cookie) => {
+    const [name, value] = cookie.split('=').map((s) => s.trim());
+
+    console.log(
+      `  ${name}: ${
+        value
+          ? value.substring(0, 50) + (value.length > 50 ? '...' : '')
+          : '(пусто)'
+      }`
+    );
   });
 }
 
-// Экспортируем функции для глобального доступа через window (для отладки в консоли)
+// ===============================
+// Доступ через window (debug)
+// ===============================
+
 if (typeof window !== 'undefined') {
   const cookieUtils = {
     clearWordPressCookies,
@@ -140,7 +188,11 @@ if (typeof window !== 'undefined') {
     hasWordPressCookies,
     logAllCookies,
   };
-  (window as unknown as Window & { cookieUtils: typeof cookieUtils }).cookieUtils = cookieUtils;
-  console.log('🍪 Cookie utilities available in console: window.cookieUtils');
-}
 
+  (window as unknown as Window & { cookieUtils: typeof cookieUtils }).cookieUtils =
+    cookieUtils;
+
+  console.log(
+    `${LOG.cookie} Утилиты доступны в консоли: window.cookieUtils`
+  );
+}

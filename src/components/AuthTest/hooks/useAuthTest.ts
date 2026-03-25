@@ -9,6 +9,21 @@ import {
 
 import type { AuthResult } from "../types"
 
+// ===============================
+// Лог-метки
+// ===============================
+
+const LOG = {
+  info: "🔍",
+  success: "✅",
+  error: "❌",
+  warn: "⚠️",
+}
+
+// ===============================
+// Hook
+// ===============================
+
 export const useAuthTest = () => {
 
   const [username, setUsername] = useState("")
@@ -16,11 +31,10 @@ export const useAuthTest = () => {
   const [result, setResult] = useState<AuthResult | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // ✅ RTK Query
   const [getMe] = useLazyGetMeQuery()
 
   // =========================
-  // TEST LOGIN (через RTK)
+  // TEST LOGIN (RTK Query)
   // =========================
   const testLogin = async () => {
 
@@ -29,19 +43,25 @@ export const useAuthTest = () => {
 
     try {
 
+      console.log(`${LOG.info} Проверка логина через API`)
+
       const user = await getMe().unwrap()
+
+      console.log(`${LOG.success} Успешный ответ`, user)
 
       setResult({
         success: true,
-        message: "Login success",
+        message: "Авторизация успешна",
         data: user
       })
 
     } catch (error) {
 
+      console.error(`${LOG.error} Ошибка авторизации`, error)
+
       setResult({
         success: false,
-        error: "Auth failed"
+        error: "Ошибка авторизации"
       })
 
     } finally {
@@ -56,19 +76,23 @@ export const useAuthTest = () => {
 
     try {
 
+      console.log(`${LOG.info} Получение текущего пользователя`)
+
       const user = await getMe().unwrap()
 
       setResult({
         success: true,
-        message: "Current user fetched",
+        message: "Пользователь получен",
         data: user
       })
 
     } catch (error) {
 
+      console.error(`${LOG.error} Не удалось получить пользователя`, error)
+
       setResult({
         success: false,
-        message: "Failed to get current user"
+        message: "Не удалось получить пользователя"
       })
 
     }
@@ -76,7 +100,7 @@ export const useAuthTest = () => {
   }
 
   // =========================
-  // TEST APP PASSWORD CONFIG
+  // TEST API KEYS
   // =========================
   const testAppPassword = () => {
 
@@ -84,11 +108,13 @@ export const useAuthTest = () => {
       !!WOOCOMMERCE_CONSUMER_KEY &&
       !!WOOCOMMERCE_CONSUMER_SECRET
 
+    console.log(`${LOG.info} Проверка WooCommerce ключей`)
+
     setResult({
       success: isConfigured,
       message: isConfigured
-        ? "API keys configured ✅"
-        : "API keys NOT configured ❌"
+        ? "API ключи настроены"
+        : "API ключи НЕ настроены"
     })
 
   }
@@ -102,39 +128,52 @@ export const useAuthTest = () => {
 
       if (!WOOCOMMERCE_CONSUMER_KEY || !WOOCOMMERCE_CONSUMER_SECRET) {
 
+        console.error(`${LOG.error} WooCommerce ключи отсутствуют`)
+
         setResult({
-          error: "WooCommerce API keys not configured"
+          success: false,
+          error: "WooCommerce API ключи не настроены"
         })
 
         return
       }
 
+      console.log(`${LOG.info} Запрос к WooCommerce API`)
+
       const credentials = btoa(
         `${WOOCOMMERCE_CONSUMER_KEY}:${WOOCOMMERCE_CONSUMER_SECRET}`
       )
 
-      const response = await fetch(
-        `${API_BASE_URL}wc/v3/orders?status=on-hold&per_page=10`,
-        {
-          headers: {
-            Authorization: `Basic ${credentials}`
-          }
+      const url = `${API_BASE_URL}wc/v3/orders?status=on-hold&per_page=10`
+
+      console.log("  - URL:", url)
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Basic ${credentials}`
         }
-      )
+      })
+
+      console.log("  - HTTP статус:", response.status)
 
       if (response.ok) {
 
         const data = await response.json()
 
+        console.log(`${LOG.success} Ответ получен`, data)
+
         setResult({
           success: true,
           data: { count: data.length },
-          message: "WooCommerce API working"
+          message: "WooCommerce API работает"
         })
 
       } else {
 
+        console.error(`${LOG.error} Ошибка ответа`)
+
         setResult({
+          success: false,
           error: `HTTP ${response.status}`
         })
 
@@ -142,7 +181,10 @@ export const useAuthTest = () => {
 
     } catch (error) {
 
+      console.error(`${LOG.error} Ошибка запроса`, error)
+
       setResult({
+        success: false,
         error: (error as Error).message
       })
 
@@ -155,11 +197,21 @@ export const useAuthTest = () => {
   // =========================
   const testDebugAuth = () => {
 
-    console.log("🔍 Debug Auth:")
-    console.log("Base URL:", API_BASE_URL)
+    console.log(`${LOG.info} Отладка конфигурации`)
+
+    console.log("  - API_BASE_URL:", API_BASE_URL)
+    console.log(
+      "  - WooCommerce ключ:",
+      WOOCOMMERCE_CONSUMER_KEY ? `${LOG.success} Есть` : `${LOG.error} Нет`
+    )
+    console.log(
+      "  - WooCommerce секрет:",
+      WOOCOMMERCE_CONSUMER_SECRET ? `${LOG.success} Есть` : `${LOG.error} Нет`
+    )
 
     setResult({
-      message: "Debug info logged"
+      success: true,
+      message: "Отладочная информация выведена в консоль"
     })
 
   }

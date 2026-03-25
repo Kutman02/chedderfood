@@ -10,7 +10,7 @@ export const HamburgerButton = ({ onClick }: Props) => (
   aria-label="Открыть меню"
     onClick={(e) => {
       e.stopPropagation()
-      console.log("Hamburger clicked")
+      console.log("Нажата кнопка меню")
       onClick()
     }}
     className="

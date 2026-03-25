@@ -51,7 +51,7 @@ useEffect(() => {
   }, [])
 
 const openMenu = () => {
-  console.log("OPEN MENU")
+  console.log("Открытие меню")
   setIsOpen(true)
 }  
   const closeMenu = () => setIsOpen(false)

@@ -104,7 +104,7 @@ export const useOrderReceipt = (orderData: PublicOrder, products: Product[]) => 
           url: window.location.href,
         })
       } catch (err) {
-        console.log("Share failed:", err)
+        console.log("Отправка/share не удалась:", err)
       }
     }
   }
