@@ -14,7 +14,6 @@ interface CustomerDataCardProps {
 
 export const CustomerDataCard = ({
   customerData,
-  onUse,
   onClear
 }: CustomerDataCardProps) => {
 
@@ -76,15 +75,7 @@ export const CustomerDataCard = ({
 
       {/* Actions */}
       <div className="flex gap-2">
-
-        {onUse && (
-          <button
-            onClick={onUse}
-            className="flex-1 bg-orange-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-orange-700 transition"
-          >
-            Использовать
-          </button>
-        )}
+        
 
         <button
           onClick={onClear}

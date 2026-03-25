@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { HamburgerMenuProps } from "./types"
 
 import { useScrollLockStore } from "@/stores/scrollLockStore"
@@ -16,6 +16,7 @@ export const HamburgerMenu = ({
 }: HamburgerMenuProps) => {
 
   const [open, setOpen] = useState(false)
+  const [customerData, setCustomerData] = useState(null)
 
   const lock = useScrollLockStore((s) => s.lock)
   const unlock = useScrollLockStore((s) => s.unlock)
@@ -30,14 +31,38 @@ export const HamburgerMenu = ({
     setOpen(false)
   }
 
+  // ✅ загрузка из localStorage
+  useEffect(() => {
+    const load = () => {
+      try {
+        const saved = localStorage.getItem("checkout_form")
+        setCustomerData(saved ? JSON.parse(saved) : null)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    load()
+
+    // обновляется когда возвращаешься в вкладку
+    window.addEventListener("focus", load)
+    return () => window.removeEventListener("focus", load)
+  }, [])
+
+  // ✅ очистка
+  const handleClearCustomer = () => {
+    localStorage.removeItem("checkout_form")
+    setCustomerData(null)
+  }
+
   return (
     <>
       {/* Desktop menu */}
       <div className="hidden md:flex items-center gap-2">
         <DesktopMenu
-   onCartOpen={onCartOpen}
-  toggleReceipts={toggleReceipts ?? (() => {})}
-/>
+          onCartOpen={onCartOpen}
+          toggleReceipts={toggleReceipts ?? (() => {})}
+        />
       </div>
 
       {/* Mobile menu */}
@@ -66,16 +91,16 @@ export const HamburgerMenu = ({
             }`}
           >
 
-           <MobileMenu
-  closeMenu={closeMenu}
-  toggleReceipts={() => {
-    toggleReceipts?.()
-    closeMenu()
-  }}
-  clearCustomer={() => {}}
-  customerData={null}
-  onCustomerDataSelect={onCustomerDataSelect}
-/>
+            <MobileMenu
+              closeMenu={closeMenu}
+              toggleReceipts={() => {
+                toggleReceipts?.()
+                closeMenu()
+              }}
+              clearCustomer={handleClearCustomer}   // ✅ фикс
+              customerData={customerData}           // ✅ фикс
+              onCustomerDataSelect={onCustomerDataSelect}
+            />
 
           </aside>
 
