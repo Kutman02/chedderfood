@@ -1,5 +1,7 @@
-import { FaTimes, FaCheckCircle, FaUserTie } from "react-icons/fa"
+import { FaTimes, FaCheckCircle } from "react-icons/fa"
 import type { Order } from "@/types"
+import { IoFastFood } from "react-icons/io5";
+
 
 export const OrderActions = ({
   order,
@@ -20,7 +22,7 @@ export const OrderActions = ({
           onClick={() => onConfirmAction(order.id, "processing", "принять")}
           className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
         >
-          <FaUserTie />
+          <IoFastFood />
           Принять
         </button>
 

@@ -1,4 +1,4 @@
-import { FaReceipt } from "react-icons/fa"
+import { GiSecretBook } from "react-icons/gi";
 
 interface Props {
   onClick: () => void
@@ -29,7 +29,7 @@ export const ReceiptsButton = ({ onClick }: Props) => {
         bg-orange-600
         text-white
       ">
-        <FaReceipt size={18} />
+        <GiSecretBook size={18} />
       </div>
 
       {/* Text */}

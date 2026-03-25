@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom"
-import { FaReceipt, FaShoppingCart, FaInfoCircle, FaAddressBook } from "react-icons/fa"
+import { PiAddressBookFill } from "react-icons/pi";
+import { HiMiniShoppingCart } from "react-icons/hi2";
+import { GiSecretBook } from "react-icons/gi";
+import { PiInfoBold } from "react-icons/pi";
+
+
+
 
 interface Props {
   toggleReceipts: () => void
@@ -25,7 +31,7 @@ export const DesktopMenu = ({
         onClick={toggleReceipts}
         className={`${baseBtn} ${secondary}`}
       >
-        <FaReceipt size={14}/>
+        <GiSecretBook size={14}/>
         <span>Мои заказы</span>
       </button>
 
@@ -33,7 +39,7 @@ export const DesktopMenu = ({
         to="/about"
         className={`${baseBtn} ${secondary}`}
       >
-        <FaInfoCircle size={14}/>
+        <PiInfoBold size={14}/>
         <span>О нас</span>
       </Link>
 
@@ -41,7 +47,7 @@ export const DesktopMenu = ({
         to="/contacts"
         className={`${baseBtn} ${secondary}`}
       >
-        <FaAddressBook size={14}/>
+        <PiAddressBookFill size={14}/>
         <span>Контакты</span>
       </Link>
 
@@ -49,7 +55,7 @@ export const DesktopMenu = ({
         onClick={onCartOpen}
         className={`${baseBtn} bg-orange-600 text-white hover:bg-orange-700`}
       >
-        <FaShoppingCart size={14}/>
+        <HiMiniShoppingCart size={14}/>
         <span>Корзина</span>
       </button>
 

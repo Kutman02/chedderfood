@@ -2,8 +2,10 @@ import {
   FaShoppingCart,
   FaDollarSign,
   FaUser,
-  FaClock
 } from "react-icons/fa"
+import { PiClockCountdownBold } from "react-icons/pi";
+
+
 
 interface Props {
   sortBy: "newest" | "orders" | "spent" | "name"
@@ -33,7 +35,7 @@ export const ClientsSortPanel = ({
             : "bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50"
         }`}
       >
-        <FaClock className="inline mr-2" size={12}/>
+        <PiClockCountdownBold className="inline mr-2" size={12}/>
         Новые
       </button>
 

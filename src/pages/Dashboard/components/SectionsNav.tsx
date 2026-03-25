@@ -1,5 +1,7 @@
 import { NavLink } from "react-router-dom"
-import { ShoppingBag, Package, Users } from "lucide-react"
+import { CgShoppingBag } from "react-icons/cg"
+import { GoPackage } from "react-icons/go";
+import { FaUsers } from "react-icons/fa6";
 
 interface SectionsNavProps {
   ordersCount?: number
@@ -28,7 +30,7 @@ const SectionsNav = ({ ordersCount = 0 }: SectionsNavProps) => {
           `${baseStyle} ${isActive ? activeStyle : inactiveStyle}`
         }
       >
-        <ShoppingBag size={18} />
+        <CgShoppingBag size={18} />
         Заказы
 
         {ordersCount >  0 && (
@@ -45,7 +47,7 @@ const SectionsNav = ({ ordersCount = 0 }: SectionsNavProps) => {
           `${baseStyle} ${isActive ? activeStyle : inactiveStyle}`
         }
       >
-        <Package size={18} />
+        <GoPackage size={18} />
         Товары
       </NavLink>
 
@@ -55,7 +57,7 @@ const SectionsNav = ({ ordersCount = 0 }: SectionsNavProps) => {
           `${baseStyle} ${isActive ? activeStyle : inactiveStyle}`
         }
       >
-        <Users size={18} />
+        <FaUsers size={18} />
         Клиенты
       </NavLink>
 

@@ -1,5 +1,4 @@
-import { Truck } from "lucide-react"
-
+import { TbTruckDelivery } from "react-icons/tb";
 interface Props {
   isActive: boolean
   onClick: () => void
@@ -19,7 +18,7 @@ export const DeliveryIndicator = ({ isActive, onClick }: Props) => {
 
       {/* Иконка */}
       <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-orange-600 text-white shadow-md">
-        <Truck size={16} />
+        <TbTruckDelivery size={16} />
       </div>
     </button>
   )

@@ -1,4 +1,6 @@
 import type { Order } from "@/types"
+import { IoFastFood } from "react-icons/io5";
+
 
 interface Props {
   order: Order
@@ -12,7 +14,8 @@ export const OrderItemsList = ({ order }: Props) => {
     <div className="bg-white border-2 border-slate-200 rounded-xl p-4">
 
       <h3 className="text-lg font-black text-slate-900 mb-4">
-        🍽 Заказанные блюда
+        <IoFastFood className="inline mr-2" />
+        Заказанные блюда
       </h3>
 
       <div className="space-y-3">

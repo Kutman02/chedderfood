@@ -1,4 +1,6 @@
-import { FaUser, FaPhone, FaMapMarkerAlt, FaTimes } from "react-icons/fa"
+import { FaUser, FaPhone,  FaTimes } from "react-icons/fa"
+import { GrMap } from "react-icons/gr";
+
 
 interface CustomerData {
   first_name: string
@@ -63,7 +65,7 @@ export const CustomerDataCard = ({
         {/* Address */}
         <div className="flex items-center gap-3">
 
-          <FaMapMarkerAlt className="text-slate-400" size={14} />
+          <GrMap className="text-slate-400" size={14} />
 
           <span className="text-slate-700 truncate">
             {customerData.address}
