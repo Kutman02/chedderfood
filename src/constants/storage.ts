@@ -1,5 +1,5 @@
 export const STORAGE_KEYS = {
-  CART: "chedderfood_cart",
-  RECEIPTS: "chedderfood_receipts",
-  CUSTOMER_DATA: "chedderfood_customer_data",
+  CART: "kutmenu_cart",
+  RECEIPTS: "kutmenu_receipts",
+  CUSTOMER_DATA: "kutmenu_customer_data",
 }

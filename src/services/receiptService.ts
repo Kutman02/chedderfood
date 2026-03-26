@@ -2,8 +2,8 @@
 import type { CustomerData, ReceiptData } from '../types';
 
 export class ReceiptService {
-  private static readonly RECEIPTS_KEY = 'chedderfood_receipts';
-  private static readonly CUSTOMER_DATA_KEY = 'chedderfood_customer_data';
+  private static readonly RECEIPTS_KEY = 'kutmenu_receipts';
+  private static readonly CUSTOMER_DATA_KEY = 'kutmenu_customer_data';
 
   // Сохранение чека
   static saveReceipt(receipt: ReceiptData): void {
