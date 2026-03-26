@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom"
 
-import { Header } from "@/components/Dashboard/Header/Header"
+import { Header } from "@/components/dashboard/Header/Header"
 import { SectionsNav } from "./components/SectionsNav"
 import { SearchBar } from "./components/SearchBar"
 
@@ -8,9 +8,9 @@ import { useDashboardUI } from "./hooks/useDashboardUI"
 import { useAuth } from "@/hooks/useAuth"
 import { useAppSelector } from "@/app/hooks"
 
-import { OrderDetailsModal } from "@/components/Dashboard/OrderDetailsModal/OrderDetailsModal"
-import { AddProductModal } from "@/components/Dashboard/AddProductModal/AddProductModal"
-import { EditProductModal } from "@/components/Dashboard/EditProductModal/EditProductModal"
+import { OrderDetailsModal } from "@/components/dashboard/OrderDetailsModal/OrderDetailsModal"
+import { AddProductModal } from "@/components/dashboard/AddProductModal/AddProductModal"
+import { EditProductModal } from "@/components/dashboard/EditProductModal/EditProductModal"
 
 const DashboardLayout = () => {
 

@@ -1,4 +1,4 @@
-import { OrderCard } from "@/components/Dashboard/OrderCard/OrderCard"
+import { OrderCard } from "@/components/dashboard/OrderCard/OrderCard"
 
 import { ORDER_TABS } from "../constants/dashboard.constants"
 

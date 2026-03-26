@@ -6,11 +6,11 @@ import {
   ClientsSortPanel,
   ClientsList,
   ClientsError
-} from "@/components/Dashboard/Clients/components"
+} from "@/components/dashboard/Clients/components"
 
 import { CustomerSkeleton } from "@/components/Skeleton/components"
 
-import { useFilteredCustomers } from "@/components/Dashboard/Clients/hooks/useFilteredCustomers"
+import { useFilteredCustomers } from "@/components/dashboard/Clients/hooks/useFilteredCustomers"
 
 interface ClientsProps {
   searchQuery: string

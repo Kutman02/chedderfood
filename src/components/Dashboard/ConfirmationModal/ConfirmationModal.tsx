@@ -1,7 +1,7 @@
 
 
-import type { ConfirmationModalProps } from "@/components/Dashboard/ConfirmationModal/types"
-import { ConfirmationContent } from "@/components/Dashboard/ConfirmationModal/components"
+import type { ConfirmationModalProps } from "@/components/dashboard/ConfirmationModal/types"
+import { ConfirmationContent } from "@/components/dashboard/ConfirmationModal/components"
 
 export const ConfirmationModal = ({
   isOpen,

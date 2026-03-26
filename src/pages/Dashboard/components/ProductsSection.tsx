@@ -5,7 +5,7 @@ import {
   FaEyeSlash
 } from "react-icons/fa"
 
-import { ProductCard } from "@/components/Dashboard/ProductCard/ProductCard"
+import { ProductCard } from "@/components/dashboard/ProductCard/ProductCard"
 
 import type { Product } from "@/types"
 

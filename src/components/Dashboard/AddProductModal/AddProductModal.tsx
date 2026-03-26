@@ -2,9 +2,9 @@ import {
   AddProductHeader,
   ImageUploader,
   ProductForm
-} from "@/components/Dashboard/AddProductModal/components"
+} from "@/components/dashboard/AddProductModal/components"
 
-import { useAddProduct } from "@/components/Dashboard/AddProductModal/hooks/useAddProduct"
+import { useAddProduct } from "@/components/dashboard/AddProductModal/hooks/useAddProduct"
 
 interface AddProductModalProps {
   isOpen: boolean

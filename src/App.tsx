@@ -31,7 +31,7 @@ import NotFound from "./pages/NotFound"
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
   const token = useAppSelector((s) => s.auth.token)
 
-  return token ? children : <Navigate to="/login" />
+  return token ? children : <Navigate to="/login" replace />
 }
 
 // редирект на главную с query параметром
@@ -89,7 +89,7 @@ function App() {
           {/* Модалки */}
           <Route path="/cart" element={<ModalRedirect modal="cart" />} />
           <Route path="/mycheks" element={<ModalRedirect modal="mycheks" />} />
-          <Route path="/myreceipts" element={<ModalRedirect modal="mycheks" />} />
+          <Route path="/myreceipts" element={<ModalRedirect modal="myreceipts" />} />
 
           {/* Тесты */}
           <Route path="/auth-test" element={<AuthTest />} />

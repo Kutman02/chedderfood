@@ -1,4 +1,4 @@
-export * from "./StatsCard"
+export * from "./SalesChart"
 export * from "./StatsHeader"
 export * from "./StatsMetrics"
 export * from "./SalesChart"
