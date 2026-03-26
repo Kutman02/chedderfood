@@ -51,21 +51,23 @@ export const SalesChart = ({ data }: SalesChartProps) => {
           />
 
           <Tooltip
-            formatter={(value: number | string | undefined, name: string | undefined) => {
+  formatter={(value, _name, item) => {
+    const normalized = Array.isArray(value)
+      ? value[0]
+      : value;
 
-              const numericValue = Number(value ?? 0)
+    const numericValue = Number(normalized ?? 0)
 
-              if (name === "revenue") {
-                return [`${numericValue.toLocaleString()} сом`, "Выручка"]
-              }
-
-              if (name === "orders") {
-                return [numericValue, "Заказы"]
-              }
-
-              return [numericValue, name ?? ""]
-            }}
-          />
+    switch (item.dataKey) {
+      case "revenue":
+        return [`${numericValue.toLocaleString()} сом`, "Выручка"]
+      case "orders":
+        return [numericValue, "Заказы"]
+      default:
+        return [numericValue, String(item.dataKey)]
+    }
+  }}
+/>
 
           <Legend />
 

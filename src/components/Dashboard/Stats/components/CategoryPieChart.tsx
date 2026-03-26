@@ -5,7 +5,6 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts"
-
 import type { CategoryStat } from "../types"
 
 interface Props {
@@ -41,7 +40,7 @@ export const CategoryPieChart = ({ categories }: Props) => {
             data={categories}
             cx="50%"
             cy="50%"
-            outerRadius="80%"
+            outerRadius="120"
             dataKey="revenue"
             nameKey="name"
             label={({ name, percent }: { name?: string; percent?: number }) =>
@@ -51,18 +50,22 @@ export const CategoryPieChart = ({ categories }: Props) => {
 
             {categories.map((_, index) => (
               <Cell
-                key={index}
+                key={categories[index].name}
                 fill={COLORS[index % COLORS.length]}
               />
             ))}
 
           </Pie>
 
-          <Tooltip
-            formatter={(value: number | string | undefined) =>
-              `${Number(value ?? 0).toLocaleString()} сом`
-            }
-          />
+         <Tooltip
+  formatter={(value, name) => {
+    const normalized = Array.isArray(value)
+      ? value[0]
+      : value;
+
+    return [`${Number(normalized ?? 0).toLocaleString()} сом`, name];
+  }}
+/>
 
         </PieChart>
 
