@@ -8,7 +8,7 @@ const HeroSection = () => {
           </h1>
 
           <p className="text-xl md:text-2xl text-orange-100 max-w-3xl mx-auto">
-            BurgerFood - это не просто доставка еды, это любовь к качественной пище 
+            KutMenu - это не просто доставка еды, это любовь к качественной пище 
             и забота о наших клиентах
           </p>
         </div>

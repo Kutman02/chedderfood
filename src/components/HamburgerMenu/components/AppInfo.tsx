@@ -11,7 +11,7 @@ export const AppInfo = () => {
       <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-600 space-y-1">
 
         <p className="font-medium text-slate-700">
-          BurgerFood — доставка вкусной еды
+          KutMenu — доставка вкусной еды
         </p>
 
         <p>Версия: 1.0.0</p>

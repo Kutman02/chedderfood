@@ -99,7 +99,7 @@ export const useOrderReceipt = (orderData: PublicOrder, products: Product[]) => 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Заказ #${order.id} - BurgerFood`,
+          title: `Заказ #${order.id} - KutMenu`,
           text: `Мой заказ #${order.id} на сумму ${total} сом`,
           url: window.location.href,
         })

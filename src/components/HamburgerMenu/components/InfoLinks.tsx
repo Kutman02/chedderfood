@@ -32,7 +32,7 @@ export const InfoLinks = ({ onClose }: Props) => {
               О нас
             </h4>
             <p className="text-xs text-slate-500">
-              Узнайте больше о BurgerFood
+              Узнайте больше о KutMenu
             </p>
           </div>
 

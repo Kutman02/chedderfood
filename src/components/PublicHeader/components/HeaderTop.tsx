@@ -19,7 +19,7 @@ export const HeaderTop = ({
 
       <Link to="/" className="flex items-center gap-2">
         <div className="text-xl font-black text-orange-600">
-          BurgerFood
+          KutMenu
         </div>
       </Link>
 

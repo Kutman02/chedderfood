@@ -12,8 +12,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'ChedderFood',
-        short_name: 'Chedder',
+        name: 'KutMenu',
+        short_name: 'KutMenu',
         description: 'Доставка еды',
         theme_color: '#ea580c',
         background_color: '#ffffff',

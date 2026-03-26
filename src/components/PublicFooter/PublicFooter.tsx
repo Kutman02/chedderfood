@@ -5,12 +5,12 @@ import { FooterBottom } from "./components/FooterBottom"
 
 export const PublicFooter = () => {
   const settings = {
-    title: "BurgerFood",
+    title: "KutMenu",
     description:
       "Лучшая еда с доставкой на дом. Свежие ингредиенты, быстрая доставка, отличный сервис. Мы заботимся о каждом клиенте и гарантируем качество.",
-    phone: "+996 770 51 11 11",
+    phone: "+996703601025",
     email: "kutmank9@gmail.com",
-    address: "Ош, Кыргызстан",
+    address: "Бишкек, Кыргызстан",
     city: "Кыргызстан",
   }
 

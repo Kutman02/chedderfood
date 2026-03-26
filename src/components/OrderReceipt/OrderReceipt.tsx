@@ -62,7 +62,7 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
           <div className="text-center border-b border-slate-200 pb-6">
 
             <h1 className="text-3xl font-black text-slate-900">
-              BURGERFOOD
+              KutMenu
             </h1>
 
             <p className="text-sm text-slate-500 mt-1">

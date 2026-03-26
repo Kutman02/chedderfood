@@ -9,7 +9,7 @@ export const MessengerSection = () => {
 
       <div className="flex gap-4 flex-wrap">
         <a
-          href="https://wa.me/996770511111"
+          href="https://wa.me/996703601025"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 bg-green-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg"
@@ -19,7 +19,7 @@ export const MessengerSection = () => {
         </a>
 
         <a
-          href="https://t.me/burgerfood"
+          href="https://t.me/kutmenu"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 bg-blue-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg"

@@ -7,7 +7,7 @@ const HistorySection = () => {
 
       <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
         <p className="text-lg text-slate-700 leading-relaxed mb-6">
-          BurgerFood был основан с простой идеей - доставлять вкусную, свежую еду прямо к вашей двери.
+          KutMenu был основан с простой идеей - доставлять вкусную, свежую еду прямо к вашей двери.
           Мы верим, что каждый заслуживает наслаждаться качественной пищей, не выходя из дома.
         </p>
 

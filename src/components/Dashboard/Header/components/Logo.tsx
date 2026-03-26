@@ -12,7 +12,7 @@ export const Logo = () => {
 
       <div>
         <h1 className="text-xl font-black text-slate-900">
-          BURGER<span className="text-orange-500">FOOD</span>
+          Kut<span className="text-orange-500">Menu</span>
         </h1>
 
         <p className="text-xs text-slate-500">
