@@ -1,36 +1,20 @@
-export interface LoginDto {
-  username: string
-  password: string
-}
+import { apiFetch } from './../app/services/apiFetch';
 
-export interface AuthResponse {
-  token: string
-  userName: string
-}
+const API_URL = `${import.meta.env.VITE_SITE_URL}/wp-json/custom/v1`
 
 export const authService = {
-  async login({ username, password }: LoginDto): Promise<AuthResponse> {
+  async login(data: { username: string; password: string }) {
+    return apiFetch(`${API_URL}/login`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+  },
 
-    const basic = btoa(`${username}:${password}`)
+  async me() {
+    return apiFetch(`${API_URL}/me`)
+  },
 
-    const res = await fetch(
-      "https://your-wp-site.com/wp-json/wp/v2/users/me",
-      {
-        headers: {
-          Authorization: `Basic ${basic}`
-        }
-      }
-    )
-
-    if (!res.ok) {
-      throw new Error("Invalid credentials")
-    }
-
-    const user = await res.json()
-
-    return {
-      token: basic, // ⚠️ временно
-      userName: user.name || "User"
-    }
-  }
+  async getOrders(page = 1) {
+    return apiFetch(`${API_URL}/orders?page=${page}`)
+  },
 }

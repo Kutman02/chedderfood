@@ -1,14 +1,22 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
+
+type User = {
+  id: number
+  name: string
+  role: string
+}
 
 type AuthState = {
-  token: string | null;
-  userName: string | null;
-};
+  token: string | null
+  user: User | null
+}
 
 const initialState: AuthState = {
   token: localStorage.getItem("token"),
-  userName: localStorage.getItem("user_name"),
-};
+  user: localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user") as string)
+    : null,
+}
 
 export const authSlice = createSlice({
   name: "auth",
@@ -16,26 +24,24 @@ export const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ token: string; userName?: string | null }>
+      action: PayloadAction<{ token: string; user: User }>
     ) => {
-      state.token = action.payload.token;
-      state.userName = action.payload.userName ?? null;
+      state.token = action.payload.token
+      state.user = action.payload.user
 
-      // ✅ сохраняем
-      localStorage.setItem("token", action.payload.token);
-      localStorage.setItem("user_name", action.payload.userName ?? "");
+      localStorage.setItem("token", action.payload.token)
+      localStorage.setItem("user", JSON.stringify(action.payload.user))
     },
 
     logout: (state) => {
-      state.token = null;
-      state.userName = null;
+      state.token = null
+      state.user = null
 
-      // ✅ чистим
-      localStorage.removeItem("token");
-      localStorage.removeItem("user_name");
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
     },
   },
-});
+})
 
-export const { setCredentials, logout } = authSlice.actions;
-export const authReducer = authSlice.reducer;
+export const { setCredentials, logout } = authSlice.actions
+export const authReducer = authSlice.reducer

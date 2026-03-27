@@ -20,10 +20,15 @@ export const useLogin = () => {
     try {
       const data = await authService.login({ username, password })
 
-      dispatch(setCredentials(data))
+      dispatch(
+        setCredentials({
+          token: data.token,
+          user: data.user,
+        })
+      )
 
       navigate("/dashboard")
-    } catch (err: unknown) {
+    } catch (err) {
       console.error("❌ Login error:", err)
       setError("Неверный логин или пароль")
     } finally {
@@ -34,6 +39,6 @@ export const useLogin = () => {
   return {
     login,
     isLoading,
-    error
+    error,
   }
 }
