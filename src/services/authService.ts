@@ -1,4 +1,4 @@
-import { apiFetch } from './../app/services/apiFetch';
+import { apiFetch } from '@/app/services/apiFetch';
 
 const API_URL = `${import.meta.env.VITE_SITE_URL}/wp-json/custom/v1`
 

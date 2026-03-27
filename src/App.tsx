@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { useEffect } from "react"
 
 import { useAppSelector } from "./app/hooks"
+import { useAuthInit } from "@/hooks/useAuthInit"
 
 import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary"
 import { ModalRedirectWrapper } from "./components/ModalRedirectWrapper"
@@ -23,15 +24,18 @@ import WooCommerceTest from "./components/WooCommerceTest/WooCommerceTest"
 import { StatsPage } from "./pages/dashboard/stats/StatsPage"
 import ProfilePage from "./pages/dashboard/profile/pages/ProfilePage"
 
-
-
 import NotFound from "./pages/NotFound"
 
-// Проверка авторизации
+// 🔐 НОРМАЛЬНЫЙ Protected Route
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
-  const token = useAppSelector((s) => s.auth.token)
+  const { token, user } = useAppSelector((s) => s.auth)
 
-  return token ? children : <Navigate to="/login" replace />
+  // ❗ проверяем и token и user
+  if (!token || !user) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
 }
 
 // редирект на главную с query параметром
@@ -46,6 +50,13 @@ const ModalRedirect = ({ modal }: { modal: string }) => {
 }
 
 function App() {
+  const { isAuthChecked } = useAuthInit()
+
+  // ⛔ пока не проверили auth — ничего не рендерим
+  if (!isAuthChecked) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>
+  }
+
   return (
     <ErrorBoundary>
       <Toast />
@@ -104,18 +115,12 @@ function App() {
               </PrivateRoute>
             }
           >
-
             <Route index element={<Navigate to="orders" />} />
-
             <Route path="orders" element={<OrdersPage />} />
-
             <Route path="products" element={<ProductsPage />} />
-
             <Route path="customers" element={<CustomersPage />} />
             <Route path="stats" element={<StatsPage />} />
             <Route path="profile" element={<ProfilePage />} />
-
-
           </Route>
 
           {/* 404 */}
