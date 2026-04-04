@@ -22,35 +22,49 @@ export const useProducts = (searchQuery: string) => {
   const [updateProductOrder] =
     useUpdateProductOrderMutation()
 
+  // 🔥 FIX 1 — убрали params
   const { data: categories } =
-    useGetProductCategoriesQuery({ per_page: 100 })
+    useGetProductCategoriesQuery()
 
+  // 🔥 FIX 2 — убрали params
   const {
     data: productsData,
     isLoading: productsLoading
-  } = useGetProductsQuery({
-    search: searchQuery,
-    per_page: 100,
-    status:
-      selectedStatusFilter === "all"
-        ? "all" // ✅ фикс
-        : selectedStatusFilter
-  })
+  } = useGetProductsQuery()
 
-  // ✅ фикс типа
   const allProducts: Product[] = productsData || []
 
+  // 🔥 поиск + фильтр теперь на фронте
   const products = useMemo(() => {
 
-    if (!selectedCategoryFilter) return allProducts
+    let filtered = allProducts
 
-    return allProducts.filter((product) =>
-      product.categories?.some(
-        cat => cat.id === selectedCategoryFilter
+    // 🔍 поиск
+    if (searchQuery) {
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    )
+    }
 
-  }, [allProducts, selectedCategoryFilter])
+    // 📦 статус
+    if (selectedStatusFilter !== "all") {
+      filtered = filtered.filter(
+        p => p.status === selectedStatusFilter
+      )
+    }
+
+    // 📂 категория
+    if (selectedCategoryFilter) {
+      filtered = filtered.filter((product) =>
+        product.categories?.some(
+          cat => cat.id === selectedCategoryFilter
+        )
+      )
+    }
+
+    return filtered
+
+  }, [allProducts, searchQuery, selectedStatusFilter, selectedCategoryFilter])
 
   const sortedProducts = useMemo(() => {
 

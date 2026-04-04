@@ -1,42 +1,50 @@
-// базовый API
+// ===============================
+// BASE
+// ===============================
 export { baseApi } from "./base/baseApi"
-// ===== Auth =====
+
+// ===============================
+// AUTH
+// ===============================
 export {
   useGetMeQuery,
   useLazyGetMeQuery
 } from "./auth/auth.api"
 
-
-// ===== Orders =====
+// ===============================
+// ORDERS
+// ===============================
 export {
   useGetOrdersQuery,
   useGetOrderQuery,
-  useCreateOrderMutation, // ✅ ДОБАВИТЬ
+  useCreateOrderMutation,
   useUpdateOrderStatusMutation,
-  useUpdateOrderMutation
 } from "./orders/orders.api"
 
-
-// ===== Products =====
+// ===============================
+// PRODUCTS (🔥 ПОЛНЫЙ ФИКС)
+// ===============================
 export {
   useGetProductsQuery,
-  useGetProductQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
+  useDeleteProductMutation,
   useUpdateProductOrderMutation,
   useGetProductCategoriesQuery
 } from "./products/products.api"
 
-
-// ===== Customers =====
+// ===============================
+// CUSTOMERS
+// ===============================
 export {
   useGetCustomersQuery,
   useGetAllCustomersQuery,
   useGetCustomerQuery
 } from "./customers/customers.api"
 
-
-// ===== Analytics =====
+// ===============================
+// ANALYTICS
+// ===============================
 export {
   useGetStatsQuery,
   useGetAnalyticsQuery,
@@ -44,14 +52,16 @@ export {
   useGetAnalyticsProductsQuery
 } from "./analytics/analytics.api"
 
-
-// ===== WordPress Media =====
+// ===============================
+// MEDIA
+// ===============================
 export {
   useUploadImageMutation
 } from "./wordpress/media.api"
 
-
-// ===== Profile =====
+// ===============================
+// PROFILE
+// ===============================
 export {
   useGetProfileQuery,
   useUpdateProfileMutation

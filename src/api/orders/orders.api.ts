@@ -6,53 +6,30 @@ export const ordersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // =========================
-    // GET ORDERS (🔥 ОБНОВЛЁН)
+    // GET ORDERS (CUSTOM API)
     // =========================
     getOrders: builder.query<
       { data: Order[]; totalPages: number },
       {
-        status?: string
-        search?: string
-        per_page?: number
-        orderby?: string
-        order?: string
         page?: number
       }
     >({
 
-      query: ({
-        status,
-        search = "",
-        per_page = 15,
-        orderby = "date",
-        order = "desc",
-        page = 1
-      }) => {
+      query: ({ page = 1 }) => {
 
         const params = new URLSearchParams({
-          per_page: per_page.toString(),
           page: page.toString(),
-          orderby,
-          order,
-          ...(status && status !== "all" ? { status } : {}),
-          ...(search ? { search } : {})
         })
 
         return {
-          url: `wc/v3/orders?${params.toString()}`,
-          credentials: "omit"
+          url: `custom/v1/orders?${params.toString()}`,
         }
       },
 
-      // 🔥 ВАЖНО: достаём totalPages из headers
-      transformResponse: (response: Order[], meta) => {
-        const totalPages = Number(
-          meta?.response?.headers.get("X-WP-TotalPages") || 1
-        )
-
+      transformResponse: (response: any[]) => {
         return {
           data: response,
-          totalPages
+          totalPages: 1, // пока у тебя нет пагинации на backend
         }
       },
 
@@ -66,8 +43,7 @@ export const ordersApi = baseApi.injectEndpoints({
     getOrder: builder.query<Order, number>({
 
       query: (id) => ({
-        url: `wc/v3/orders/${id}`,
-        credentials: "omit"
+        url: `custom/v1/orders/${id}`, // 👉 позже сделаем endpoint
       }),
 
       providesTags: (_result, _error, id) => [
@@ -77,15 +53,14 @@ export const ordersApi = baseApi.injectEndpoints({
     }),
 
     // =========================
-    // CREATE ORDER
+    // CREATE ORDER (если добавишь)
     // =========================
     createOrder: builder.mutation<Order, any>({
 
       query: (body) => ({
-        url: `wc/v3/orders`,
+        url: `custom/v1/orders`,
         method: "POST",
         body,
-        credentials: "omit"
       }),
 
       invalidatesTags: ["Orders"]
@@ -101,34 +76,14 @@ export const ordersApi = baseApi.injectEndpoints({
     >({
 
       query: ({ id, status }) => ({
-        url: `wc/v3/orders/${id}`,
+        url: `custom/v1/orders/${id}`,
         method: "PUT",
         body: { status },
-        credentials: "omit"
       }),
 
       invalidatesTags: ["Orders", "Order"]
 
     }),
-
-    // =========================
-    // UPDATE ORDER
-    // =========================
-    updateOrder: builder.mutation<
-      Order,
-      { id: number } & Partial<Order>
-    >({
-
-      query: ({ id, ...body }) => ({
-        url: `wc/v3/orders/${id}`,
-        method: "PUT",
-        body,
-        credentials: "omit"
-      }),
-
-      invalidatesTags: ["Orders", "Order"]
-
-    })
 
   }),
 
@@ -141,5 +96,4 @@ export const {
   useGetOrderQuery,
   useCreateOrderMutation,
   useUpdateOrderStatusMutation,
-  useUpdateOrderMutation
 } = ordersApi

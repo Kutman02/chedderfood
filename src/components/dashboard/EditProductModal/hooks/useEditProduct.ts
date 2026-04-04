@@ -33,15 +33,15 @@ export const useEditProduct = ({
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
+  // 🔥 FIX — без параметров
   const { data: categories } =
-    useGetProductCategoriesQuery({ per_page: 100 })
+    useGetProductCategoriesQuery()
 
   const [updateProduct] = useUpdateProductMutation()
   const [uploadImage] = useUploadImageMutation()
 
   const stripHtmlTags = (html: string) => {
     if (!html) return ""
-
     const tmp = document.createElement("div")
     tmp.innerHTML = html
     return tmp.textContent || ""
@@ -54,8 +54,8 @@ export const useEditProduct = ({
     setName(product.name || "")
     setDescription(stripHtmlTags(product.description || ""))
 
-    setRegularPrice(product.regular_price || "")
-    setSalePrice(product.sale_price || "")
+    setRegularPrice(product.price || "")
+    setSalePrice("")
 
     setSelectedCategory(product.categories?.[0]?.id || null)
 
@@ -67,18 +67,12 @@ export const useEditProduct = ({
       setImages(
         product.images.map(img => ({
           preview: img.src,
-          id: img.id.toString(),
-          imageId: img.id
+          id: img.id?.toString() || crypto.randomUUID()
         }))
       )
     }
 
-    const tags = product.tags || []
-
-    if (tags.some(t => t.slug === "hit")) setProductStatus("hit")
-    else if (tags.some(t => t.slug === "new")) setProductStatus("new")
-    else if (tags.some(t => t.slug === "sale")) setProductStatus("sale")
-    else setProductStatus("none")
+    setProductStatus("none") // 🔥 убрали tags
 
   }, [product, isOpen])
 
@@ -89,7 +83,7 @@ export const useEditProduct = ({
     const newImages: ImagePreview[] = files.map(file => ({
       file,
       preview: URL.createObjectURL(file),
-      id: crypto.randomUUID() // ✅ лучше чем Math.random
+      id: crypto.randomUUID()
     }))
 
     setImages(prev => [...prev, ...newImages])
@@ -110,17 +104,47 @@ export const useEditProduct = ({
     })
   }
 
+  /* ===============================
+     UPLOAD IMAGES (🔥 FIX)
+  =============================== */
+
+  const uploadImages = async () => {
+
+    const urls: string[] = []
+
+    for (const img of images) {
+
+      // уже URL
+      if (!img.file && img.preview) {
+        urls.push(img.preview)
+        continue
+      }
+
+      if (!img.file) continue
+
+      const formData = new FormData()
+      formData.append("file", img.file)
+
+      const res = await uploadImage(formData).unwrap() as { url: string }
+
+      if (res?.url) {
+        urls.push(res.url)
+      }
+    }
+
+    return urls
+  }
+
+  /* ===============================
+     SUBMIT (🔥 ГЛАВНЫЙ ФИКС)
+  =============================== */
+
   const handleSubmit = async (customDescription?: string) => {
 
     if (!product) return
 
-    if (!name || !selectedCategory || images.length === 0 || !regularPrice) {
+    if (!name || !selectedCategory || !regularPrice) {
       alert("Заполните обязательные поля")
-      return
-    }
-
-    if (weight && (isNaN(parseFloat(weight)) || parseFloat(weight) < 0)) {
-      alert("Вес должен быть положительным числом")
       return
     }
 
@@ -128,59 +152,28 @@ export const useEditProduct = ({
 
     try {
 
-      const imageIds: number[] = []
-
-      for (const image of images) {
-
-        if (image.imageId) {
-          imageIds.push(image.imageId)
-          continue
-        }
-
-        if (!image.file) continue
-
-        const formData = new FormData()
-        formData.append("file", image.file, image.file.name)
-
-        const uploadResult = await uploadImage(formData).unwrap()
-
-        if (uploadResult?.id) {
-          imageIds.push(uploadResult.id)
-        }
-
-      }
-
-      const tags = productStatus === "none"
-        ? []
-        : [{ name: productStatus, slug: productStatus }]
+      const imageUrls = await uploadImages()
 
       const finalDescription = customDescription ?? description
 
-      const productData: Record<string, unknown> = {
+      await updateProduct({
+
+        id: product.id,
 
         name,
 
+        price: salePrice || regularPrice, // 🔥 ключ
+
+        category_id: selectedCategory,
+
         description: finalDescription,
-        short_description: finalDescription,
 
-        categories: [{ id: selectedCategory }],
-
-        images: imageIds.map(id => ({ id })),
-
-        regular_price: regularPrice,
-
-        status: isHidden ? "draft" : "publish",
+        images: imageUrls,
 
         weight: weight || "",
 
-        tags
-      }
+        status: isHidden ? "draft" : "publish"
 
-      productData.sale_price = salePrice || ""
-
-      await updateProduct({
-        id: product.id,
-        ...productData
       }).unwrap()
 
       onClose()

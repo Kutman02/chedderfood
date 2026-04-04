@@ -1,7 +1,7 @@
 import { baseApi } from "../base/baseApi"
 import type { Product } from "@/types"
-
-type ProductStatus = "publish" | "draft" | "pending" | "private" | "all"
+import type { CreateProductPayload } from "@/types/api.types"
+import type { UpdateProductPayload } from "@/types/api.types"
 
 export const productsApi = baseApi.injectEndpoints({
 
@@ -10,151 +10,86 @@ export const productsApi = baseApi.injectEndpoints({
     // =========================
     // GET PRODUCTS
     // =========================
-    getProducts: builder.query<
-      Product[],
-      {
-        search?: string
-        per_page?: number
-        orderby?: string
-        order?: string
-        status?: ProductStatus
-      }
-    >({
-
-      query: ({
-        search = "",
-        per_page = 100,
-        orderby = "date",
-        order = "desc",
-        status = "publish"
-      }) => {
-
-        const params = new URLSearchParams({
-          per_page: per_page.toString(),
-          orderby,
-          order,
-          ...(status !== "all" && { status }), // ✅ FIX
-          ...(search && { search })
-        })
-
-        return {
-          url: `wc/v3/products?${params.toString()}`,
-          credentials: "omit"
-        }
-
-      },
-
-      providesTags: ["Products"]
-
-    }),
-
-    // =========================
-    // GET SINGLE PRODUCT
-    // =========================
-    getProduct: builder.query<Product, number>({
-
-      query: (id) => ({
-        url: `wc/v3/products/${id}`,
-        credentials: "omit"
+    getProducts: builder.query<Product[], void>({
+      query: () => ({
+        url: "custom/v1/products",
       }),
-
-      providesTags: (_result, _error, id) => [
-        { type: "Product", id }
-      ]
-
+      providesTags: ["Products"],
     }),
 
     // =========================
     // CREATE PRODUCT
     // =========================
-    createProduct: builder.mutation<Product, Record<string, unknown>>({
-
-      query: (productData) => ({
-        url: "wc/v3/products",
-        method: "POST",
-        body: productData,
-        credentials: "omit"
-      }),
-
-      invalidatesTags: ["Products"]
-
-    }),
+    createProduct: builder.mutation<Product, CreateProductPayload>({
+  query: (body) => ({
+    url: "custom/v1/products",
+    method: "POST",
+    body,
+  }),
+  invalidatesTags: ["Products"],
+}),
 
     // =========================
     // UPDATE PRODUCT
     // =========================
-    updateProduct: builder.mutation<
-      Product,
-      { id: number } & Record<string, unknown>
-    >({
+   updateProduct: builder.mutation<Product, UpdateProductPayload>({
+  query: ({ id, ...body }) => ({
+    url: `custom/v1/products/${id}`,
+    method: "PUT",
+    body,
+  }),
+  invalidatesTags: ["Products"],
+}),
 
-      query: ({ id, ...productData }) => ({
-        url: `wc/v3/products/${id}`,
-        method: "PUT",
-        body: productData,
-        credentials: "omit"
+    // =========================
+    // DELETE PRODUCT
+    // =========================
+    deleteProduct: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `custom/v1/products/${id}`,
+        method: "DELETE",
       }),
-
-      invalidatesTags: ["Products", "Product"]
-
+      invalidatesTags: ["Products"],
     }),
 
     // =========================
-    // UPDATE ORDER (menu_order)
+    // 🔥 UPDATE ORDER (drag & drop)
     // =========================
     updateProductOrder: builder.mutation<
-      Product,
+      any,
       { id: number; menu_order: number }
     >({
-
       query: ({ id, menu_order }) => ({
-        url: `wc/v3/products/${id}`,
+        url: `custom/v1/products/${id}`,
         method: "PUT",
         body: { menu_order },
-        credentials: "omit"
       }),
-
-      invalidatesTags: ["Products"]
-
+      invalidatesTags: ["Products"],
     }),
 
     // =========================
-    // GET CATEGORIES
+    // 🔥 GET CATEGORIES
     // =========================
-    getProductCategories: builder.query<any[], { per_page?: number }>({
-
-      query: ({ per_page = 100 }) => {
-
-        const params = new URLSearchParams({
-          per_page: per_page.toString()
-        })
-
-        return {
-          url: `wc/v3/products/categories?${params.toString()}`,
-          credentials: "omit"
-        }
-
-      },
-
-      providesTags: ["Products"]
-
-    })
+    getProductCategories: builder.query<any[], void>({
+      query: () => ({
+        url: "custom/v1/categories",
+      }),
+      providesTags: ["Products"],
+    }),
 
   }),
 
   overrideExisting: false
-
 })
 
 export const {
-
   useGetProductsQuery,
-  useGetProductQuery,
-
   useCreateProductMutation,
   useUpdateProductMutation,
-  useUpdateProductOrderMutation,
+  useDeleteProductMutation,
 
-  useGetProductCategoriesQuery
+  // 🔥 добавили
+  useUpdateProductOrderMutation,
+  useGetProductCategoriesQuery,
 
 } = productsApi

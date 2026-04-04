@@ -37,9 +37,8 @@ type Props = {
 }
 
 export const ProductsSection = ({
-  sortedProducts,
-
-  categories,
+  sortedProducts = [],
+  categories = [],
 
   selectedCategoryFilter,
   setSelectedCategoryFilter,
@@ -86,7 +85,7 @@ export const ProductsSection = ({
             Все товары
           </button>
 
-          {categories?.map((cat) => (
+          {categories.map((cat) => (
 
             <button
               key={cat.id}
@@ -103,8 +102,7 @@ export const ProductsSection = ({
           ))}
         </div>
 
-
-        {/* Фильтр видимости */}
+        {/* Фильтр статуса */}
 
         <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2">
 
@@ -147,7 +145,6 @@ export const ProductsSection = ({
 
       </div>
 
-
       {/* Нет товаров */}
 
       {sortedProducts.length === 0 && (
@@ -166,7 +163,6 @@ export const ProductsSection = ({
         </div>
       )}
 
-
       {/* Список товаров */}
 
       {sortedProducts.length > 0 && (
@@ -177,19 +173,12 @@ export const ProductsSection = ({
 
             <div
               key={product.id}
-
               draggable
-
               onDragStart={(e) => onDragStart(e, product.id)}
-
               onDragOver={onDragOver}
-
               onDrop={(e) => onDrop(e, product.id)}
-
               className={`relative ${
-                draggedProductId === product.id
-                  ? "opacity-50"
-                  : ""
+                draggedProductId === product.id ? "opacity-50" : ""
               }`}
             >
 
@@ -203,10 +192,8 @@ export const ProductsSection = ({
 
           ))}
 
-          <div className="col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-5 2xl:col-span-6 text-xs md:text-sm text-slate-400 text-center mt-6">
-
+          <div className="col-span-full text-xs md:text-sm text-slate-400 text-center mt-6">
             💡 Перетащите товары для изменения порядка отображения
-
           </div>
 
         </div>

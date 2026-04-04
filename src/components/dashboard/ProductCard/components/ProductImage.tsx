@@ -5,10 +5,19 @@ const SITE_URL = import.meta.env.VITE_SITE_URL
 
 export const ProductImage = ({ product }: { product: Product }) => {
 
-  const imageUrl =
-    product.images && product.images.length > 0
-      ? product.images[0].src
-      : null
+  // 🔥 безопасно достаём первую картинку
+  const rawSrc = product.images?.[0]?.src || ""
+
+  // 🔥 нормализуем URL (если относительный)
+  const imageUrl = rawSrc.startsWith("http")
+    ? rawSrc
+    : rawSrc
+    ? `${SITE_URL}${rawSrc}`
+    : ""
+
+  // 🔥 универсальный fallback
+  const fallback =
+    "https://via.placeholder.com/500x500?text=No+Image"
 
   return (
 
@@ -17,11 +26,10 @@ export const ProductImage = ({ product }: { product: Product }) => {
       {imageUrl ? (
         <img
           src={imageUrl}
-          alt={product.name}
+          alt={product.name || "product"}
           className="w-full h-full object-cover hover:scale-105 transition-transform"
           onError={(e) => {
-            (e.target as HTMLImageElement).src =
-              `${SITE_URL}/wp-content/uploads/2026/01/7c37a436b7677921ef8d6256cd482ffb1509cf54-1120x1120-1.webp`
+            (e.currentTarget as HTMLImageElement).src = fallback
           }}
         />
       ) : (
@@ -33,5 +41,4 @@ export const ProductImage = ({ product }: { product: Product }) => {
     </div>
 
   )
-
 }

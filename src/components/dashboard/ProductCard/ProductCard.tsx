@@ -1,8 +1,13 @@
 import type { Product } from "@/types"
 
-
-
-import { ProductImage, ProductBadges, ProductEditButton, ProductPrice, ProductTags, ProductMeta } from "./components"
+import {
+  ProductImage,
+  ProductBadges,
+  ProductEditButton,
+  ProductPrice,
+  ProductTags,
+  ProductMeta
+} from "./components"
 
 interface ProductCardProps {
   product: Product
@@ -18,6 +23,18 @@ export const ProductCard = ({
   dragHandleProps
 }: ProductCardProps) => {
 
+  // 🔥 SAFE PRODUCT (чтобы UI не падал)
+  const safeProduct: Product = {
+    ...product,
+    name: product.name || "Без названия",
+    price: product.price || "0",
+    regular_price: product.regular_price || product.price || "0",
+    sale_price: product.sale_price || "",
+    images: product.images || [],
+    categories: product.categories || [],
+    tags: product.tags || [],
+  }
+
   return (
 
     <div
@@ -28,13 +45,13 @@ export const ProductCard = ({
 
       <div className="relative">
 
-        <ProductImage product={product} />
+        <ProductImage product={safeProduct} />
 
-        <ProductBadges product={product} />
+        <ProductBadges product={safeProduct} />
 
         {onEdit && (
           <ProductEditButton
-            product={product}
+            product={safeProduct}
             onEdit={onEdit}
           />
         )}
@@ -43,20 +60,19 @@ export const ProductCard = ({
 
       <div className="p-3">
 
-        <ProductPrice product={product} />
+        <ProductPrice product={safeProduct} />
 
         <h3 className="font-bold text-sm text-black mb-1 line-clamp-2">
-          {product.name}
+          {safeProduct.name}
         </h3>
 
-        <ProductTags product={product} />
+        <ProductTags product={safeProduct} />
 
-        <ProductMeta product={product} />
+        <ProductMeta product={safeProduct} />
 
       </div>
 
     </div>
 
   )
-
 }

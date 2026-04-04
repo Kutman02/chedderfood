@@ -21,7 +21,7 @@ export const AddProductModal = ({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 p-2 md:p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-2 md:p-4">
 
       <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] md:max-h-[90vh] overflow-hidden flex flex-col">
 
@@ -34,7 +34,7 @@ export const AddProductModal = ({
 
             {/* LEFT — images */}
             <ImageUploader
-              images={product.images}
+              images={product.images || []}
               onSelect={product.handleImageSelect}
               onRemove={product.removeImage}
               fileInputRef={product.fileInputRef}
@@ -42,7 +42,7 @@ export const AddProductModal = ({
 
             {/* RIGHT — form */}
             <ProductForm
-              categories={product.categories}
+              categories={product.categories || []}
 
               name={product.name}
               setName={product.setName}
@@ -63,7 +63,7 @@ export const AddProductModal = ({
               setSelectedCategory={product.setSelectedCategory}
 
               isSubmitting={product.isSubmitting}
-              images={product.images}
+              images={product.images || []}
 
               onSubmit={product.handleSubmit}
             />
@@ -73,7 +73,6 @@ export const AddProductModal = ({
         </div>
 
       </div>
-
     </div>
   )
 }

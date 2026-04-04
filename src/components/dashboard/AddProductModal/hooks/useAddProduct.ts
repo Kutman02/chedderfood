@@ -33,9 +33,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-  const { data: categories } = useGetProductCategoriesQuery({
-    per_page: 100
-  })
+  const { data: categories } = useGetProductCategoriesQuery()
 
   const [createProduct] = useCreateProductMutation()
   const [uploadImage] = useUploadImageMutation()
@@ -51,28 +49,18 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     const newImages: ImagePreview[] = files.map(file => ({
       file,
       preview: URL.createObjectURL(file),
-      id: crypto.randomUUID() // ✅ безопаснее
+      id: crypto.randomUUID()
     }))
 
     setImages(prev => [...prev, ...newImages])
   }
 
-  /* ===============================
-     REMOVE IMAGE
-  =============================== */
-
   const removeImage = (id: string) => {
 
     setImages(prev => {
-
       const image = prev.find(img => img.id === id)
-
-      if (image) {
-        URL.revokeObjectURL(image.preview)
-      }
-
+      if (image) URL.revokeObjectURL(image.preview)
       return prev.filter(img => img.id !== id)
-
     })
   }
 
@@ -82,13 +70,8 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
   const validate = () => {
 
-    if (!name || !selectedCategory || images.length === 0 || !regularPrice) {
+    if (!name.trim() || !selectedCategory || !regularPrice) {
       alert("Заполните обязательные поля")
-      return false
-    }
-
-    if (weight && (isNaN(parseFloat(weight)) || parseFloat(weight) < 0)) {
-      alert("Вес должен быть положительным числом")
       return false
     }
 
@@ -101,24 +84,23 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
   const uploadImages = async () => {
 
-    const imageIds: number[] = []
+    const urls: string[] = []
 
     for (const image of images) {
 
-      if (!image.file) continue // ✅ safety
+      if (!image.file) continue
 
       const formData = new FormData()
-      formData.append("file", image.file, image.file.name)
+      formData.append("file", image.file)
 
-      const result = await uploadImage(formData).unwrap()
+      const result = await uploadImage(formData).unwrap() as { url: string }
 
-      if (result?.id) {
-        imageIds.push(result.id)
+      if (result?.url) {
+        urls.push(result.url)
       }
-
     }
 
-    return imageIds
+    return urls
   }
 
   /* ===============================
@@ -126,41 +108,28 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
   =============================== */
 
   const createNewProduct = async (
-    imageIds: number[],
+    imageUrls: string[],
     customDescription?: string
   ) => {
 
+    if (!selectedCategory) return
+
     const finalDescription = customDescription ?? description
 
-    const productData: Record<string, unknown> = {
+    await createProduct({
 
-      name,
+    name: name.trim(),
+  price: (salePrice || regularPrice).trim(),
+  category_id: selectedCategory,
+  description: finalDescription.trim(),
+  images: imageUrls as any, // 🔥 FIX
+  weight: weight || ""
 
-      type: "simple",
-      status: "publish",
-
-      categories: [{ id: selectedCategory }],
-
-      images: imageIds.map(id => ({ id })),
-
-      description: finalDescription,
-      short_description: finalDescription,
-
-      regular_price: regularPrice,
-
-      stock_status: "instock",
-
-      weight: weight || ""
-    }
-
-    // ✅ фикс: всегда отправляем поле
-    productData.sale_price = salePrice || ""
-
-    await createProduct(productData).unwrap()
+    }).unwrap()
   }
 
   /* ===============================
-     RESET FORM
+     RESET
   =============================== */
 
   const resetForm = () => {
@@ -192,9 +161,9 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
     try {
 
-      const imageIds = await uploadImages()
+      const imageUrls = await uploadImages()
 
-      await createNewProduct(imageIds, customDescription)
+      await createNewProduct(imageUrls, customDescription)
 
       resetForm()
       onClose()
@@ -210,12 +179,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     }
   }
 
-  /* ===============================
-     CLOSE MODAL
-  =============================== */
-
   const handleClose = () => {
-
     resetForm()
     onClose()
   }
