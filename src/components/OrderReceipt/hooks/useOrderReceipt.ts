@@ -1,36 +1,37 @@
-import { useState, useLayoutEffect } from "react"
-
-import { useGetPublicOrderQuery } from "@/app/services/publicApi"
+import { useLayoutEffect } from "react"
 
 import { useScrollLockStore } from "@/stores/scrollLockStore"
 
-import type { Product, OrderItem, PublicOrder, OrderMetaData } from "@/types"
+import type { Product, PublicOrder, OrderMetaData } from "@/types"
 
 import { formatDate } from "../utils/formatDate"
 
-export const useOrderReceipt = (orderData: PublicOrder, products: Product[]) => {
+export const useOrderReceipt = (
+  orderData: PublicOrder,
+  products: Product[]
+) => {
 
   const lockScroll = useScrollLockStore((s) => s.lock)
   const unlockScroll = useScrollLockStore((s) => s.unlock)
 
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const { data: latestOrder, refetch } = useGetPublicOrderQuery(
-    orderData.id.toString(),
-    {
-      pollingInterval: 30000,
-    }
-  )
+  /* ===============================
+     SCROLL LOCK
+  =============================== */
 
   useLayoutEffect(() => {
     lockScroll()
-
-    return () => {
-      unlockScroll()
-    }
+    return () => unlockScroll()
   }, [lockScroll, unlockScroll])
 
-  const order = latestOrder || orderData
+  /* ===============================
+     ORDER SOURCE
+  =============================== */
+
+  const order = orderData
+
+  /* ===============================
+     ORDER TYPE
+  =============================== */
 
   const getOrderType = () => {
     const type = order.meta_data?.find(
@@ -42,54 +43,73 @@ export const useOrderReceipt = (orderData: PublicOrder, products: Product[]) => 
 
   const orderType = getOrderType()
 
+  /* ===============================
+     SHIPPING
+  =============================== */
+
   const shippingInfo = {
-    method: order.shipping_lines?.[0]?.method_title || "Стандартная доставка",
+    method:
+      order.shipping_lines?.[0]?.method_title ||
+      "Стандартная доставка",
 
     address: `${
-      order.shipping.address_1 || order.billing.address_1
+      order.shipping?.address_1 || order.billing?.address_1 || ""
     }, ${
-      order.shipping.city || order.billing.city
+      order.shipping?.city || order.billing?.city || ""
     }`,
 
     cost: Number(order.shipping_total || 0),
 
-    status: order.shipping_status || "В обработке",
+    status: (order as any).shipping_status || "В обработке",
   }
 
   const shippingCost = Number(order.shipping_total || 0)
 
-  const subtotal = order.line_items.reduce(
-    (sum: number, item: OrderItem) => {
-      return sum + Number(item.total || 0)
-    },
+  /* ===============================
+     TOTALS (FIXED TS)
+  =============================== */
+
+  const subtotal = (order.line_items || []).reduce(
+    (sum, item) => sum + Number(item.total || 0),
     0
   )
 
   const total = Number(order.total || 0)
 
-  const SITE_URL = import.meta.env.VITE_SITE_URL
+  /* ===============================
+     PRODUCTS MAPPING (FIXED TS)
+  =============================== */
 
-  const orderItems = order.line_items.map((item: OrderItem) => {
-    const product = products.find((p) => p.id === item.product_id)
+  const SITE_URL = import.meta.env.VITE_SITE_URL || ""
+
+  const orderItems = (order.line_items || []).map((item) => {
+    const product = products.find(
+      (p) => p.id === item.product_id
+    )
 
     return {
       ...item,
+
+      // 🔥 фикс для optional id
+      id: item.id ?? item.product_id,
+
       name: product?.name || item.name,
-      image: product?.images?.[0]?.src || "/placeholder-image.jpg",
+
+      image:
+        product?.images?.[0]?.src ||
+        "/placeholder-image.jpg",
+
       total: Number(item.total || 0),
-      fallback: `${SITE_URL}/wp-content/uploads/2026/02/ChatGPT-Image-10-февр.-2026-г.-10_22_47.png`,
+
+      fallback: SITE_URL
+        ? `${SITE_URL}/wp-content/uploads/fallback.png`
+        : "/placeholder-image.jpg",
     }
   })
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-
-    try {
-      await refetch()
-    } finally {
-      setIsRefreshing(false)
-    }
-  }
+  /* ===============================
+     ACTIONS
+  =============================== */
 
   const handlePrint = () => {
     window.print()
@@ -104,14 +124,17 @@ export const useOrderReceipt = (orderData: PublicOrder, products: Product[]) => 
           url: window.location.href,
         })
       } catch (err) {
-        console.log("Отправка/share не удалась:", err)
+        console.log("Share error:", err)
       }
     }
   }
 
+  /* ===============================
+     RETURN
+  =============================== */
+
   return {
     order,
-    latestOrder,
 
     orderType,
 
@@ -125,9 +148,6 @@ export const useOrderReceipt = (orderData: PublicOrder, products: Product[]) => 
 
     formatDate,
 
-    isRefreshing,
-
-    handleRefresh,
     handlePrint,
     handleShare,
   }

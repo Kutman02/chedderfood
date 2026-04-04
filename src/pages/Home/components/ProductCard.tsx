@@ -14,20 +14,50 @@ interface ProductCardProps {
   onClick: () => void;
 }
 
-export const ProductCard = ({ product, productIndex, onClick }: ProductCardProps) => {
+export const ProductCard = ({
+  product,
+  productIndex,
+  onClick,
+}: ProductCardProps) => {
   const dispatch = useAppDispatch();
   const cart = useAppSelector((s) => s.cart.items);
 
+  /* =========================
+     CART
+  ========================= */
+
 const cartCount = cart[product.id]?.quantity || 0;
   const handleAddToCart = () => {
-dispatch(addToCartAction(product));  };
+    dispatch(addToCartAction(product));
+  };
 
-  const removeFromCart = () => {
+  const handleRemoveFromCart = () => {
     dispatch(removeFromCartAction(product.id));
   };
 
-  const productImage = product.images?.[0]?.src || "/placeholder-image.jpg";
+  /* =========================
+     DATA SAFE (Store API)
+  ========================= */
+
+  const productImage =
+    Array.isArray(product.images) && product.images.length > 0
+      ? product.images[0].src
+      : "/placeholder-image.jpg";
+
   const productPrice = product.sale_price || product.price || "0";
+
+  const productTags = Array.isArray(product.tags)
+    ? product.tags.slice(0, 2)
+    : [];
+
+  const isOutOfStock = product.stock_status === "outofstock";
+
+  const productStatus = getProductStatus(product);
+  const StatusIcon = productStatus?.icon;
+
+  /* =========================
+     DISCOUNT
+  ========================= */
 
   let discountPercent: number | null = null;
 
@@ -35,17 +65,21 @@ dispatch(addToCartAction(product));  };
     const regular = parseFloat(product.regular_price);
     const sale = parseFloat(product.sale_price);
 
-    if (Number.isFinite(regular) && regular > 0 && Number.isFinite(sale) && sale < regular) {
+    if (
+      Number.isFinite(regular) &&
+      regular > 0 &&
+      Number.isFinite(sale) &&
+      sale < regular
+    ) {
       discountPercent = Math.round((1 - sale / regular) * 100);
     }
   }
 
-  const isOutOfStock = product.stock_status && product.stock_status !== "instock";
-  const productTags = product.tags?.slice(0, 2) ?? [];
-  const productStatus = getProductStatus(product);
-  const StatusIcon = productStatus?.icon;
-
   const staggerClass = `animate-stagger-${(productIndex % 4) + 1}`;
+
+  /* =========================
+     RENDER
+  ========================= */
 
   return (
     <div
@@ -86,7 +120,10 @@ dispatch(addToCartAction(product));  };
         )}
 
         {/* CART BUTTON */}
-        <div className="absolute bottom-2 right-2" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="absolute bottom-2 right-2"
+          onClick={(e) => e.stopPropagation()}
+        >
           {cartCount === 0 ? (
             <div
               className="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-110 transition cursor-pointer"
@@ -97,7 +134,8 @@ dispatch(addToCartAction(product));  };
           ) : (
             <div className="bg-white rounded-full shadow-md flex items-center gap-1 px-1 py-1">
               <button
-                onClick={removeFromCart}
+                onClick={handleRemoveFromCart}
+                aria-label=" Remove from cart"
                 className="w-6 h-6 flex items-center justify-center hover:bg-orange-50 rounded-full"
               >
                 <FaMinus className="text-orange-500" size={10} />
@@ -109,6 +147,7 @@ dispatch(addToCartAction(product));  };
 
               <button
                 onClick={handleAddToCart}
+                aria-label="Add to cart"
                 className="w-6 h-6 flex items-center justify-center hover:bg-orange-50 rounded-full"
               >
                 <FaPlus className="text-orange-500" size={10} />

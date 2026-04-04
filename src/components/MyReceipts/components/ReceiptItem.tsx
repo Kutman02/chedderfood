@@ -1,4 +1,3 @@
-import { useGetPublicOrderQuery } from "@/app/services/publicApi"
 import type { ReceiptData } from "@/types"
 import { getOrderStatus } from "../utils/getOrderStatus"
 import { OrderProgress } from "./OrderProgress"
@@ -11,7 +10,6 @@ interface ReceiptItemProps {
 
 const getOrderBorder = (status: string) => {
   switch (status) {
-
     case "pending":
       return "border-2 border-yellow-400 animate-pulse"
 
@@ -43,17 +41,16 @@ export const ReceiptItem = ({
   onView
 }: ReceiptItemProps) => {
 
-  const { data: latestOrder } =
-    useGetPublicOrderQuery(receipt.id.toString(), {
-      pollingInterval: 15000
-    })
+  const currentOrderData = receipt
 
-  const currentOrderData = latestOrder || receipt
   const status = getOrderStatus(currentOrderData.status)
 
   const canDelete =
     currentOrderData.status === "cancelled" ||
     currentOrderData.status === "completed"
+
+  const itemsCount =
+    (currentOrderData.line_items || []).length
 
   return (
     <div
@@ -63,7 +60,7 @@ export const ReceiptItem = ({
         p-5
         shadow-sm
         hover:shadow-md
-        hover:-translate-y-2px
+        hover:-translate-y-1
         transition
         flex
         flex-col
@@ -72,10 +69,7 @@ export const ReceiptItem = ({
         ${getOrderBorder(currentOrderData.status)}
       `}
     >
-
-      {/* Header */}
       <div className="flex items-start justify-between">
-
         <div>
           <h3 className="font-semibold text-lg text-slate-800">
             Заказ #{receipt.id}
@@ -98,12 +92,10 @@ export const ReceiptItem = ({
         >
           {status.label}
         </span>
-
       </div>
 
       <OrderProgress status={currentOrderData.status} />
 
-      {/* Info */}
       <div className="text-sm text-slate-600 space-y-1">
 
         {currentOrderData.total && (
@@ -115,18 +107,17 @@ export const ReceiptItem = ({
           </p>
         )}
 
-        {currentOrderData.items?.length > 0 && (
+        {itemsCount > 0 && (
           <p>
             Товаров:{" "}
             <span className="font-medium">
-              {currentOrderData.items.length}
+              {itemsCount}
             </span>
           </p>
         )}
 
       </div>
 
-      {/* Actions */}
       <div className="flex gap-2 pt-2">
 
         <button
@@ -165,7 +156,6 @@ export const ReceiptItem = ({
         )}
 
       </div>
-
     </div>
   )
 }

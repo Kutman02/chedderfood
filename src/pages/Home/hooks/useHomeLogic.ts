@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { normalizeProduct } from "@/utils/normalizeProduct";
 
 import {
   useGetPublicProductsQuery,
@@ -20,7 +21,7 @@ import {
   closeCart,
 } from "../../../app/slices/uiSlice";
 
-import type { Product, Category } from "../../../types";
+import type { Product } from "../../../types";
 
 export const useHomeLogic = () => {
   const dispatch = useAppDispatch();
@@ -34,102 +35,144 @@ export const useHomeLogic = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // API
-  const { data: products, isLoading: productsLoading } =
-    useGetPublicProductsQuery({
-      per_page: 100,
-      status: "publish",
-    });
+  /* =========================
+     API
+  ========================= */
 
-  const { data: categories, isLoading: categoriesLoading } =
-    useGetPublicProductCategoriesQuery({
-      per_page: 100,
-    });
+  const {
+    data: products = [],
+    isLoading: productsLoading,
+    error: productsError,
+  } = useGetPublicProductsQuery({
+    per_page: 100,
+  });
 
-  // Группировка товаров
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useGetPublicProductCategoriesQuery({
+    per_page: 100,
+  });
+
+  /* =========================
+     DEBUG
+  ========================= */
+
+  useEffect(() => {
+    console.log("=== DEBUG API ===");
+    console.log("products:", products);
+    console.log("categories:", categories);
+    console.log("productsError:", productsError);
+    console.log("categoriesError:", categoriesError);
+  }, [products, categories, productsError, categoriesError]);
+
+  /* =========================
+     NORMALIZATION
+  ========================= */
+
+  const normalizedProducts = useMemo(() => {
+    return products.map(normalizeProduct);
+  }, [products]);
+
+  /* =========================
+     GROUPING
+  ========================= */
+
   const productsByCategory = useMemo(() => {
-    if (!products || !categories) return {};
+    const grouped: Record<number, Product[]> = {};
 
-    const grouped: { [key: number]: Product[] } = {};
+    normalizedProducts.forEach((product) => {
+      if (!product.categories?.length) return;
 
-    categories.forEach((category: Category) => {
-      grouped[category.id] = [];
-    });
-
-    products.forEach((product: Product) => {
-      if (product.categories?.length) {
-        const category = product.categories[0];
-
-        if (grouped[category.id]) {
-          grouped[category.id].push(product);
+      product.categories.forEach((cat) => {
+        if (!grouped[cat.id]) {
+          grouped[cat.id] = [];
         }
-      }
+
+        grouped[cat.id].push(product);
+      });
     });
 
+    // сортировка
     Object.keys(grouped).forEach((id) => {
       grouped[Number(id)].sort((a, b) => {
-        const orderA = a.menu_order || 0;
-        const orderB = b.menu_order || 0;
-
-        return orderA - orderB;
+        return (a.menu_order || 0) - (b.menu_order || 0);
       });
     });
 
     return grouped;
-  }, [products, categories]);
+  }, [normalizedProducts]);
 
-  // cart
- const addToCart = (product: Product) => {
-  dispatch(addToCartAction(product));
-};
+  /* =========================
+     DEBUG GROUPING
+  ========================= */
+
+  useEffect(() => {
+    console.log("=== DEBUG GROUPED ===");
+    console.log("productsByCategory:", productsByCategory);
+  }, [productsByCategory]);
+
+  /* =========================
+     CART
+  ========================= */
+
+  const addToCart = (product: Product) => {
+    dispatch(addToCartAction(product));
+  };
 
   const removeFromCart = (productId: number) => {
     dispatch(removeFromCartAction(productId));
   };
 
- const cartCount = useMemo(() => {
-  return Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
-}, [cart]);
+  const cartCount = useMemo(() => {
+    return Object.values(cart).reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
+  }, [cart]);
 
-  // URL sync
+  /* =========================
+     URL SYNC
+  ========================= */
+
   useEffect(() => {
     const modal = searchParams.get("modal");
     const productId = searchParams.get("productId");
 
-    // CART
-if (modal === "cart") {
-  dispatch(openCart());
-  dispatch(closeReceipts());
-}
+    if (modal === "cart") {
+      dispatch(openCart());
+      dispatch(closeReceipts());
+    } else if (modal === "receipts" || modal === "mycheks") {
+      dispatch(closeCart());
+      dispatch(openReceipts());
+    } 
+    // 🔥 ВАЖНО: используем normalizedProducts
+    else if (modal === "product" && productId && normalizedProducts.length) {
+      const product = normalizedProducts.find(
+        (p) => p.id === Number(productId)
+      );
 
-// RECEIPTS
-else if (modal === "receipts" || modal === "mycheks") {
-  dispatch(closeCart());
-  dispatch(openReceipts());
-}
+      if (product) {
+        setSelectedProduct(product);
+        setIsModalOpen(true);
+      }
+    } else {
+      dispatch(closeCart());
+      dispatch(closeReceipts());
+      setIsModalOpen(false);
+      setSelectedProduct(null);
+    }
+  }, [searchParams, dispatch, normalizedProducts]);
 
-// PRODUCT
-else if (modal === "product" && productId && products) {
-  const product = products.find((p: Product) => p.id === Number(productId));
+  /* =========================
+     MODAL
+  ========================= */
 
-  if (product) {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  }
-}
-
-// NOTHING
-else {
-  dispatch(closeCart());
-  dispatch(closeReceipts());
-  setIsModalOpen(false);
-  setSelectedProduct(null);
-}
-  }, [searchParams, dispatch, products, isCartOpen, isReceiptsOpen]);
-
-  // открыть товар
   const openProductModal = (product: Product) => {
-    setSelectedProduct(product);
+    const normalized = normalizeProduct(product);
+
+    setSelectedProduct(normalized);
     setIsModalOpen(true);
 
     const params = new URLSearchParams(searchParams);
@@ -140,7 +183,6 @@ else {
     setSearchParams(params);
   };
 
-  // закрыть товар
   const closeProductModal = () => {
     setIsModalOpen(false);
     setSelectedProduct(null);
@@ -153,19 +195,21 @@ else {
     setSearchParams(params);
   };
 
-  // закрыть чеки
   const closeReceiptsHandler = () => {
     dispatch(closeReceipts());
 
     const params = new URLSearchParams(searchParams);
-
     params.delete("modal");
 
     setSearchParams(params);
   };
 
+  /* =========================
+     RETURN
+  ========================= */
+
   return {
-    products,
+    products: normalizedProducts, // 🔥 возвращаем уже нормализованные
     categories,
 
     productsLoading,

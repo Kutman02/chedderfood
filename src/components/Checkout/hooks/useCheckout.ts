@@ -1,6 +1,4 @@
-import { useState, useLayoutEffect } from "react"
-
-import { useCheckActiveOrdersCountQuery } from "@/app/services/publicApi"
+import { useState, useLayoutEffect, useEffect } from "react"
 
 import { useScrollLockStore } from "@/stores/scrollLockStore"
 
@@ -9,7 +7,6 @@ import { CIS_COUNTRIES } from "../constants/countries"
 import { useCartSummary } from "./useCartSummary"
 import { useCheckoutForm } from "./useCheckoutForm"
 import { useCreateOrder } from "./useCreateOrder"
-import { useEffect } from "react"
 
 interface UseCheckoutProps {
   onClose: () => void
@@ -35,13 +32,8 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
   const { create } = useCreateOrder()
 
-
   const lockScroll = useScrollLockStore((s) => s.lock)
   const unlockScroll = useScrollLockStore((s) => s.unlock)
-
-  const { data: activeOrdersData } = useCheckActiveOrdersCountQuery(undefined, {
-    pollingInterval: 0,
-  })
 
   /* ===============================
      UI STATE
@@ -59,7 +51,6 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
   const [phoneNumber, setPhoneNumber] = useState("")
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
 
-  // 👉 ВАЖНО: без useEffect
   const fullPhone = phoneNumber
     ? `${selectedCountry.code}${phoneNumber}`
     : ""
@@ -99,27 +90,26 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
   =============================== */
 
   const handleAutoFill = () => {
-  try {
-    const saved = localStorage.getItem("checkout_form")
-    if (!saved) return
+    try {
+      const saved = localStorage.getItem("checkout_form")
+      if (!saved) return
 
-    const parsed = JSON.parse(saved)
+      const parsed = JSON.parse(saved)
 
-    setFormData((prev) => ({
-      ...prev,
-      ...parsed,
-    }))
+      setFormData((prev) => ({
+        ...prev,
+        ...parsed,
+      }))
 
-    // синхронизация телефона (ВАЖНО)
-   if (parsed.phone?.startsWith(selectedCountry.code)) {
-  const phoneWithoutCode = parsed.phone.slice(selectedCountry.code.length)
-  setPhoneNumber(phoneWithoutCode)
-}
+      if (parsed.phone?.startsWith(selectedCountry.code)) {
+        const phoneWithoutCode = parsed.phone.slice(selectedCountry.code.length)
+        setPhoneNumber(phoneWithoutCode)
+      }
 
-  } catch (e) {
-    console.error("autofill error", e)
+    } catch (e) {
+      console.error("autofill error", e)
+    }
   }
-}
 
   /* ===============================
      SUBMIT
@@ -129,7 +119,11 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     if (e) e.preventDefault()
 
     if (!validateForm(phoneNumber)) return
-    if (cartItems.length === 0) return
+
+    if (cartItems.length === 0) {
+      setErrorMessage("Корзина пуста")
+      return
+    }
 
     setShowConfirmModal(true)
   }
@@ -144,16 +138,10 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     setErrorMessage("")
 
     try {
-
-      if ((activeOrdersData?.length || 0) >= 3) {
-        setErrorMessage("У вас уже есть 3 активных заказа")
-        return
-      }
-
       await create({
         formData: {
           ...formData,
-          phone: fullPhone, // 👉 здесь формируем телефон
+          phone: fullPhone,
         },
         cartItems,
         totalAmount,
@@ -178,14 +166,18 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     setErrorMessage("")
   }
 
-useEffect(() => {
-  if (!phoneNumber) return
+  /* ===============================
+     SYNC PHONE → FORM
+  =============================== */
 
-  setFormData((prev) => ({
-    ...prev,
-    phone: fullPhone,
-  }))
-}, [fullPhone, phoneNumber])
+  useEffect(() => {
+    if (!phoneNumber) return
+
+    setFormData((prev) => ({
+      ...prev,
+      phone: fullPhone,
+    }))
+  }, [fullPhone, phoneNumber, setFormData])
 
   /* ===============================
      RETURN
