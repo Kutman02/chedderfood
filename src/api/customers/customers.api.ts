@@ -1,13 +1,17 @@
 import { baseApi } from "../base/baseApi"
-import type { Customer, Order, CustomerAddress } from "@/types"
+import type {
+  Customer,
+  CustomerAddress
+} from "@/entities/customer/model/types"
 
 export const customersApi = baseApi.injectEndpoints({
 
   endpoints: (builder) => ({
 
-    // =========================
-    // GET REGISTERED CUSTOMERS
-    // =========================
+    /* =========================
+       GET REGISTERED CUSTOMERS
+    ========================= */
+
     getCustomers: builder.query<
       Customer[],
       {
@@ -43,65 +47,63 @@ export const customersApi = baseApi.injectEndpoints({
 
     }),
 
-    // =========================
-    // GET ALL CUSTOMERS
-    // =========================
+    /* =========================
+       GET ALL CUSTOMERS (🔥 FIXED)
+    ========================= */
+
     getAllCustomers: builder.query<Customer[], { per_page?: number }>({
 
       async queryFn({ per_page = 100 }, _queryApi, _extraOptions, baseQuery) {
 
         const result = await baseQuery({
-          url: `wc/v3/orders?per_page=${per_page}`,
-          credentials: "omit"
+          url: `custom/v1/orders?per_page=${per_page}`, // 🔥 твой API
+          credentials: "include"
         })
 
         if (result.error) {
           return { error: result.error }
         }
 
-        const orders = (result.data || []) as Order[]
+        const orders = (result.data || []) as any[]
 
         const customersMap = new Map<string, Customer>()
 
-        // ✅ ЖЕСТКАЯ нормализация под тип
-        const normalizeAddress = (addr?: Partial<CustomerAddress>): CustomerAddress => ({
-          first_name: addr?.first_name || "",
-          last_name: addr?.last_name || "",
-          email: addr?.email || "",
-          phone: addr?.phone || "",
-          address_1: addr?.address_1 || "",
-          address_2: addr?.address_2 || "",
-          city: addr?.city || "",
-          postcode: addr?.postcode || "",
-          country: addr?.country || "", // ✅ теперь всегда string
-          company: addr?.company || ""
+        const createAddress = (order: any): CustomerAddress => ({
+          first_name: order.customer_name || "",
+          last_name: "",
+          email: order.billing?.email || "",
+          phone: order.phone || "",
+          address_1: order.address || "",
+          address_2: "",
+          city: "",
+          postcode: "",
+          country: "",
+          company: ""
         })
 
         orders.forEach((order) => {
 
-          const billing = order.billing
+          const email = order.billing?.email || ""
+          const phone = order.phone || ""
 
-          if (!billing?.email) return
-
-          const key = billing.email
+          // 🔥 ключ: email → fallback phone → fallback id
+          const key = email || phone || `order-${order.id}`
 
           if (!customersMap.has(key)) {
 
             customersMap.set(key, {
 
-              id: String(order.id), // ✅ FIX
+              id: order.id,
 
-              first_name: billing.first_name || "",
-              last_name: billing.last_name || "",
-              email: billing.email,
+              first_name: order.customer_name || "Клиент",
+              last_name: "",
+              email,
 
-              username: billing.email.split("@")[0],
+              date_created: order.date_created || "",
+              date_modified: order.date_modified || "",
 
-              date_created: order.date_created,
-              date_modified: order.date_modified,
-
-              billing: normalizeAddress(billing),
-              shipping: normalizeAddress(order.shipping),
+              billing: createAddress(order),
+              shipping: createAddress(order),
 
               orders_count: 0,
               total_spent: "0",
@@ -116,14 +118,16 @@ export const customersApi = baseApi.injectEndpoints({
 
           customer.orders_count += 1
 
-          customer.total_spent = (
-            parseFloat(customer.total_spent) +
-            parseFloat(order.total || "0")
-          ).toString()
+          const prev = parseFloat(customer.total_spent || "0")
+          const current = parseFloat(order.total || "0")
+
+          customer.total_spent = (prev + current).toString()
 
         })
 
-        return { data: Array.from(customersMap.values()) }
+        return {
+          data: Array.from(customersMap.values())
+        }
 
       },
 
@@ -131,9 +135,10 @@ export const customersApi = baseApi.injectEndpoints({
 
     }),
 
-    // =========================
-    // GET SINGLE CUSTOMER
-    // =========================
+    /* =========================
+       GET SINGLE CUSTOMER
+    ========================= */
+
     getCustomer: builder.query<Customer, number>({
 
       query: (id) => ({

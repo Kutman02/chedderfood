@@ -5,9 +5,9 @@ import {
   useUpdateProductMutation,
   useUploadImageMutation
 } from "@/api"
-
-import type { ProductStatus } from "@/types"
+import type { ProductStatus } from "@/entities/product/model/types"
 import type { ImagePreview, UseEditProductProps } from "../types/editProduct.types"
+import type { ProductImage } from "@/entities/product/model/types"
 
 export const useEditProduct = ({
   product,
@@ -65,7 +65,7 @@ export const useEditProduct = ({
 
     if (product.images) {
       setImages(
-        product.images.map(img => ({
+        product.images.map((img: ProductImage) => ({
           preview: img.src,
           id: img.id?.toString() || crypto.randomUUID()
         }))

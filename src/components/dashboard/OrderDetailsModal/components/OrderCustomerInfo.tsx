@@ -1,5 +1,5 @@
 import { FaUser, FaPhone, FaCopy } from "react-icons/fa"
-import type { Order } from "@/types"
+import type { Order } from "@/entities/order/model/types"
 
 interface Props {
   order: Order
@@ -7,16 +7,33 @@ interface Props {
 
 export const OrderCustomerInfo = ({ order }: Props) => {
 
-  const firstName = order.billing?.first_name || ""
-  const lastName = order.billing?.last_name || ""
-  const phone = order.billing?.phone || ""
+  /* ===============================
+     SAFE DATA
+  =============================== */
 
-  const fullName = `${firstName} ${lastName}`.trim()
+  const name =
+    order.customer_name?.trim() || "Без имени"
 
-  const handleCopyPhone = () => {
+  const phone =
+    order.phone?.trim() || ""
+
+  /* ===============================
+     ACTIONS
+  =============================== */
+
+  const handleCopyPhone = async () => {
     if (!phone) return
-    navigator.clipboard.writeText(phone)
+
+    try {
+      await navigator.clipboard.writeText(phone)
+    } catch (err) {
+      console.error("Copy failed:", err)
+    }
   }
+
+  /* ===============================
+     RENDER
+  =============================== */
 
   return (
 
@@ -31,35 +48,41 @@ export const OrderCustomerInfo = ({ order }: Props) => {
         {/* Имя */}
         <div className="flex items-center gap-2 text-slate-900 font-semibold">
 
-          <FaUser className="text-slate-400" />
+          <FaUser className="text-slate-400 shrink-0" />
 
-          <span className="text-base">
-            {fullName || "Без имени"}
+          <span className="text-base font-medium text-right max-w-[60%] whitespace-pre-wrap">
+            {name}
           </span>
 
         </div>
 
         {/* Телефон */}
-        {phone && (
+        {phone ? (
 
-          <div className="flex items-center justify-between bg-slate-50 border rounded-lg px-3 py-2">
+          <div className="flex items-center justify-between gap-2 bg-slate-50 border rounded-lg px-3 py-2">
 
             <a
               href={`tel:${phone}`}
-              className="flex items-center gap-2 text-orange-600 font-bold"
+              className="flex items-center gap-2 text-orange-600 font-bold break-all"
             >
-              <FaPhone />
+              <FaPhone className="shrink-0" />
               {phone}
             </a>
 
             <button
               onClick={handleCopyPhone}
-              className="flex items-center gap-1 text-xs bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded"
+              className="flex items-center gap-1 text-xs bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded shrink-0"
             >
               <FaCopy />
               копировать
             </button>
 
+          </div>
+
+        ) : (
+
+          <div className="text-sm text-slate-400">
+            Телефон не указан
           </div>
 
         )}

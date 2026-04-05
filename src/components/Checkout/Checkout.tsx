@@ -1,66 +1,73 @@
-import React from "react";
-import { useSearchParams } from "react-router-dom";
+import React from "react"
+import { useSearchParams } from "react-router-dom"
 
-import { CartStep } from "@/components/Checkout/steps/CartStep";
-import { CheckoutStep } from "@/components/Checkout/steps/CheckoutStep";
+import { CartStep } from "@/components/Checkout/steps/CartStep"
+import { CheckoutStep } from "@/components/Checkout/steps/CheckoutStep"
+import { ConfirmOrderModal } from "@/components/Checkout/components"
 
-import { ConfirmOrderModal } from "@/components/Checkout/components";
+import type { Product } from "@/entities/product/model/types"
+import type { Order as PublicOrder } from "@/entities/order/model/types"
 
-import type { PublicOrder, Product, CartItem } from "@/types";
-import { useCheckout } from "@/components/Checkout/hooks/useCheckout";
+import { useCheckout } from "@/components/Checkout/hooks/useCheckout"
 
 /* ===============================
-   cartData тип
+   LOCAL TYPES
 =============================== */
 
-interface CartData {
-  items: CartItem[];
-  totalAmount: number;
-  totalItems: number;
-
-  onAdd: (product: Product) => void;
-  onRemove: (id: number) => void;
-  onClear: () => void;
-
-  siteUrl: string;
+type CartItem = {
+  id: number
+  product_id: number
+  name: string
+  price: number
+  quantity: number
+  image?: string
 }
 
-/* ===============================
-   PROPS
-=============================== */
+interface CartData {
+  items: CartItem[]
+  totalAmount: number
+  totalItems: number
+
+  onAdd: (product: Product) => void
+  onRemove: (id: number) => void
+  onClear: () => void
+
+  siteUrl: string
+}
 
 interface CheckoutProps {
-  onClose: () => void;
-  onShowReceipt?: (orderData: PublicOrder) => void;
+  onClose: () => void
+  onShowReceipt?: (orderData: PublicOrder) => void
 
-  cartData: CartData;
+  cartData: CartData
 }
 
 export const Checkout: React.FC<CheckoutProps> = ({
   onClose,
   cartData,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  const step = searchParams.get("step") || "cart";
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const step = searchParams.get("step") || "cart"
 
   /* ===============================
      NAVIGATION
   =============================== */
 
   const goToCheckout = () => {
-    const params = new URLSearchParams(searchParams);
-    params.set("modal", "cart");
-    params.set("step", "checkout");
-    setSearchParams(params);
-  };
+    const params = new URLSearchParams(searchParams)
+    params.set("modal", "cart")
+    params.set("step", "checkout")
+    setSearchParams(params)
+  }
 
   const goToCart = () => {
-    const params = new URLSearchParams(searchParams);
-    params.set("modal", "cart");
-    params.set("step", "cart");
-    setSearchParams(params);
-  };
+    const params = new URLSearchParams(searchParams)
+    params.set("modal", "cart")
+    params.set("step", "cart")
+    setSearchParams(params)
+  }
 
   /* ===============================
      CHECKOUT HOOK
@@ -68,7 +75,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
   const checkout = useCheckout({
     onClose,
-  });
+  })
 
   /* ===============================
      RENDER
@@ -80,7 +87,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
         open={checkout.showConfirmModal}
         formData={checkout.formData}
         orderType={checkout.orderType}
-        totalAmount={checkout.totalAmount}
+        totalAmount={Number(checkout.totalAmount || 0)} // 🔥 FIX
         errorMessage={checkout.errorMessage}
         isSubmitting={checkout.isSubmitting}
         onConfirm={checkout.handleConfirmOrder}
@@ -89,9 +96,6 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
       <div className="fixed inset-0 z-50 bg-white flex flex-col h-100dvh">
 
-        {/* ===============================
-            STEP: CART
-        =============================== */}
         {step === "cart" && (
           <CartStep
             items={cartData.items}
@@ -109,9 +113,6 @@ export const Checkout: React.FC<CheckoutProps> = ({
           />
         )}
 
-        {/* ===============================
-            STEP: CHECKOUT
-        =============================== */}
         {step === "checkout" && (
           <CheckoutStep
             onClose={onClose}
@@ -131,7 +132,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
             onToggleCountryDropdown={checkout.toggleCountryDropdown}
             onOrderTypeChange={checkout.setOrderType}
 
-            totalAmount={checkout.totalAmount}
+            totalAmount={Number(checkout.totalAmount || 0)} // 🔥 FIX
             cartItemsCount={cartData.items.length}
             isSubmitting={checkout.isSubmitting}
             onSubmit={checkout.handleSubmit}
@@ -142,5 +143,5 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
       </div>
     </>
-  );
-};
+  )
+}

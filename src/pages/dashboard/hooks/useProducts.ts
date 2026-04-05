@@ -6,7 +6,7 @@ import {
   useUpdateProductOrderMutation
 } from "@/api"
 
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 export const useProducts = (searchQuery: string) => {
 

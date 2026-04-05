@@ -1,8 +1,10 @@
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 export const ProductTags = ({ product }: { product: Product }) => {
 
-  const tags = product.tags?.slice(0, 2) ?? []
+  const tags = Array.isArray(product.tags)
+    ? product.tags.slice(0, 2)
+    : []
 
   if (tags.length === 0) return null
 
@@ -10,16 +12,20 @@ export const ProductTags = ({ product }: { product: Product }) => {
 
     <div className="flex flex-wrap gap-1 mb-1">
 
-      {tags.map(tag => (
+      {tags.map((tag: any, index: number) => {
 
-        <span
-          key={tag.id}
-          className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-[10px] font-bold"
-        >
-          {tag.name}
-        </span>
+        const key = tag?.id ?? `${tag?.name}-${index}`
+        const name = tag?.name || "Тег"
 
-      ))}
+        return (
+          <span
+            key={key}
+            className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-[10px] font-bold"
+          >
+            {name}
+          </span>
+        )
+      })}
 
     </div>
 

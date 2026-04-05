@@ -1,7 +1,6 @@
 import { baseApi } from "../base/baseApi"
-import type { Product } from "@/types"
-import type { CreateProductPayload } from "@/types/api.types"
-import type { UpdateProductPayload } from "@/types/api.types"
+import { normalizeProduct } from "@/entities/product/model/normalizeProduct"
+import type { Product } from "@/entities/product/model/types"
 
 export const productsApi = baseApi.injectEndpoints({
 
@@ -14,32 +13,47 @@ export const productsApi = baseApi.injectEndpoints({
       query: () => ({
         url: "custom/v1/products",
       }),
+
+      transformResponse: (res: any[]) =>
+        res.map(normalizeProduct),
+
       providesTags: ["Products"],
     }),
 
     // =========================
     // CREATE PRODUCT
     // =========================
-    createProduct: builder.mutation<Product, CreateProductPayload>({
-  query: (body) => ({
-    url: "custom/v1/products",
-    method: "POST",
-    body,
-  }),
-  invalidatesTags: ["Products"],
-}),
+    createProduct: builder.mutation<Product, any>({
+      query: (body) => ({
+        url: "custom/v1/products",
+        method: "POST",
+        body,
+      }),
+
+      transformResponse: (res: any) =>
+        normalizeProduct(res),
+
+      invalidatesTags: ["Products"],
+    }),
 
     // =========================
     // UPDATE PRODUCT
     // =========================
-   updateProduct: builder.mutation<Product, UpdateProductPayload>({
-  query: ({ id, ...body }) => ({
-    url: `custom/v1/products/${id}`,
-    method: "PUT",
-    body,
-  }),
-  invalidatesTags: ["Products"],
-}),
+    updateProduct: builder.mutation<
+      Product,
+      { id: number } & Record<string, any>
+    >({
+      query: ({ id, ...body }) => ({
+        url: `custom/v1/products/${id}`,
+        method: "PUT",
+        body,
+      }),
+
+      transformResponse: (res: any) =>
+        normalizeProduct(res),
+
+      invalidatesTags: ["Products"],
+    }),
 
     // =========================
     // DELETE PRODUCT
@@ -49,14 +63,29 @@ export const productsApi = baseApi.injectEndpoints({
         url: `custom/v1/products/${id}`,
         method: "DELETE",
       }),
+
       invalidatesTags: ["Products"],
     }),
 
     // =========================
-    // 🔥 UPDATE ORDER (drag & drop)
+    // GET CATEGORIES
+    // =========================
+    getProductCategories: builder.query<
+      { id: number; name: string }[],
+      void
+    >({
+      query: () => ({
+        url: "custom/v1/categories",
+      }),
+
+      providesTags: ["Products"],
+    }),
+
+    // =========================
+    // UPDATE ORDER (drag & drop)
     // =========================
     updateProductOrder: builder.mutation<
-      any,
+      Product,
       { id: number; menu_order: number }
     >({
       query: ({ id, menu_order }) => ({
@@ -64,22 +93,13 @@ export const productsApi = baseApi.injectEndpoints({
         method: "PUT",
         body: { menu_order },
       }),
-      invalidatesTags: ["Products"],
-    }),
 
-    // =========================
-    // 🔥 GET CATEGORIES
-    // =========================
-    getProductCategories: builder.query<any[], void>({
-      query: () => ({
-        url: "custom/v1/categories",
-      }),
-      providesTags: ["Products"],
+      invalidatesTags: ["Products"],
     }),
 
   }),
 
-  overrideExisting: false
+  overrideExisting: false,
 })
 
 export const {
@@ -87,9 +107,6 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
-
-  // 🔥 добавили
-  useUpdateProductOrderMutation,
   useGetProductCategoriesQuery,
-
+  useUpdateProductOrderMutation,
 } = productsApi

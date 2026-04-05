@@ -13,25 +13,51 @@ interface Props {
 
 export const ProfileHeader = ({ profile }: Props) => {
 
+  /* =========================
+     STATE
+  ========================= */
+
   const [preview, setPreview] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
 
   const [uploadImage] = useUploadImageMutation()
   const [updateProfile] = useUpdateProfileMutation()
 
-  // ✅ синхронизация preview при обновлении профиля
+  /* =========================
+     SYNC PROFILE → UI
+  ========================= */
+
   useEffect(() => {
     setPreview(profile.avatar_url || null)
   }, [profile.avatar_url])
 
-  const initials =
-    `${profile.first_name?.[0] || ""}${profile.last_name?.[0] || ""}`.toUpperCase()
+  /* =========================
+     DERIVED DATA
+  ========================= */
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const initials = (
+    `${profile.first_name?.[0] || ""}${profile.last_name?.[0] || ""}`
+  ).toUpperCase()
+
+  const fallbackInitial =
+    profile.username?.[0]?.toUpperCase() || "?"
+
+  const displayName =
+    profile.first_name ||
+    profile.display_name ||
+    profile.username
+
+  /* =========================
+     UPLOAD HANDLER
+  ========================= */
+
+  const handleUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
 
     const file = e.target.files?.[0]
     if (!file) return
 
-    // ✅ проверка типа файла
     if (!file.type.startsWith("image/")) {
       alert("Можно загружать только изображения")
       return
@@ -40,34 +66,41 @@ export const ProfileHeader = ({ profile }: Props) => {
     const formData = new FormData()
     formData.append("file", file)
 
+    setIsUploading(true)
+
     try {
 
       const res = await uploadImage(formData).unwrap()
 
-      const avatarUrl = res?.source_url || null
+      const avatarUrl =
+        res?.source_url ||
+        res?.guid?.rendered
 
-      // ✅ сразу показываем
+      if (!avatarUrl) {
+        throw new Error("No avatar URL")
+      }
+
+      // 🔥 optimistic UI
       setPreview(avatarUrl)
 
       await updateProfile({
         avatar_url: avatarUrl
       }).unwrap()
 
-      console.log("Обновленный профиль:", res)
-
     } catch (error) {
 
       console.error("Ошибка загрузки аватара", error)
       alert("Ошибка загрузки изображения")
 
+    } finally {
+      setIsUploading(false)
     }
 
   }
 
-  const displayName =
-    profile.first_name ||
-    profile.display_name ||
-    profile.username
+  /* =========================
+     RENDER
+  ========================= */
 
   return (
 
@@ -88,14 +121,19 @@ export const ProfileHeader = ({ profile }: Props) => {
 
           ) : (
 
-            initials || profile.username?.[0]?.toUpperCase()
+            initials || fallbackInitial
 
           )}
 
         </div>
 
         {/* Upload */}
-        <label className="absolute -bottom-1 -right-1 bg-white border rounded-full p-1 cursor-pointer text-xs shadow">
+        <label className={`
+          absolute -bottom-1 -right-1
+          bg-white border rounded-full p-1
+          text-xs shadow
+          ${isUploading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+        `}>
 
           📷
 
@@ -103,6 +141,7 @@ export const ProfileHeader = ({ profile }: Props) => {
             type="file"
             accept="image/*"
             onChange={handleUpload}
+            disabled={isUploading}
             className="hidden"
           />
 

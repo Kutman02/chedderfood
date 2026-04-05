@@ -1,4 +1,4 @@
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 export const ProductPrice = ({ product }: { product: Product }) => {
 

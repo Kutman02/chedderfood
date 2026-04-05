@@ -1,11 +1,11 @@
-import type { ReceiptData } from "@/types"
+import type { Order } from "@/entities/order/model/types"
 import { getOrderStatus } from "../utils/getOrderStatus"
 import { OrderProgress } from "./OrderProgress"
 
 interface ReceiptItemProps {
-  receipt: ReceiptData
+  receipt: Order
   onDelete: (id: number, status: string) => void
-  onView: (receipt: ReceiptData) => void
+  onView: (receipt: Order) => void
 }
 
 const getOrderBorder = (status: string) => {
@@ -41,16 +41,13 @@ export const ReceiptItem = ({
   onView
 }: ReceiptItemProps) => {
 
-  const currentOrderData = receipt
+  const statusValue = receipt.status || "pending"
 
-  const status = getOrderStatus(currentOrderData.status)
+  const status = getOrderStatus(statusValue)
 
-  const canDelete =
-    currentOrderData.status === "cancelled" ||
-    currentOrderData.status === "completed"
+  const canDelete = ["cancelled", "completed"].includes(statusValue)
 
-  const itemsCount =
-    (currentOrderData.line_items || []).length
+  const itemsCount = receipt.items?.length || 0
 
   return (
     <div
@@ -66,13 +63,13 @@ export const ReceiptItem = ({
         flex-col
         justify-between
         gap-4
-        ${getOrderBorder(currentOrderData.status)}
+        ${getOrderBorder(statusValue)}
       `}
     >
       <div className="flex items-start justify-between">
         <div>
           <h3 className="font-semibold text-lg text-slate-800">
-            Заказ #{receipt.id}
+            Заказ #{receipt.number ?? receipt.id}
           </h3>
 
           <p className="text-sm text-slate-500">
@@ -94,15 +91,15 @@ export const ReceiptItem = ({
         </span>
       </div>
 
-      <OrderProgress status={currentOrderData.status} />
+      <OrderProgress status={statusValue} />
 
       <div className="text-sm text-slate-600 space-y-1">
 
-        {currentOrderData.total && (
+        {receipt.total && (
           <p>
             Сумма:{" "}
             <span className="font-semibold text-orange-500">
-              {currentOrderData.total} сом
+              {receipt.total} сом
             </span>
           </p>
         )}
@@ -138,7 +135,7 @@ export const ReceiptItem = ({
 
         {canDelete && (
           <button
-            onClick={() => onDelete(receipt.id, currentOrderData.status)}
+            onClick={() => onDelete(receipt.id, statusValue)}
             className="
               flex-1
               border border-slate-200

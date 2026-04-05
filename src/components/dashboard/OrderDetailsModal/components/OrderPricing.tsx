@@ -1,5 +1,5 @@
 import { FaTruck } from "react-icons/fa"
-import type { Order } from "@/types"
+import type { Order } from "@/entities/order/model/types"
 
 interface Props {
   order: Order
@@ -7,9 +7,30 @@ interface Props {
 
 export const OrderPricing = ({ order }: Props) => {
 
-  const shipping = parseFloat(order.shipping_total || "0")
-  const total = parseFloat(order.total || "0")
-  const subtotal = total - shipping
+  /* ===============================
+     CALCULATIONS
+  =============================== */
+
+  const subtotal = order.items.reduce(
+    (sum, item) =>
+      sum + Number(item.price) * Number(item.quantity),
+    0
+  )
+
+  const total = Number(order.total)
+
+  // 🔥 fallback (пока нет shipping_total с backend)
+  const shipping = Math.max(total - subtotal, 0)
+
+  // 🔥 если добавишь в normalize → order.currency
+  const currency =
+    order.meta?.currency === "KGS"
+      ? "сом"
+      : "сом" // fallback (потом расширишь)
+
+  /* ===============================
+     RENDER
+  =============================== */
 
   return (
 
@@ -29,7 +50,7 @@ export const OrderPricing = ({ order }: Props) => {
           </span>
 
           <span className="font-bold text-slate-900">
-            {subtotal.toFixed(2)} {order.currency}
+            {subtotal.toFixed(0)} {currency}
           </span>
 
         </div>
@@ -40,12 +61,12 @@ export const OrderPricing = ({ order }: Props) => {
           <div className="flex justify-between items-center">
 
             <span className="text-sm font-semibold text-slate-600 flex items-center gap-2">
-              <FaTruck size={12}/>
+              <FaTruck size={12} />
               Доставка
             </span>
 
             <span className="font-bold text-slate-900">
-              {shipping.toFixed(2)} {order.currency}
+              {shipping.toFixed(0)} {currency}
             </span>
 
           </div>
@@ -60,7 +81,7 @@ export const OrderPricing = ({ order }: Props) => {
           </span>
 
           <span className="text-3xl font-black text-green-600">
-            {total.toFixed(2)} {order.currency}
+            {total.toFixed(0)} {currency}
           </span>
 
         </div>

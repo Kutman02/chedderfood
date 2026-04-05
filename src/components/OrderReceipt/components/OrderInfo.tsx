@@ -1,5 +1,5 @@
 import type { FC } from "react"
-import type { PublicOrder } from "@/types"
+import type { Order } from "@/entities/order/model/types"
 
 interface ShippingInfo {
   method: string
@@ -9,7 +9,7 @@ interface ShippingInfo {
 }
 
 interface OrderInfoProps {
-  order: PublicOrder
+  order: Order
   formatDate: (date: string) => string
   shippingInfo: ShippingInfo
 }
@@ -19,6 +19,7 @@ export const OrderInfo: FC<OrderInfoProps> = ({
   formatDate,
   shippingInfo,
 }) => {
+
   return (
     <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-6">
 
@@ -33,20 +34,23 @@ export const OrderInfo: FC<OrderInfoProps> = ({
         </p>
 
         <p className="text-sm text-slate-600">
-          {formatDate(order.date_created)}
+          {order.date_created
+            ? formatDate(order.date_created)
+            : "-"}
         </p>
 
       </div>
 
       <div className="space-y-4 text-sm">
 
+        {/* 🔥 У тебя нет payment_method → не выдумываем */}
         <div>
           <p className="text-slate-500">
-            Способ оплаты
+            Оплата
           </p>
 
           <p className="font-semibold text-slate-800">
-            {order.payment_method_title || "Оплата при получении"}
+            Наличные / При получении
           </p>
         </div>
 
@@ -62,11 +66,11 @@ export const OrderInfo: FC<OrderInfoProps> = ({
 
         <div>
           <p className="text-slate-500">
-            Адрес доставки
+            Адрес
           </p>
 
           <p className="font-semibold text-slate-800">
-            {shippingInfo.address}
+            {order.address || "Не указан"}
           </p>
         </div>
 

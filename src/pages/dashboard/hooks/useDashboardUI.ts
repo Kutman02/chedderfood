@@ -1,5 +1,7 @@
 import { useState } from "react"
-import type { Order, Product } from "@/types"
+
+import type { Order } from "@/entities/order/model/types"
+import type { Product } from "@/entities/product/model/types"
 
 type SearchSection = "orders" | "products" | "customers"
 
@@ -29,25 +31,37 @@ export const useDashboardUI = () => {
   const [selectedProduct, setSelectedProduct] =
     useState<Product | null>(null)
 
+  /* ===============================
+     ORDER MODAL (🔥 RAW DATA)
+  =============================== */
+
   const [orderDetailsModal, setOrderDetailsModal] = useState<{
     isOpen: boolean
-    order: Order | null
+    order: any | null // ❗ RAW backend
   }>({
     isOpen: false,
     order: null
   })
 
-  const handleViewDetails = (order: Order) => {
+  const handleViewDetails = (order: any) => {
     setOrderDetailsModal({
       isOpen: true,
       order
     })
   }
 
+  /* ===============================
+     PRODUCT EDIT
+  =============================== */
+
   const handleEditProduct = (product: Product) => {
     setSelectedProduct(product)
     setShowEditProductModal(true)
   }
+
+  /* ===============================
+     SEARCH PLACEHOLDER
+  =============================== */
 
   const getPlaceholder = (section: SearchSection) => {
 
@@ -64,9 +78,7 @@ export const useDashboardUI = () => {
 
       default:
         return "Поиск..."
-
     }
-
   }
 
   return {
@@ -99,7 +111,5 @@ export const useDashboardUI = () => {
     handleEditProduct,
 
     getPlaceholder
-
   }
-
 }

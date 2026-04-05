@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 
 import {
   useGetOrdersQuery,
@@ -6,6 +6,7 @@ import {
 } from "@/api"
 
 import { filterOrders } from "@/utils/utils"
+import { normalizeOrder } from "@/entities/order/model/normalizeOrder"
 
 type OrderStatus =
   | "on-hold"
@@ -37,9 +38,10 @@ export const useOrders = (
   const [updateStatus] =
     useUpdateOrderStatusMutation()
 
-  // =========================
-  // 🔥 ОСНОВНОЙ СПИСОК (ОБНОВЛЁН)
-  // =========================
+  /* =========================
+     GET ORDERS (RAW)
+  ========================= */
+
   const {
     data: result,
     isLoading: ordersLoading,
@@ -58,14 +60,29 @@ export const useOrders = (
     }
   )
 
-  const ordersData = result?.data ?? []
+  const rawOrders = result?.data ?? []
   const totalPages = result?.totalPages ?? 1
 
-  const orders = filterOrders(ordersData, searchQuery)
+  /* =========================
+     NORMALIZE (🔥 КЛЮЧ)
+  ========================= */
 
-  // =========================
-  // 🔥 COUNTS (ТОЖЕ ОБНОВЛЁН)
-  // =========================
+  const orders = useMemo(() => {
+    return rawOrders.map(normalizeOrder)
+  }, [rawOrders])
+
+  /* =========================
+     FILTER (🔥 ПОСЛЕ NORMALIZE)
+  ========================= */
+
+  const filteredOrders = useMemo(() => {
+    return filterOrders(orders, searchQuery)
+  }, [orders, searchQuery])
+
+  /* =========================
+     COUNTS (RAW ОК)
+  ========================= */
+
   const { data: onHoldRes } = useGetOrdersQuery({ status: "on-hold", per_page: 15 })
   const { data: processingRes } = useGetOrdersQuery({ status: "processing", per_page: 15 })
   const { data: readyRes } = useGetOrdersQuery({ status: "ready", per_page: 15 })
@@ -78,9 +95,6 @@ export const useOrders = (
   const completed = completedRes?.data ?? []
   const cancelled = cancelledRes?.data ?? []
 
-  // =========================
-  // 🔥 RAW COUNTS
-  // =========================
   const countsRaw: Record<OrderStatus, number> = {
     "on-hold": onHold.length,
     processing: processing.length,
@@ -89,9 +103,6 @@ export const useOrders = (
     cancelled: cancelled.length
   }
 
-  // =========================
-  // 🔥 UI COUNTS (15+)
-  // =========================
   const formatCount = (count: number) => {
     return count >= 15 ? "15+" : count
   }
@@ -104,9 +115,10 @@ export const useOrders = (
     cancelled: formatCount(cancelled.length)
   }
 
-  // =========================
-  // 🔄 ОБНОВЛЕНИЕ СТАТУСА
-  // =========================
+  /* =========================
+     UPDATE STATUS
+  ========================= */
+
   const handleStatusUpdate = async (
     id: number,
     status: string
@@ -118,30 +130,21 @@ export const useOrders = (
 
     try {
 
-      await updateStatus({
-        id,
-        status
-      }).unwrap()
+      await updateStatus({ id, status }).unwrap()
 
-      if (
-        ["processing", "ready", "completed"]
-          .includes(status)
-      ) {
+      if (["processing", "ready", "completed"].includes(status)) {
 
         setRemovingOrderIds(prev =>
           new Set(prev).add(id)
         )
 
         setTimeout(() => {
-
           setRemovingOrderIds(prev => {
             const next = new Set(prev)
             next.delete(id)
             return next
           })
-
         }, 600)
-
       }
 
       setExpandedConfirmation({
@@ -150,19 +153,14 @@ export const useOrders = (
       })
 
     } catch {
-
       alert("Ошибка обновления")
-
     } finally {
-
       setProcessingIds(prev => {
         const next = new Set(prev)
         next.delete(id)
         return next
       })
-
     }
-
   }
 
   const handleConfirmAction = (
@@ -183,11 +181,12 @@ export const useOrders = (
   }
 
   return {
-    orders,
+    orders: filteredOrders, // 🔥 ВАЖНО
+
     ordersLoading,
     ordersError,
 
-    totalPages, // 🔥 ВАЖНО для pagination
+    totalPages,
 
     counts,
     countsRaw,

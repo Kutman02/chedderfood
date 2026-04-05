@@ -6,7 +6,8 @@ import {
   useGetAnalyticsProductsQuery
 } from "@/api"
 
-import type { OrderItem } from "@/types"
+import type { Order, OrderItem } from "@/entities/order/model/types"
+import type { Product } from "@/entities/product/model/types"
 import type { AnalyticsData } from "../types"
 
 export const useAnalyticsData = (
@@ -34,56 +35,71 @@ export const useAnalyticsData = (
 
     if (!ordersData || !productsData) return null
 
-    const validOrders =
-      ordersData.filter(
-        o => o.status !== "cancelled" && o.status !== "refunded"
-      )
+    const validOrders = ordersData.filter(
+      (o: Order) =>
+        o.status !== "cancelled" &&
+        o.status !== "refunded"
+    )
 
-    const cancelledOrders =
-      ordersData.filter(
-        o => o.status === "cancelled" || o.status === "refunded"
-      )
+    const cancelledOrders = ordersData.filter(
+      (o: Order) =>
+        o.status === "cancelled" ||
+        o.status === "refunded"
+    )
 
-    const pendingOrders =
-      ordersData.filter(
-        o => o.status === "on-hold" || o.status === "pending"
-      )
+    const pendingOrders = ordersData.filter(
+      (o: Order) =>
+        o.status === "on-hold" ||
+        o.status === "pending"
+    )
 
-    const processingOrders =
-      ordersData.filter(o => o.status === "processing")
+    const processingOrders = ordersData.filter(
+      (o: Order) => o.status === "processing"
+    )
 
-    const completedOrders =
-      ordersData.filter(o => o.status === "completed")
+    const completedOrders = ordersData.filter(
+      (o: Order) => o.status === "completed"
+    )
 
-    const revenue =
-      validOrders.reduce(
-        (sum, order) => sum + parseFloat(order.total || "0"),
-        0
-      )
+    const revenue = validOrders.reduce(
+      (sum: number, order: Order) =>
+        sum + parseFloat(order.total),
+      0
+    )
 
     const orders = validOrders.length
 
-    const itemsSold =
-      validOrders.reduce(
-        (sum, order) =>
-          sum +
-          order.line_items.reduce(
-            (itemSum: number, item: OrderItem) =>
-              itemSum + item.quantity,
-            0
-          ),
-        0
-      )
+    /* ===============================
+       ITEMS SOLD (FIX)
+    =============================== */
+
+    const itemsSold = validOrders.reduce(
+      (sum: number, order: Order) =>
+        sum +
+        order.items.reduce(
+          (itemSum: number, item: OrderItem) =>
+            itemSum + item.quantity,
+          0
+        ),
+      0
+    )
 
     const averageOrderValue =
       orders > 0 ? revenue / orders : 0
 
-    /* ---------- PRODUCTS ---------- */
+    /* ===============================
+       PRODUCTS
+    =============================== */
 
-    const productMap = new Map()
+    const productMap = new Map<string, {
+      name: string
+      quantity: number
+      revenue: number
+      price: number
+    }>()
 
-    validOrders.forEach(order => {
-      order.line_items.forEach((item: OrderItem) => {
+    validOrders.forEach((order: Order) => {
+      order.items.forEach((item: OrderItem) => {
 
         const existing =
           productMap.get(item.name) || {
@@ -92,12 +108,12 @@ export const useAnalyticsData = (
             revenue: 0,
             price:
               item.quantity > 0
-                ? parseFloat(item.total || "0") / item.quantity
+                ? parseFloat(item.total) / item.quantity
                 : 0
           }
 
         existing.quantity += item.quantity
-        existing.revenue += parseFloat(item.total || "0")
+        existing.revenue += parseFloat(item.total)
 
         productMap.set(item.name, existing)
       })
@@ -114,25 +130,28 @@ export const useAnalyticsData = (
           avg_price: product.price
         }))
 
-    /* ---------- CATEGORIES ---------- */
+    /* ===============================
+       CATEGORIES
+    =============================== */
 
-    const categoryMap = new Map()
-    const productCategoryMap = new Map()
+    const categoryMap = new Map<string, {
+      name: string
+      items_sold: number
+      revenue: number
+      orders: number
+    }>()
 
-    ;(productsData || []).forEach(product => {
-      productCategoryMap.set(product.name, {
-        categories: product.categories || []
-      })
+    const productCategoryMap = new Map<string, Product>()
+
+    productsData.forEach((product: Product) => {
+      productCategoryMap.set(product.name, product)
     })
 
-    validOrders.forEach(order => {
-      order.line_items.forEach((item: OrderItem) => {
+    validOrders.forEach((order: Order) => {
+      order.items.forEach((item: OrderItem) => {
 
-        const productInfo =
-          productCategoryMap.get(item.name)
-
-        const categories =
-          productInfo?.categories || []
+        const product = productCategoryMap.get(item.name)
+        const categories = product?.categories || []
 
         if (categories.length === 0) {
 
@@ -147,15 +166,15 @@ export const useAnalyticsData = (
             })
           }
 
-          const cat = categoryMap.get(name)
+          const cat = categoryMap.get(name)!
 
           cat.items_sold += item.quantity
-          cat.revenue += parseFloat(item.total || "0")
+          cat.revenue += parseFloat(item.total)
           cat.orders += 1
 
         } else {
 
-          categories.forEach((category: { id: number; name: string; slug: string }) => {
+          categories.forEach((category) => {
 
             if (!categoryMap.has(category.name)) {
               categoryMap.set(category.name, {
@@ -166,10 +185,10 @@ export const useAnalyticsData = (
               })
             }
 
-            const cat = categoryMap.get(category.name)
+            const cat = categoryMap.get(category.name)!
 
             cat.items_sold += item.quantity
-            cat.revenue += parseFloat(item.total || "0")
+            cat.revenue += parseFloat(item.total)
             cat.orders += 1
           })
         }
@@ -181,40 +200,46 @@ export const useAnalyticsData = (
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 8)
 
-    /* ---------- DAILY STATS (оптимизировано) ---------- */
+    /* ===============================
+       DAILY
+    =============================== */
 
-    const dailyMap = new Map()
+    const dailyMap = new Map<string, {
+      date: string
+      revenue: number
+      orders: number
+      items_sold: number
+    }>()
 
-    validOrders.forEach(order => {
+    validOrders.forEach((order: Order) => {
 
-      const date =
-        format(new Date(order.date_created), "dd.MM")
+      const date = format(
+        new Date(order.date_created),
+        "dd.MM"
+      )
 
-      const items =
-        order.line_items.reduce(
-          (sum: number, item: OrderItem) =>
-            sum + item.quantity,
-          0
-        )
+      const items = order.items.reduce(
+        (sum: number, item: OrderItem) =>
+          sum + item.quantity,
+        0
+      )
 
       const existing = dailyMap.get(date)
 
       if (existing) {
-        existing.revenue += parseFloat(order.total || "0")
+        existing.revenue += parseFloat(order.total)
         existing.orders += 1
         existing.items_sold += items
       } else {
         dailyMap.set(date, {
           date,
-          revenue: parseFloat(order.total || "0"),
+          revenue: parseFloat(order.total),
           orders: 1,
           items_sold: items
         })
       }
 
     })
-
-    const dailyStats = Array.from(dailyMap.values())
 
     return {
       revenue,
@@ -229,7 +254,7 @@ export const useAnalyticsData = (
 
       categories,
       products,
-      daily_stats: dailyStats
+      daily_stats: Array.from(dailyMap.values())
     }
 
   }, [ordersData, productsData])

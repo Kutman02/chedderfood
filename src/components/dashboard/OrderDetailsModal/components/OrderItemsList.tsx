@@ -1,14 +1,27 @@
-import type { Order } from "@/types"
-import { IoFastFood } from "react-icons/io5";
+import { IoFastFood } from "react-icons/io5"
 
-
-interface Props {
-  order: Order
+type OrderItemView = {
+  id: number
+  name: string
+  image: string
+  quantity: number
+  price: string
+  total: number
 }
 
-export const OrderItemsList = ({ order }: Props) => {
+interface Props {
+  items: OrderItemView[]
+}
 
-  if (!order.line_items?.length) return null
+export const OrderItemsList = ({ items }: Props) => {
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return (
+      <div className="text-center text-slate-400 py-6">
+        Нет товаров
+      </div>
+    )
+  }
 
   return (
     <div className="bg-white border-2 border-slate-200 rounded-xl p-4">
@@ -20,15 +33,16 @@ export const OrderItemsList = ({ order }: Props) => {
 
       <div className="space-y-3">
 
-        {order.line_items.map((item) => {
+        {items.map((item) => {
 
           const image =
-            (item as any)?.image?.src ||
-            "/placeholder-food.png"
+            item.image && item.image.trim() !== ""
+              ? item.image
+              : "/placeholder-food.png"
 
           return (
             <div
-              key={item.id ?? `${item.name}-${item.price}`}
+              key={item.id}
               className="flex items-center gap-4 p-3 border border-slate-100 rounded-lg"
             >
 
@@ -46,24 +60,22 @@ export const OrderItemsList = ({ order }: Props) => {
                   {item.name}
                 </p>
 
-                {item.price && (
-                  <p className="text-xs text-slate-500">
-                    {item.price} {order.currency} / шт
-                  </p>
-                )}
+                <p className="text-xs text-slate-500">
+                  {item.price} сом / шт
+                </p>
 
               </div>
 
               {/* Количество */}
-              <div className="text-xl font-black text-orange-600 min-w-40px text-center">
+              <div className="text-xl font-black text-orange-600 text-center min-w-[40px]">
                 {item.quantity}×
               </div>
 
               {/* Сумма */}
-              <div className="text-right min-w-80px">
+              <div className="text-right min-w-[80px]">
 
                 <p className="text-lg font-black text-green-600">
-                  {item.total} {order.currency}
+                  {item.total} сом
                 </p>
 
               </div>

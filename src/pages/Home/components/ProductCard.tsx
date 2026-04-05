@@ -1,5 +1,5 @@
 import { FaPlus, FaMinus } from "react-icons/fa";
-import type { Product } from "../../../types";
+import type { Product } from "@/entities/product/model/types";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import {
   addToCart as addToCartAction,

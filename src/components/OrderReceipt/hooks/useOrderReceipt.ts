@@ -1,109 +1,132 @@
-import { useLayoutEffect } from "react"
+import { useMemo } from "react"
 
-import { useScrollLockStore } from "@/stores/scrollLockStore"
-
-import type { Product, PublicOrder, OrderMetaData } from "@/types"
+import type { Order } from "@/entities/order/model/types"
+import type { Product } from "@/entities/product/model/types"
 
 import { formatDate } from "../utils/formatDate"
+import { normalizeOrder } from "@/entities/order/model/normalizeOrder"
 
 export const useOrderReceipt = (
-  orderData: PublicOrder,
-  products: Product[]
+  orderData: Order | null,
+  products?: Product[]
 ) => {
 
-  const lockScroll = useScrollLockStore((s) => s.lock)
-  const unlockScroll = useScrollLockStore((s) => s.unlock)
-
   /* ===============================
-     SCROLL LOCK
+     NORMALIZE (SAFE)
   =============================== */
 
-  useLayoutEffect(() => {
-    lockScroll()
-    return () => unlockScroll()
-  }, [lockScroll, unlockScroll])
+  const order = useMemo(() => {
+    if (!orderData) return null
+    return normalizeOrder(orderData)
+  }, [orderData])
 
   /* ===============================
-     ORDER SOURCE
+     PRODUCTS MAP (O(1))
   =============================== */
 
-  const order = orderData
+  const productMap = useMemo(() => {
+    const map = new Map<number, Product>()
+
+    if (!Array.isArray(products)) return map
+
+    for (const p of products) {
+      if (p?.id) {
+        map.set(p.id, p)
+      }
+    }
+
+    return map
+  }, [products])
+
+  /* ===============================
+     EMPTY STATE (CRITICAL)
+  =============================== */
+
+  if (!order) {
+    return {
+      order: null,
+
+      orderType: "delivery" as const,
+
+      orderItems: [],
+
+      subtotal: 0,
+      shippingCost: 0,
+      total: 0,
+
+      shippingInfo: {
+        method: "",
+        address: "",
+        cost: 0,
+        status: "",
+      },
+
+      formatDate,
+
+      handlePrint: () => {},
+      handleShare: async () => {},
+    }
+  }
 
   /* ===============================
      ORDER TYPE
   =============================== */
 
-  const getOrderType = () => {
-    const type = order.meta_data?.find(
-      (m: OrderMetaData) => m.key === "order_type"
-    )
-
-    return type?.value || "delivery"
-  }
-
-  const orderType = getOrderType()
+  const orderType = order.order_type
 
   /* ===============================
      SHIPPING
   =============================== */
 
   const shippingInfo = {
-    method:
-      order.shipping_lines?.[0]?.method_title ||
-      "Стандартная доставка",
+    method: orderType === "pickup" ? "Самовывоз" : "Доставка",
 
-    address: `${
-      order.shipping?.address_1 || order.billing?.address_1 || ""
-    }, ${
-      order.shipping?.city || order.billing?.city || ""
-    }`,
+    address:
+      orderType === "pickup"
+        ? order.pickup_address || "Не указан"
+        : order.address || "Не указан",
 
-    cost: Number(order.shipping_total || 0),
-
-    status: (order as any).shipping_status || "В обработке",
+    cost: 0,
+    status: "В обработке",
   }
 
-  const shippingCost = Number(order.shipping_total || 0)
+  const shippingCost = 0
 
   /* ===============================
-     TOTALS (FIXED TS)
+     TOTALS
   =============================== */
 
-  const subtotal = (order.line_items || []).reduce(
-    (sum, item) => sum + Number(item.total || 0),
-    0
-  )
+  const subtotal = order.items.reduce((sum, item) => {
+    return sum + Number(item.price) * Number(item.quantity)
+  }, 0)
 
-  const total = Number(order.total || 0)
+  const total = Number(order.total)
 
   /* ===============================
-     PRODUCTS MAPPING (FIXED TS)
+     ITEMS (MAIN FIX)
   =============================== */
 
-  const SITE_URL = import.meta.env.VITE_SITE_URL || ""
+  const orderItems = order.items.map((item) => {
 
-  const orderItems = (order.line_items || []).map((item) => {
-    const product = products.find(
-      (p) => p.id === item.product_id
-    )
+    const product = productMap.get(item.product_id)
 
     return {
-      ...item,
-
-      // 🔥 фикс для optional id
       id: item.id ?? item.product_id,
+      product_id: item.product_id,
 
-      name: product?.name || item.name,
+      name: product?.name || item.name || "Товар",
+
+      quantity: item.quantity,
+
+      price: item.price,
 
       image:
+        item.image ||
         product?.images?.[0]?.src ||
         "/placeholder-image.jpg",
 
-      total: Number(item.total || 0),
-
-      fallback: SITE_URL
-        ? `${SITE_URL}/wp-content/uploads/fallback.png`
-        : "/placeholder-image.jpg",
+      total:
+        Number(item.price) * Number(item.quantity),
     }
   })
 
@@ -116,16 +139,16 @@ export const useOrderReceipt = (
   }
 
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `Заказ #${order.id} - KutMenu`,
-          text: `Мой заказ #${order.id} на сумму ${total} сом`,
-          url: window.location.href,
-        })
-      } catch (err) {
-        console.log("Share error:", err)
-      }
+    if (!navigator.share) return
+
+    try {
+      await navigator.share({
+        title: `Заказ #${order.id} - KutMenu`,
+        text: `Мой заказ #${order.id} на сумму ${total} сом`,
+        url: window.location.href,
+      })
+    } catch (err) {
+      console.log("Share error:", err)
     }
   }
 

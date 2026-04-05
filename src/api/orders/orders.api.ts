@@ -1,69 +1,72 @@
 import { baseApi } from "../base/baseApi"
-import type { Order } from "@/types"
+import { normalizeOrder } from "@/entities/order/model/normalizeOrder"
+import type { Order } from "@/entities/order/model/types"
 
 export const ordersApi = baseApi.injectEndpoints({
 
   endpoints: (builder) => ({
 
     // =========================
-    // GET ORDERS (CUSTOM API)
+    // GET ORDERS
     // =========================
     getOrders: builder.query<
       { data: Order[]; totalPages: number },
       {
         page?: number
+        status?: string
+        search?: string
+        per_page?: number
+        orderby?: string
+        order?: string
       }
     >({
 
-      query: ({ page = 1 }) => {
+      query: ({
+        page = 1,
+        status,
+        search,
+        per_page = 15,
+        orderby = "date",
+        order = "desc",
+      }) => {
 
-        const params = new URLSearchParams({
-          page: page.toString(),
-        })
+        const params = new URLSearchParams()
+
+        params.append("page", page.toString())
+
+        if (status) params.append("status", status)
+        if (search) params.append("search", search)
+
+        params.append("per_page", per_page.toString())
+        params.append("orderby", orderby)
+        params.append("order", order)
 
         return {
           url: `custom/v1/orders?${params.toString()}`,
         }
       },
 
-      transformResponse: (response: any[]) => {
-        return {
-          data: response,
-          totalPages: 1, // пока у тебя нет пагинации на backend
-        }
-      },
-
-      providesTags: ["Orders"]
-
-    }),
-
-    // =========================
-    // GET SINGLE ORDER
-    // =========================
-    getOrder: builder.query<Order, number>({
-
-      query: (id) => ({
-        url: `custom/v1/orders/${id}`, // 👉 позже сделаем endpoint
+      transformResponse: (response: any[]) => ({
+        data: response.map(normalizeOrder),
+        totalPages: 1,
       }),
 
-      providesTags: (_result, _error, id) => [
-        { type: "Order", id }
-      ]
+      providesTags: ["Orders"],
 
     }),
 
     // =========================
-    // CREATE ORDER (если добавишь)
+    // CREATE ORDER 🔥 ДОБАВИЛИ
     // =========================
-    createOrder: builder.mutation<Order, any>({
+    createOrder: builder.mutation<any, any>({
 
       query: (body) => ({
-        url: `custom/v1/orders`,
+        url: "custom/v1/orders",
         method: "POST",
         body,
       }),
 
-      invalidatesTags: ["Orders"]
+      invalidatesTags: ["Orders"],
 
     }),
 
@@ -71,7 +74,7 @@ export const ordersApi = baseApi.injectEndpoints({
     // UPDATE STATUS
     // =========================
     updateOrderStatus: builder.mutation<
-      Order,
+      any,
       { id: number; status: string }
     >({
 
@@ -81,19 +84,16 @@ export const ordersApi = baseApi.injectEndpoints({
         body: { status },
       }),
 
-      invalidatesTags: ["Orders", "Order"]
+      invalidatesTags: ["Orders"],
 
     }),
 
   }),
 
-  overrideExisting: false
-
 })
 
 export const {
   useGetOrdersQuery,
-  useGetOrderQuery,
-  useCreateOrderMutation,
+  useCreateOrderMutation,      // ✅ ТЕПЕРЬ ЕСТЬ
   useUpdateOrderStatusMutation,
 } = ordersApi

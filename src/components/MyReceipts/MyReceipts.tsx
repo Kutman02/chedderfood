@@ -1,7 +1,7 @@
 import { useReceiptsLogic } from "./hooks"
 import { ConfirmDialog } from "../ConfirmDialog/ConfirmDialog"
 import { OrderReceipt } from "../OrderReceipt/OrderReceipt"
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 import { ReceiptsHeader, ReceiptsList, EmptyReceipts } from "./components"
 
 interface MyReceiptsProps {

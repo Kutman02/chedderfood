@@ -1,22 +1,31 @@
 import { FaFire, FaStar, FaGift, FaEyeSlash } from "react-icons/fa"
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 export const ProductBadges = ({ product }: { product: Product }) => {
 
-  const tags = product.tags || []
+  const tags = product.tags // ✅ уже нормализованы
 
   const isHidden = product.status === "draft"
-  const isOutOfStock =
-    product.stock_status && product.stock_status !== "instock"
+  const isOutOfStock = product.stock_status !== "instock"
 
-  const status =
-    tags.find(t => t.slug === "hit") ? "hit"
-      : tags.find(t => t.slug === "new") ? "new"
-        : tags.find(t => t.slug === "sale") ? "sale"
-          : null
+  let status: "hit" | "new" | "sale" | null = null
+
+  for (const tag of tags) {
+    if (tag.slug === "hit") {
+      status = "hit"
+      break
+    }
+    if (tag.slug === "new") {
+      status = "new"
+      break
+    }
+    if (tag.slug === "sale") {
+      status = "sale"
+      break
+    }
+  }
 
   return (
-
     <div className="absolute top-2 left-2 flex flex-col gap-1">
 
       {status === "hit" && (
@@ -50,7 +59,5 @@ export const ProductBadges = ({ product }: { product: Product }) => {
       )}
 
     </div>
-
   )
-
 }

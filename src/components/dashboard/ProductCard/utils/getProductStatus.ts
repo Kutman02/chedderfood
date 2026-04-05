@@ -1,5 +1,5 @@
 import { FaFire, FaStar, FaGift } from "react-icons/fa"
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 export type ProductStatusConfig = {
   label: string

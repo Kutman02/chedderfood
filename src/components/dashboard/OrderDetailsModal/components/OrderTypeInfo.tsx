@@ -1,5 +1,5 @@
 import { FaCheckCircle, FaCopy } from "react-icons/fa"
-import type { Order } from "@/types"
+import type { Order } from "@/entities/order/model/types"
 
 interface Props {
   order: Order
@@ -7,27 +7,47 @@ interface Props {
 
 export const OrderTypeInfo = ({ order }: Props) => {
 
-  const orderType = order.meta_data?.find(
-    m => m.key === "order_type"
-  )?.value
+  /* ===============================
+     SAFE DATA
+  =============================== */
 
-  if (!orderType) return null
+  const orderType =
+    order.order_type === "pickup" ? "pickup" : "delivery"
 
   const isPickup = orderType === "pickup"
 
-  const address =
-    order.shipping?.address_1 ||
-    order.billing?.address_1 ||
-    order.meta_data?.find(m => m.key === "delivery_address")?.value ||
-    ""
+  const addressRaw = isPickup
+    ? order.pickup_address
+    : order.address
 
-  const handleCopy = () => {
+  const address =
+    addressRaw?.trim() || ""
+
+  /* ===============================
+     COPY
+  =============================== */
+
+  const handleCopy = async () => {
     if (!address) return
-    navigator.clipboard.writeText(address)
+
+    try {
+      await navigator.clipboard.writeText(address)
+    } catch {
+      // fallback
+      const textarea = document.createElement("textarea")
+      textarea.value = address
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand("copy")
+      document.body.removeChild(textarea)
+    }
   }
 
-  return (
+  /* ===============================
+     UI
+  =============================== */
 
+  return (
     <div
       className={`rounded-xl p-4 border-2 ${
         isPickup
@@ -41,17 +61,20 @@ export const OrderTypeInfo = ({ order }: Props) => {
         {isPickup ? "Самовывоз" : "Доставка"}
       </h3>
 
-      {!isPickup && address && (
+      {/* ADDRESS */}
+      {address ? (
 
         <div className="bg-white border rounded-lg p-3 flex justify-between items-start gap-3">
 
           <div className="flex-1">
 
             <p className="text-xs text-slate-500">
-              Адрес доставки
+              {isPickup
+                ? "Адрес самовывоза"
+                : "Адрес доставки"}
             </p>
 
-            <p className="font-semibold text-slate-900">
+            <p className="font-semibold text-slate-900 wrap-break-words">
               {address}
             </p>
 
@@ -59,13 +82,19 @@ export const OrderTypeInfo = ({ order }: Props) => {
 
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded text-xs"
+            className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded text-xs shrink-0"
           >
             <FaCopy />
             копировать
           </button>
 
         </div>
+
+      ) : (
+
+        <p className="text-sm text-slate-500">
+          Адрес не указан
+        </p>
 
       )}
 

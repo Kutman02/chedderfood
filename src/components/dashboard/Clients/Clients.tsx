@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 
-import { useGetAllCustomersQuery } from "@/api"
+import { useGetCustomersQuery } from "@/api" // ✅ FIX
 
 import {
   ClientsSortPanel,
@@ -29,9 +29,9 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
     data: customersData,
     isLoading,
     error
-  } = useGetAllCustomersQuery({ per_page: 100 }) // ✅ фикс
+  } = useGetCustomersQuery({ per_page: 100 }) // ✅ FIX
 
-  const customers = customersData || [] // ✅ безопасно
+  const customers = customersData || []
 
   const filteredCustomers = useFilteredCustomers(
     customers,

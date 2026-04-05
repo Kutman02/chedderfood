@@ -1,5 +1,10 @@
 import { baseApi } from "../base/baseApi"
-import type { Order, Product, AnalyticsResponse } from "@/types"
+
+import { normalizeOrder } from "@/entities/order/model/normalizeOrder"
+import { normalizeProduct } from "@/entities/product/model/normalizeProduct"
+
+import type { Order } from "@/entities/order/model/types"
+import type { Product } from "@/entities/product/model/types"
 
 import { format, subDays } from "date-fns"
 
@@ -7,8 +12,10 @@ export const analyticsApi = baseApi.injectEndpoints({
 
   endpoints: (builder) => ({
 
-    // Общая статистика продаж
-    getStats: builder.query({
+    // =========================
+    // SALES STATS
+    // =========================
+    getStats: builder.query<any, void>({
 
       query: () => ({
         url: "wc/v3/reports/sales",
@@ -20,10 +27,11 @@ export const analyticsApi = baseApi.injectEndpoints({
 
     }),
 
-
-    // Аналитика за N дней
+    // =========================
+    // ANALYTICS SUMMARY
+    // =========================
     getAnalytics: builder.query<
-      AnalyticsResponse,
+      any,
       { days?: number }
     >({
 
@@ -49,8 +57,9 @@ export const analyticsApi = baseApi.injectEndpoints({
 
     }),
 
-
-    // Заказы для аналитики
+    // =========================
+    // ANALYTICS ORDERS (🔥 FIX)
+    // =========================
     getAnalyticsOrders: builder.query<
       Order[],
       { after?: string; before?: string; per_page?: number }
@@ -66,18 +75,22 @@ export const analyticsApi = baseApi.injectEndpoints({
         if (before) params.append("before", `${before}T23:59:59`)
 
         return {
-          url: `wc-analytics/orders?${params.toString()}`,
+          url: `wc/v3/orders?${params.toString()}`, // 🔥 ВАЖНО: не wc-analytics
           credentials: "omit"
         }
 
       },
 
+      transformResponse: (res: any[]) =>
+        res.map(normalizeOrder),
+
       providesTags: ["Orders"]
 
     }),
 
-
-    // Товары для аналитики
+    // =========================
+    // ANALYTICS PRODUCTS (🔥 FIX)
+    // =========================
     getAnalyticsProducts: builder.query<
       Product[],
       { per_page?: number }
@@ -90,11 +103,14 @@ export const analyticsApi = baseApi.injectEndpoints({
         })
 
         return {
-          url: `wc-analytics/products?${params.toString()}`,
+          url: `wc/v3/products?${params.toString()}`, // 🔥 FIX
           credentials: "omit"
         }
 
       },
+
+      transformResponse: (res: any[]) =>
+        res.map(normalizeProduct),
 
       providesTags: ["Products"]
 
@@ -106,12 +122,9 @@ export const analyticsApi = baseApi.injectEndpoints({
 
 })
 
-
 export const {
-
   useGetStatsQuery,
   useGetAnalyticsQuery,
   useGetAnalyticsOrdersQuery,
   useGetAnalyticsProductsQuery
-
 } = analyticsApi

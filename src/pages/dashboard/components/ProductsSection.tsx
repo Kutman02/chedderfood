@@ -7,7 +7,7 @@ import {
 
 import { ProductCard } from "@/components/dashboard/ProductCard/ProductCard"
 
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 type Category = {
   id: number

@@ -6,6 +6,14 @@ export const OrderAddress = ({
   activeTabData
 }: OrderAddressProps) => {
 
+  const o = order as any // 🔥 временный фикс
+
+  const address =
+    o?.address ||
+    o?.shipping_address ||
+    o?.billing?.address_1 ||
+    "Адрес не указан"
+
   return (
 
     <div className={`${activeTabData?.bgColor} p-3 rounded-xl border`}>
@@ -16,7 +24,7 @@ export const OrderAddress = ({
       </p>
 
       <p className="text-sm font-semibold">
-        {order.billing.address_1}
+        {address}
       </p>
 
     </div>

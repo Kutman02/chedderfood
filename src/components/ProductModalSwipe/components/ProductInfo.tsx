@@ -1,5 +1,5 @@
 import { FaTimes } from "react-icons/fa"
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 interface ProductInfoProps {
   product: Product

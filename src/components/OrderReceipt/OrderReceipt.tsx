@@ -1,7 +1,9 @@
 import type { FC } from "react"
 
-import type { Product, PublicOrder } from "@/types"
-import { RESTAURANT } from "@/config/restaurant";
+import type { Product } from "@/entities/product/model/types"
+import type { Order } from "@/entities/order/model/types"
+
+import { RESTAURANT } from "@/config/restaurant"
 import { useOrderReceipt } from "./hooks/useOrderReceipt"
 
 import { ReceiptHeader } from "./components/ReceiptHeader"
@@ -15,8 +17,8 @@ import { OrderStatus } from "./components/OrderStatus"
 import { ReceiptActions } from "./components/ReceiptActions"
 
 interface OrderReceiptProps {
-  orderData: PublicOrder
-  products: Product[]
+  orderData: Order | null
+  products?: Product[]
   onClose: () => void
   onNewOrder: () => void
 }
@@ -30,30 +32,34 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
 
   const receipt = useOrderReceipt(orderData, products)
 
-  // актуальный заказ
-  const currentOrder = receipt.latestOrder ?? receipt.order
+  const order = receipt.order
+
+  /* ===============================
+     🔥 GUARD (ОБЯЗАТЕЛЬНО)
+  =============================== */
+
+  if (!order) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+        <div className="bg-white p-6 rounded-xl">
+          <p className="text-slate-600">Загрузка заказа...</p>
+        </div>
+      </div>
+    )
+  }
+
+  /* ===============================
+     RENDER
+  =============================== */
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
 
-      <div
-        className="
-          bg-white
-          w-full h-full
-          sm:h-auto sm:max-h-[90vh]
-          sm:max-w-2xl
-          sm:rounded-xl
-          shadow-2xl
-          overflow-hidden
-          flex flex-col
-        "
-      >
+      <div className="bg-white w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-2xl sm:rounded-xl shadow-2xl overflow-hidden flex flex-col">
 
         <ReceiptHeader
-          status={currentOrder.status}
+          status={order.status}
           onClose={onClose}
-          onRefresh={receipt.handleRefresh}
-          isRefreshing={receipt.isRefreshing}
         />
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6 max-w-xl mx-auto w-full">
@@ -75,37 +81,27 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
 
           </div>
 
-          {/* Order info */}
           <OrderInfo
-            order={currentOrder}
+            order={order}
             formatDate={receipt.formatDate}
             shippingInfo={receipt.shippingInfo}
           />
 
-          {/* Status */}
-          <OrderStatus
-            status={currentOrder.status}
-            isUpdated={!!receipt.latestOrder}
-          />
+          <OrderStatus status={order.status} />
 
-          {/* Items */}
           <OrderItemsTable items={receipt.orderItems} />
 
-          {/* Totals */}
           <OrderTotals
             subtotal={receipt.subtotal}
             shippingCost={receipt.shippingCost}
             total={receipt.total}
           />
 
-          {/* Delivery / Pickup */}
           <OrderTypeBlock orderType={receipt.orderType} />
 
-          {/* Customer */}
-          <CustomerInfo order={currentOrder} />
+          <CustomerInfo order={order} />
 
-          {/* Note */}
-          <OrderNote note={currentOrder.customer_note} />
+          <OrderNote note={order.customer_note} />
 
         </div>
 

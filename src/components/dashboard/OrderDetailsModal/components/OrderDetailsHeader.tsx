@@ -1,5 +1,5 @@
 import { FaTimes, FaShare } from "react-icons/fa"
-import type { Order } from "@/types"
+import type { Order } from "@/entities/order/model/types"
 
 import { ShareMenu } from "./index"
 
@@ -19,6 +19,10 @@ export const OrderDetailsHeader = ({
   shareMenuRef
 }: Props) => {
 
+  /* ===============================
+     TIME
+  =============================== */
+
   const orderTime = order.date_created
     ? new Date(order.date_created).toLocaleTimeString([], {
         hour: "2-digit",
@@ -26,7 +30,26 @@ export const OrderDetailsHeader = ({
       })
     : null
 
-  const deliveryType = order.shipping_lines?.[0]?.method_title
+  /* ===============================
+     DELIVERY TYPE (🔥 FIX)
+  =============================== */
+
+  const deliveryType =
+    order.order_type === "pickup"
+      ? "Самовывоз"
+      : "Доставка"
+
+  /* ===============================
+     SAFE CLOSE (🔥 FIX SCROLL BUG)
+  =============================== */
+
+  const handleClose = () => {
+    // 🔥 гарантируем восстановление скролла
+    document.body.style.overflow = ""
+    document.body.style.paddingRight = ""
+
+    onClose()
+  }
 
   return (
 
@@ -40,11 +63,9 @@ export const OrderDetailsHeader = ({
 
         <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
 
-          {deliveryType && (
-            <span className="font-semibold">
-              {deliveryType}
-            </span>
-          )}
+          <span className="font-semibold">
+            {deliveryType}
+          </span>
 
           {orderTime && (
             <>
@@ -76,7 +97,7 @@ export const OrderDetailsHeader = ({
         </div>
 
         <button
-          onClick={onClose}
+          onClick={handleClose}
           aria-label="Закрыть детали заказа"
           className="w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
         >
@@ -88,5 +109,4 @@ export const OrderDetailsHeader = ({
     </div>
 
   )
-
 }

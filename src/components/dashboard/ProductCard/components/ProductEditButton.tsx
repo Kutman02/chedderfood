@@ -1,5 +1,5 @@
 import { FaEdit } from "react-icons/fa"
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 interface Props {
   product: Product

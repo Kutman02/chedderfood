@@ -1,4 +1,7 @@
-import type { Order } from "@/types"
+import type { Order } from "@/entities/order/model/types"
+import type { Product } from "@/entities/product/model/types"
+
+import { useOrderReceipt } from "@/components/OrderReceipt/hooks/useOrderReceipt"
 
 import {
   OrderCustomerInfo,
@@ -11,35 +14,39 @@ import {
 
 interface Props {
   order: Order
+  products: Product[]
 }
 
-export const OrderDetailsContent = ({ order }: Props) => {
+export const OrderDetailsContent = ({ order, products }: Props) => {
+
+  const receipt = useOrderReceipt(order, products)
+
+  // 🔥 CRITICAL GUARD
+  if (!receipt.order) return null
+
+  const safeOrder = receipt.order
 
   return (
-
     <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
 
-      {/* Самое важное — блюда */}
-      <OrderItemsList order={order} />
+      {/* ITEMS */}
+      <OrderItemsList items={receipt.orderItems} />
 
-      {/* Комментарий клиента */}
-      <OrderNote note={order.customer_note} />
+      {/* NOTE */}
+      <OrderNote note={safeOrder.customer_note} />
 
-      {/* Тип заказа и адрес */}
-      <OrderTypeInfo order={order} />
+      {/* TYPE */}
+      <OrderTypeInfo order={safeOrder} />
 
-      {/* Клиент */}
-      <OrderCustomerInfo order={order} />
+      {/* CUSTOMER */}
+      <OrderCustomerInfo order={safeOrder} />
 
+      {/* PAYMENT */}
+      <OrderPaymentInfo order={safeOrder} />
 
-      {/* Оплата */}
-      <OrderPaymentInfo order={order} />
-
-      {/* Цена */}
-      <OrderPricing order={order} />
+      {/* PRICING */}
+      <OrderPricing order={safeOrder} />
 
     </div>
-
   )
-
 }

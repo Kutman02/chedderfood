@@ -1,5 +1,5 @@
 import React from "react"
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 import {
   ModalHeader,

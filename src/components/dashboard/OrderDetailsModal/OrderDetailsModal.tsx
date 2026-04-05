@@ -1,5 +1,10 @@
-import { useState, useRef, useEffect } from "react"
-import type { Order } from "@/types"
+import { useState, useRef, useEffect, useMemo } from "react"
+
+import type { Order } from "@/entities/order/model/types"
+import type { Product } from "@/entities/product/model/types"
+
+import { normalizeOrder } from "@/entities/order/model/normalizeOrder"
+import { useScrollLockStore } from "@/stores/scrollLockStore"
 
 import {
   OrderDetailsHeader,
@@ -8,13 +13,15 @@ import {
 
 interface OrderDetailsModalProps {
   isOpen: boolean
-  order: Order | null
+  order: any | null
+  products: Product[]
   onClose: () => void
 }
 
 export const OrderDetailsModal = ({
   isOpen,
   order,
+  products,
   onClose,
 }: OrderDetailsModalProps) => {
 
@@ -22,24 +29,39 @@ export const OrderDetailsModal = ({
 
   const shareMenuRef = useRef<HTMLDivElement | null>(null)
 
-  /**
-   * Блокируем скролл страницы
-   */
+  const lock = useScrollLockStore((s) => s.lock)
+  const unlock = useScrollLockStore((s) => s.unlock)
+
+  /* ===============================
+     NORMALIZE
+  =============================== */
+
+  const normalizedOrder: Order | null = useMemo(
+    () => (order ? normalizeOrder(order) : null),
+    [order]
+  )
+
+  /* ===============================
+     SCROLL LOCK (🔥 FIX)
+  =============================== */
+
   useEffect(() => {
     if (!isOpen) return
 
-    const originalOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
+    lock()
 
     return () => {
-      document.body.style.overflow = originalOverflow
+      unlock()
     }
-  }, [isOpen])
+  }, [isOpen, lock, unlock])
 
-  /**
-   * Закрытие по ESC
-   */
+  /* ===============================
+     ESC CLOSE
+  =============================== */
+
   useEffect(() => {
+    if (!isOpen) return
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose()
@@ -51,9 +73,13 @@ export const OrderDetailsModal = ({
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [onClose])
+  }, [isOpen, onClose])
 
-  if (!isOpen || !order) return null
+  /* ===============================
+     GUARD
+  =============================== */
+
+  if (!isOpen || !normalizedOrder) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-black/50 backdrop-blur-sm">
@@ -61,7 +87,7 @@ export const OrderDetailsModal = ({
       <div className="bg-white w-full h-full flex flex-col overflow-hidden">
 
         <OrderDetailsHeader
-          order={order}
+          order={normalizedOrder}
           onClose={onClose}
           showShareMenu={showShareMenu}
           setShowShareMenu={setShowShareMenu}
@@ -71,7 +97,8 @@ export const OrderDetailsModal = ({
         <div className="flex-1 overflow-y-auto">
 
           <OrderDetailsContent
-            order={order}
+            order={normalizedOrder}
+            products={products}
           />
 
         </div>

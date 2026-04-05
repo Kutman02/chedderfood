@@ -11,10 +11,12 @@ import { OrderDetailsModal } from "@/components/dashboard/OrderDetailsModal/Orde
 import { AddProductModal } from "@/components/dashboard/AddProductModal/AddProductModal"
 import { EditProductModal } from "@/components/dashboard/EditProductModal/EditProductModal"
 
+// 🔥 ДОБАВЬ ЭТО
+import { useGetProductsQuery } from "@/api/products/products.api"
+
 const DashboardLayout = () => {
   const location = useLocation()
 
-  // 🔥 новый источник правды
   const { user, token } = useAppSelector((s) => s.auth)
 
   const {
@@ -41,10 +43,20 @@ const DashboardLayout = () => {
     getPlaceholder,
   } = useDashboardUI()
 
-  // 🔐 защита
+  // 🔥 ПОЛУЧАЕМ ПРОДУКТЫ
+  const { data: products = [] } = useGetProductsQuery({})
+
+  /* ===============================
+     AUTH GUARD
+  =============================== */
+
   if (!token || !user) {
     return <Navigate to="/login" replace />
   }
+
+  /* ===============================
+     SECTION
+  =============================== */
 
   const section =
     location.pathname.includes("/products")
@@ -85,9 +97,11 @@ const DashboardLayout = () => {
 
       </div>
 
+      {/* 🔥 ВАЖНО: передаем products */}
       <OrderDetailsModal
         isOpen={orderDetailsModal.isOpen}
         order={orderDetailsModal.order}
+        products={products} // ✅ FIX
         onClose={() =>
           setOrderDetailsModal({
             isOpen: false,

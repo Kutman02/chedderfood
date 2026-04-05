@@ -1,4 +1,4 @@
-import type { Product } from "@/types"
+import type { Product } from "@/entities/product/model/types"
 
 import {
   ProductImage,
@@ -23,18 +23,6 @@ export const ProductCard = ({
   dragHandleProps
 }: ProductCardProps) => {
 
-  // 🔥 SAFE PRODUCT (чтобы UI не падал)
-  const safeProduct: Product = {
-    ...product,
-    name: product.name || "Без названия",
-    price: product.price || "0",
-    regular_price: product.regular_price || product.price || "0",
-    sale_price: product.sale_price || "",
-    images: product.images || [],
-    categories: product.categories || [],
-    tags: product.tags || [],
-  }
-
   return (
 
     <div
@@ -45,13 +33,13 @@ export const ProductCard = ({
 
       <div className="relative">
 
-        <ProductImage product={safeProduct} />
+        <ProductImage product={product} />
 
-        <ProductBadges product={safeProduct} />
+        <ProductBadges product={product} />
 
         {onEdit && (
           <ProductEditButton
-            product={safeProduct}
+            product={product}
             onEdit={onEdit}
           />
         )}
@@ -60,15 +48,15 @@ export const ProductCard = ({
 
       <div className="p-3">
 
-        <ProductPrice product={safeProduct} />
+        <ProductPrice product={product} />
 
         <h3 className="font-bold text-sm text-black mb-1 line-clamp-2">
-          {safeProduct.name}
+          {product.name}
         </h3>
 
-        <ProductTags product={safeProduct} />
+        <ProductTags product={product} />
 
-        <ProductMeta product={safeProduct} />
+        <ProductMeta product={product} />
 
       </div>
 

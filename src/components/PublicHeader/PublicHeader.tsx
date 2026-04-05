@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react"
 import { useGetPublicProductCategoriesQuery } from "@/app/services/publicApi"
 import { useSearchParams } from "react-router-dom"
-import type { Category } from "@/types"
+import type { Category } from "@/entities/product/model/types"
 
 import { useAppSelector } from "@/app/hooks"
 import { useScrollLockStore } from "@/stores/scrollLockStore"

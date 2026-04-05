@@ -1,68 +1,65 @@
-// ===============================
+// =========================
 // BASE
-// ===============================
+// =========================
 export { baseApi } from "./base/baseApi"
 
-// ===============================
-// AUTH
-// ===============================
-export {
-  useGetMeQuery,
-  useLazyGetMeQuery
-} from "./auth/auth.api"
 
-// ===============================
-// ORDERS
-// ===============================
-export {
-  useGetOrdersQuery,
-  useGetOrderQuery,
-  useCreateOrderMutation,
-  useUpdateOrderStatusMutation,
-} from "./orders/orders.api"
-
-// ===============================
-// PRODUCTS (🔥 ПОЛНЫЙ ФИКС)
-// ===============================
+// =========================
+// PRODUCTS
+// =========================
 export {
   useGetProductsQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useGetProductCategoriesQuery,
   useUpdateProductOrderMutation,
-  useGetProductCategoriesQuery
 } from "./products/products.api"
 
-// ===============================
+
+// =========================
+// ORDERS
+// =========================
+export {
+  useGetOrdersQuery,
+  useCreateOrderMutation,
+  useUpdateOrderStatusMutation,
+} from "./orders/orders.api"
+
+
+// =========================
+// AUTH
+// =========================
+export {
+  useGetMeQuery,
+  useLazyGetMeQuery,
+} from "./auth/auth.api"
+
+
+// =========================
 // CUSTOMERS
-// ===============================
+// =========================
 export {
   useGetCustomersQuery,
   useGetAllCustomersQuery,
-  useGetCustomerQuery
+  useGetCustomerQuery,
 } from "./customers/customers.api"
 
-// ===============================
+
+// =========================
 // ANALYTICS
-// ===============================
+// =========================
 export {
-  useGetStatsQuery,
-  useGetAnalyticsQuery,
   useGetAnalyticsOrdersQuery,
   useGetAnalyticsProductsQuery
 } from "./analytics/analytics.api"
 
-// ===============================
-// MEDIA
-// ===============================
-export {
-  useUploadImageMutation
-} from "./wordpress/media.api"
 
-// ===============================
+// =========================
 // PROFILE
-// ===============================
+// =========================
 export {
   useGetProfileQuery,
-  useUpdateProfileMutation
+  useUpdateProfileMutation,
+  useUploadImageMutation
 } from "./profile/profile.api"
