@@ -1,4 +1,4 @@
-import type { Product, Category } from "../../../types"
+import type { Product, Category } from "@/types"
 import { ProductCard } from "./ProductCard"
 
 interface CategorySectionProps {
@@ -12,7 +12,8 @@ export const CategorySection = ({
   products,
   onProductClick,
 }: CategorySectionProps) => {
-  if (!products || products.length === 0) return null
+
+  if (products.length === 0) return null
 
   return (
     <section

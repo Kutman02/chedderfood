@@ -1,18 +1,16 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore } from "@reduxjs/toolkit"
 
-import { baseApi } from '@/api'
-import { publicApi } from './services/publicApi'
+import { baseApi } from "@/api"
 
-import { authReducer } from './slices/authSlice'
-import { cartReducer } from './slices/cartSlice'
-import { receiptsReducer } from './slices/receiptsSlice'
-import { uiReducer } from './slices/uiSlice'
+import { authReducer } from "./slices/authSlice"
+import { cartReducer } from "./slices/cartSlice"
+import { receiptsReducer } from "./slices/receiptsSlice"
+import { uiReducer } from "./slices/uiSlice"
 import { persistenceMiddleware } from "./persistenceMiddleware"
 
 export const store = configureStore({
   reducer: {
     [baseApi.reducerPath]: baseApi.reducer,
-    [publicApi.reducerPath]: publicApi.reducer,
 
     auth: authReducer,
     cart: cartReducer,
@@ -23,7 +21,6 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       baseApi.middleware,
-      publicApi.middleware,
       persistenceMiddleware
     ),
 })

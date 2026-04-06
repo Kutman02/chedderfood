@@ -5,9 +5,8 @@ import {
   useUpdateProductMutation,
   useUploadImageMutation
 } from "@/api"
-import type { ProductStatus } from "@/entities/product/model/types"
+import type { ProductStatus, ProductImage } from "@/types"
 import type { ImagePreview, UseEditProductProps } from "../types/editProduct.types"
-import type { ProductImage } from "@/entities/product/model/types"
 
 export const useEditProduct = ({
   product,
@@ -122,13 +121,10 @@ export const useEditProduct = ({
 
       if (!img.file) continue
 
-      const formData = new FormData()
-      formData.append("file", img.file)
+      const res = await uploadImage({ file: img.file }).unwrap() as { src: string }
 
-      const res = await uploadImage(formData).unwrap() as { url: string }
-
-      if (res?.url) {
-        urls.push(res.url)
+      if (res?.src) {
+        urls.push(res.src)
       }
     }
 
@@ -157,23 +153,16 @@ export const useEditProduct = ({
       const finalDescription = customDescription ?? description
 
       await updateProduct({
-
         id: product.id,
-
-        name,
-
-        price: salePrice || regularPrice, // 🔥 ключ
-
-        category_id: selectedCategory,
-
-        description: finalDescription,
-
-        images: imageUrls,
-
-        weight: weight || "",
-
-        status: isHidden ? "draft" : "publish"
-
+        data: {
+          name,
+          regular_price: regularPrice,
+          sale_price: salePrice || undefined,
+          description: finalDescription,
+          categories: [{ id: selectedCategory || 0 }],
+          images: imageUrls.map(url => ({ id: 0, src: url })) as any,
+          status: isHidden ? "draft" : "publish",
+        }
       }).unwrap()
 
       onClose()

@@ -1,4 +1,4 @@
-import type { Order } from "@/entities/order/model/types"
+import type { Order } from "@/types"
 import { getOrderStatus } from "../utils/getOrderStatus"
 import { OrderProgress } from "./OrderProgress"
 

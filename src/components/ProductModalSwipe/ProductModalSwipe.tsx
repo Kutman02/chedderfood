@@ -1,5 +1,5 @@
 import { useRef, useEffect, useLayoutEffect } from "react"
-import type { Product } from "@/entities/product/model/types"
+import type { Product } from "@/types"
 
 import { useScrollLockStore } from "@/stores/scrollLockStore"
 

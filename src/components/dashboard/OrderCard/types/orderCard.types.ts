@@ -1,4 +1,15 @@
-import type { Order, TabConfig } from "@/types"
+import type { Order } from "@/types"
+
+/* =========================
+   TAB CONFIG (локально или вынеси)
+========================= */
+
+export type TabConfig = {
+  label: string
+  color: string
+  borderColor: string
+}
+
 
 /* =========================
    ORDER CARD PROPS
@@ -13,8 +24,11 @@ export interface OrderCardProps {
   isRemoving: boolean
 
   onStatusUpdate: (id: number, status: string) => void
+
   onViewDetails: (order: Order) => void
-  onConfirmAction: (orderId: number, status: string, action: string) => void
+
+  // 🔥 ЧИСТЫЙ API
+  onConfirmAction: (orderId: number, action: string) => void
 
   showConfirmation?: boolean
   confirmationAction?: string
@@ -57,7 +71,8 @@ export interface OrderAddressProps {
 export interface OrderActionsProps {
   order: Order
   activeTab: string
-  onConfirmAction: (id: number, status: string, action: string) => void
+
+  onConfirmAction: (orderId: number, action: string) => void
 }
 
 

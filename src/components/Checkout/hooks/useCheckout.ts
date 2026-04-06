@@ -1,6 +1,4 @@
-import { useState, useLayoutEffect, useEffect } from "react"
-
-import { useScrollLockStore } from "@/stores/scrollLockStore"
+import { useState, useEffect } from "react"
 
 import { CIS_COUNTRIES } from "../constants/countries"
 
@@ -15,14 +13,13 @@ interface UseCheckoutProps {
 export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
   /* ===============================
-     EXTERNAL HOOKS
+     DATA
   =============================== */
 
   const { cartItems, totalAmount } = useCartSummary()
 
   const {
     formData,
-    setFormData,
     errors,
     orderType,
     setOrderType,
@@ -30,17 +27,13 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     validateForm,
   } = useCheckoutForm()
 
-  const { create } = useCreateOrder()
-
-  const lockScroll = useScrollLockStore((s) => s.lock)
-  const unlockScroll = useScrollLockStore((s) => s.unlock)
+  const { create, isLoading } = useCreateOrder()
 
   /* ===============================
      UI STATE
   =============================== */
 
   const [showConfirmModal, setShowConfirmModal] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
 
   /* ===============================
@@ -59,13 +52,15 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
      SCROLL LOCK
   =============================== */
 
-  useLayoutEffect(() => {
-    lockScroll()
-    return () => unlockScroll()
-  }, [lockScroll, unlockScroll])
+  useEffect(() => {
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = "auto"
+    }
+  }, [])
 
   /* ===============================
-     INPUTS
+     PHONE HANDLERS
   =============================== */
 
   const handlePhoneNumberChange = (
@@ -83,32 +78,6 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
   const toggleCountryDropdown = () => {
     setIsCountryDropdownOpen((prev) => !prev)
-  }
-
-  /* ===============================
-     AUTOFILL
-  =============================== */
-
-  const handleAutoFill = () => {
-    try {
-      const saved = localStorage.getItem("checkout_form")
-      if (!saved) return
-
-      const parsed = JSON.parse(saved)
-
-      setFormData((prev) => ({
-        ...prev,
-        ...parsed,
-      }))
-
-      if (parsed.phone?.startsWith(selectedCountry.code)) {
-        const phoneWithoutCode = parsed.phone.slice(selectedCountry.code.length)
-        setPhoneNumber(phoneWithoutCode)
-      }
-
-    } catch (e) {
-      console.error("autofill error", e)
-    }
   }
 
   /* ===============================
@@ -134,7 +103,8 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
   const handleConfirmOrder = async () => {
 
-    setIsSubmitting(true)
+    if (isLoading) return // 🔥 защита от двойного клика
+
     setErrorMessage("")
 
     try {
@@ -144,7 +114,6 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
           phone: fullPhone,
         },
         cartItems,
-        totalAmount,
         orderType,
         onClose,
       })
@@ -152,8 +121,6 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     } catch (err) {
       console.error(err)
       setErrorMessage("Ошибка создания заказа")
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -165,19 +132,6 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     setShowConfirmModal(false)
     setErrorMessage("")
   }
-
-  /* ===============================
-     SYNC PHONE → FORM
-  =============================== */
-
-  useEffect(() => {
-    if (!phoneNumber) return
-
-    setFormData((prev) => ({
-      ...prev,
-      phone: fullPhone,
-    }))
-  }, [fullPhone, phoneNumber, setFormData])
 
   /* ===============================
      RETURN
@@ -196,7 +150,7 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     totalAmount,
 
     showConfirmModal,
-    isSubmitting,
+    isSubmitting: isLoading, // 🔥 единый источник
     errorMessage,
 
     handleInputChange,
@@ -209,6 +163,5 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     handleSubmit,
     handleConfirmOrder,
     handleCancelConfirm,
-    handleAutoFill,
   }
 }

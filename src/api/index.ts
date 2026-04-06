@@ -1,65 +1,57 @@
-// =========================
-// BASE
-// =========================
+/* BASE API */
 export { baseApi } from "./base/baseApi"
 
-
-// =========================
-// PRODUCTS
-// =========================
+/* AUTH */
 export {
-  useGetProductsQuery,
-  useCreateProductMutation,
-  useUpdateProductMutation,
-  useDeleteProductMutation,
-  useGetProductCategoriesQuery,
-  useUpdateProductOrderMutation,
-} from "./products/products.api"
-
-
-// =========================
-// ORDERS
-// =========================
-export {
-  useGetOrdersQuery,
-  useCreateOrderMutation,
-  useUpdateOrderStatusMutation,
-} from "./orders/orders.api"
-
-
-// =========================
-// AUTH
-// =========================
-export {
+  useLoginMutation,
   useGetMeQuery,
   useLazyGetMeQuery,
+  useGetProfileQuery,
+  useLogoutMutation,
+  useUpdateProfileMutation,
 } from "./auth/auth.api"
 
+/* ADMIN - PRODUCTS */
+export {
+  useGetProductsQuery,
+  useGetProductsQuery as useGetAdminProductsQuery,
+  useGetProductsQuery as useGetAnalyticsProductsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useUploadImageMutation,
+  useGetProductCategoriesQuery,
+  useUpdateProductVisibilityMutation,
+} from "./admin/products.api"
 
-// =========================
-// CUSTOMERS
-// =========================
+/* ADMIN - ORDERS */
+export {
+  useGetOrdersQuery,
+  useGetOrdersQuery as useGetAdminOrdersQuery,
+  useGetOrdersQuery as useGetAnalyticsOrdersQuery,
+  useUpdateOrderStatusMutation,
+} from "./admin/orders.api"
+
+/* ADMIN - CUSTOMERS */
 export {
   useGetCustomersQuery,
-  useGetAllCustomersQuery,
-  useGetCustomerQuery,
-} from "./customers/customers.api"
+} from "./admin/customers.api"
 
-
-// =========================
-// ANALYTICS
-// =========================
+/* ADMIN - CATEGORIES */
 export {
-  useGetAnalyticsOrdersQuery,
-  useGetAnalyticsProductsQuery
-} from "./analytics/analytics.api"
+  useGetCategoriesQuery as useGetAdminCategoriesQuery,
+} from "./admin/categories.api"
 
-
-// =========================
-// PROFILE
-// =========================
+/* PUBLIC - PRODUCTS */
 export {
-  useGetProfileQuery,
-  useUpdateProfileMutation,
-  useUploadImageMutation
-} from "./profile/profile.api"
+  useGetPublicProductsQuery,
+} from "./public/products.api"
+
+/* PUBLIC - ORDERS */
+export {
+  useCreateOrderMutation,
+} from "./public/orders.api"
+
+/* PUBLIC - CATEGORIES */
+export {
+  useGetPublicCategoriesQuery,
+} from "./public/categories.api"

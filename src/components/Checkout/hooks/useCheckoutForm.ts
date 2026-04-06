@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 
 /* ===============================
-   TYPES (локально, правильно)
+   TYPES
 =============================== */
 
 export interface CheckoutFormData {
@@ -22,11 +22,19 @@ export const useCheckoutForm = () => {
 
   const [formData, setFormData] =
     useState<CheckoutFormData>(() => {
+
       try {
         const saved = localStorage.getItem("checkout_form")
 
         if (saved) {
-          return JSON.parse(saved) as CheckoutFormData
+          const parsed = JSON.parse(saved)
+
+          return {
+            first_name: parsed.first_name ?? "",
+            address: parsed.address ?? "",
+            phone: parsed.phone ?? "",
+            customer_note: parsed.customer_note ?? "",
+          }
         }
 
       } catch (e) {
@@ -54,17 +62,20 @@ export const useCheckoutForm = () => {
 
     const { name, value } = e.target
 
-    setFormData((prev: CheckoutFormData) => ({
+    const limitedValue = value.slice(0, 100)
+
+    setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: limitedValue,
     }))
 
-    if (name in errors) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }))
-    }
+    setErrors((prev) => {
+      if (!prev[name as keyof CheckoutFormData]) return prev
+
+      const next = { ...prev }
+      delete next[name as keyof CheckoutFormData]
+      return next
+    })
   }
 
   /* ===============================
@@ -83,8 +94,8 @@ export const useCheckoutForm = () => {
       newErrors.address = "Введите адрес"
     }
 
-    if (!phoneNumber.trim()) {
-      newErrors.phone = "Введите номер телефона"
+    if (!phoneNumber || phoneNumber.length < 6) {
+      newErrors.phone = "Некорректный номер"
     }
 
     setErrors(newErrors)
@@ -93,7 +104,20 @@ export const useCheckoutForm = () => {
   }
 
   /* ===============================
-     SAVE TO LOCALSTORAGE
+     SYNC ORDER TYPE
+  =============================== */
+
+  useEffect(() => {
+    if (orderType === "pickup") {
+      setFormData((prev) => ({
+        ...prev,
+        address: "",
+      }))
+    }
+  }, [orderType])
+
+  /* ===============================
+     SAVE
   =============================== */
 
   useEffect(() => {
@@ -113,8 +137,6 @@ export const useCheckoutForm = () => {
 
   return {
     formData,
-    setFormData,
-
     errors,
 
     orderType,

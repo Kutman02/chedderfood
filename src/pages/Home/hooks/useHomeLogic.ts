@@ -1,27 +1,25 @@
 import { useState, useMemo, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 
-import { normalizeProduct } from "@/entities/product/model/normalizeProduct"
-import type { Product } from "@/entities/product/model/types"
+import type { Product } from "@/types"
 
 import {
   useGetPublicProductsQuery,
-  useGetPublicProductCategoriesQuery,
-} from "../../../app/services/publicApi"
+} from "@/api"
 
-import { useAppDispatch, useAppSelector } from "../../../app/hooks"
+import { useAppDispatch, useAppSelector } from "@/app/hooks"
 
 import {
   addToCart as addToCartAction,
   removeFromCart as removeFromCartAction,
-} from "../../../app/slices/cartSlice"
+} from "@/app/slices/cartSlice"
 
 import {
   closeReceipts,
   openCart,
   openReceipts,
   closeCart,
-} from "../../../app/slices/uiSlice"
+} from "@/app/slices/uiSlice"
 
 export const useHomeLogic = () => {
 
@@ -41,25 +39,19 @@ export const useHomeLogic = () => {
   ========================= */
 
   const {
-    data: productsData = [],
+    data,
     isLoading: productsLoading,
-  } = useGetPublicProductsQuery({
-    per_page: 100,
-  })
+    isError: productsError,
+  } = useGetPublicProductsQuery()
 
-  const {
-    data: categories = [],
-    isLoading: categoriesLoading,
-  } = useGetPublicProductCategoriesQuery({
-    per_page: 100,
-  })
+  const productsData = data?.data ?? []
 
   /* =========================
-     NORMALIZATION (🔥 FIX)
+     NORMALIZATION
   ========================= */
 
   const normalizedProducts: Product[] = useMemo(() => {
-    return (productsData as any[]).map(normalizeProduct)
+    return productsData
   }, [productsData])
 
   /* =========================
@@ -86,11 +78,9 @@ export const useHomeLogic = () => {
     })
 
     Object.keys(grouped).forEach((id) => {
-
       grouped[Number(id)].sort((a, b) =>
         (a.menu_order || 0) - (b.menu_order || 0)
       )
-
     })
 
     return grouped
@@ -159,7 +149,7 @@ export const useHomeLogic = () => {
 
   const openProductModal = (product: Product) => {
 
-    setSelectedProduct(product) // 🔥 FIX (убрали normalize)
+    setSelectedProduct(product)
     setIsModalOpen(true)
 
     const params = new URLSearchParams(searchParams)
@@ -193,16 +183,11 @@ export const useHomeLogic = () => {
     setSearchParams(params)
   }
 
-  /* =========================
-     RETURN
-  ========================= */
-
   return {
     products: normalizedProducts,
-    categories,
 
     productsLoading,
-    categoriesLoading,
+    productsError,
 
     productsByCategory,
 

@@ -63,18 +63,13 @@ export const ProfileHeader = ({ profile }: Props) => {
       return
     }
 
-    const formData = new FormData()
-    formData.append("file", file)
-
     setIsUploading(true)
 
     try {
 
-      const res = await uploadImage(formData).unwrap()
+      const res = await uploadImage({ file }).unwrap()
 
-      const avatarUrl =
-        res?.source_url ||
-        res?.guid?.rendered
+      const avatarUrl = res?.src
 
       if (!avatarUrl) {
         throw new Error("No avatar URL")

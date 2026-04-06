@@ -24,6 +24,7 @@ const OrdersPage = () => {
   const {
     orders,
     ordersLoading,
+    ordersError,
     counts,
     countsRaw,
     totalPages, // ✅ ВАЖНО
@@ -111,6 +112,15 @@ const OrdersPage = () => {
 
   if (ordersLoading) {
     return <OrderSkeleton count={5} />
+  }
+
+  if (ordersError) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-red-500 font-semibold">Ошибка загрузки заказов</p>
+        <p className="text-slate-400 text-sm mt-2">Пожалуйста, попробуйте позже</p>
+      </div>
+    )
   }
 
   return (

@@ -22,6 +22,7 @@ const ProductsPage = () => {
     products,
     sortedProducts,
     productsLoading,
+    productsError,
 
     categories,
     selectedCategoryFilter,
@@ -35,6 +36,15 @@ const ProductsPage = () => {
     handleDragOver,
     handleDrop
   } = useProducts(searchQuery)
+
+  if (productsError) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-red-500 font-semibold">Ошибка загрузки продуктов</p>
+        <p className="text-slate-400 text-sm mt-2">Пожалуйста, попробуйте позже</p>
+      </div>
+    )
+  }
 
   if (productsLoading) {
     return <ProductSkeleton count={12} />

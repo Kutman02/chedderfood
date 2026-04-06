@@ -9,15 +9,12 @@ import { FloatingCartButton } from "./components/FloatingCartButton"
 
 import { useHomeLogic } from "./hooks/useHomeLogic"
 
-import type { Category } from "@/types"
-
 const Home = () => {
   const {
     products,
-    categories,
     productsByCategory,
     productsLoading,
-    categoriesLoading,
+    productsError,
 
     cartCount,
     isCartOpen,
@@ -32,12 +29,32 @@ const Home = () => {
     closeReceipts,
   } = useHomeLogic()
 
-  const isLoading = categoriesLoading || productsLoading
+  /* =========================
+     LOADING
+  ========================= */
 
-  const filteredCategories =
-    (categories as Category[])?.filter(
-      (c: Category) => c.name !== "Без категории"
-    ) || []
+  const isLoading = productsLoading
+
+  /* =========================
+     CATEGORIES (из products)
+  ========================= */
+
+  const categories = Object.values(
+    products.reduce((acc: Record<number, any>, product) => {
+      product.categories?.forEach((cat) => {
+        acc[cat.id] = cat
+      })
+      return acc
+    }, {})
+  )
+
+  const filteredCategories = categories.filter(
+    (c) => c.name !== "Без категории"
+  )
+
+  /* =========================
+     RENDER
+  ========================= */
 
   return (
     <div className="min-h-screen flex flex-col transition-opacity duration-300">
@@ -48,6 +65,11 @@ const Home = () => {
           {isLoading ? (
             <div className="text-center py-20 text-slate-400">
               Загрузка...
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-20">
+              <p className="text-red-500 font-semibold">Ошибка загрузки продуктов</p>
+              <p className="text-slate-400 text-sm mt-2">Пожалуйста, попробуйте позже</p>
             </div>
           ) : filteredCategories.length === 0 ? (
             <div className="text-center py-20 text-slate-400">
@@ -79,7 +101,7 @@ const Home = () => {
       />
 
       {isReceiptsOpen && (
-        <MyReceipts products={products || []} onClose={closeReceipts} />
+        <MyReceipts products={products} onClose={closeReceipts} />
       )}
 
       {isCartOpen && <Cart />}

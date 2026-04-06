@@ -1,10 +1,12 @@
+import type { OrderStatus } from "@/types"
+
 interface OrderTabsProps {
-  activeTab: string
-  setActiveTab: (tab: string) => void
-  counts: Record<string, number | string>
+  activeTab: OrderStatus
+  setActiveTab: (tab: OrderStatus) => void
+  counts: Record<OrderStatus, number | string>
 }
 
-const tabs = [
+const tabs: Array<{ key: OrderStatus, label: string }> = [
   { key: "on-hold", label: "Новые" },
   { key: "processing", label: "Готовятся" },
   { key: "ready", label: "Готовые" },

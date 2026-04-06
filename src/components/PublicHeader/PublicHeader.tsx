@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react"
-import { useGetPublicProductCategoriesQuery } from "@/app/services/publicApi"
+import { useGetPublicCategoriesQuery } from "@/api"
 import { useSearchParams } from "react-router-dom"
-import type { Category } from "@/entities/product/model/types"
+import type { Category } from "@/types"
 
 import { useAppSelector } from "@/app/hooks"
 import { useScrollLockStore } from "@/stores/scrollLockStore"
@@ -16,7 +16,7 @@ export const PublicHeader = () => {
   const receipts = useAppSelector((s) => s.receipts.receipts)
 
   const { data: categories, isLoading, isError } =
-    useGetPublicProductCategoriesQuery({ per_page: 100 })
+    useGetPublicCategoriesQuery()
 
   const isScrollLocked = useScrollLockStore((s) => s.isLocked)
 

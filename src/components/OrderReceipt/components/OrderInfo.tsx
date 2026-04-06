@@ -1,5 +1,5 @@
 import type { FC } from "react"
-import type { Order } from "@/entities/order/model/types"
+import type { Order } from "@/types"
 
 interface ShippingInfo {
   method: string

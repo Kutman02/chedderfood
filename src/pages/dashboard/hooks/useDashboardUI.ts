@@ -1,13 +1,21 @@
 import { useState } from "react"
 
-import type { Order } from "@/entities/order/model/types"
-import type { Product } from "@/entities/product/model/types"
+import type { OrderStatus, Product } from "@/types"
 
 type SearchSection = "orders" | "products" | "customers"
 
 export const useDashboardUI = () => {
 
-  const [activeTab, setActiveTab] = useState("on-hold")
+  /* ===============================
+     ACTIVE TAB (строго типизирован)
+  =============================== */
+
+  const [activeTab, setActiveTab] =
+    useState<OrderStatus>("on-hold")
+
+  /* ===============================
+     SEARCH
+  =============================== */
 
   const [searchQueries, setSearchQueries] = useState({
     orders: "",
@@ -15,12 +23,19 @@ export const useDashboardUI = () => {
     customers: ""
   })
 
-  const setSearchQuery = (section: SearchSection, value: string) => {
+  const setSearchQuery = (
+    section: SearchSection,
+    value: string
+  ) => {
     setSearchQueries(prev => ({
       ...prev,
       [section]: value
     }))
   }
+
+  /* ===============================
+     UI STATES
+  =============================== */
 
   const [showStats, setShowStats] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -32,16 +47,20 @@ export const useDashboardUI = () => {
     useState<Product | null>(null)
 
   /* ===============================
-     ORDER MODAL (🔥 RAW DATA)
+     ORDER MODAL (🔥 RAW BACKEND)
   =============================== */
 
   const [orderDetailsModal, setOrderDetailsModal] = useState<{
     isOpen: boolean
-    order: any | null // ❗ RAW backend
+    order: any | null // 🔥 RAW DATA (ВАЖНО)
   }>({
     isOpen: false,
     order: null
   })
+
+  /* ===============================
+     HANDLERS
+  =============================== */
 
   const handleViewDetails = (order: any) => {
     setOrderDetailsModal({
@@ -50,23 +69,17 @@ export const useDashboardUI = () => {
     })
   }
 
-  /* ===============================
-     PRODUCT EDIT
-  =============================== */
-
   const handleEditProduct = (product: Product) => {
     setSelectedProduct(product)
     setShowEditProductModal(true)
   }
 
   /* ===============================
-     SEARCH PLACEHOLDER
+     PLACEHOLDER
   =============================== */
 
   const getPlaceholder = (section: SearchSection) => {
-
     switch (section) {
-
       case "orders":
         return "Поиск заказа по имени, телефону или адресу..."
 
@@ -81,8 +94,11 @@ export const useDashboardUI = () => {
     }
   }
 
-  return {
+  /* ===============================
+     RETURN
+  =============================== */
 
+  return {
     activeTab,
     setActiveTab,
 

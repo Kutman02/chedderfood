@@ -1,12 +1,11 @@
 import { useState, useMemo } from "react"
 
 import {
-  useGetProductsQuery,
-  useGetProductCategoriesQuery,
-  useUpdateProductOrderMutation
+  useGetAdminProductsQuery,
+  useGetAdminCategoriesQuery,
 } from "@/api"
 
-import type { Product } from "@/entities/product/model/types"
+import type { Product } from "@/types"
 
 export const useProducts = (searchQuery: string) => {
 
@@ -19,41 +18,40 @@ export const useProducts = (searchQuery: string) => {
   const [draggedProductId, setDraggedProductId] =
     useState<number | null>(null)
 
-  const [updateProductOrder] =
-    useUpdateProductOrderMutation()
-
-  // 🔥 FIX 1 — убрали params
   const { data: categories } =
-    useGetProductCategoriesQuery()
+    useGetAdminCategoriesQuery()
 
-  // 🔥 FIX 2 — убрали params
   const {
     data: productsData,
-    isLoading: productsLoading
-  } = useGetProductsQuery()
+    isLoading: productsLoading,
+    isError: productsError
+  } = useGetAdminProductsQuery()
 
-  const allProducts: Product[] = productsData || []
+  const allProducts: Product[] =
+    productsData?.data || []
 
-  // 🔥 поиск + фильтр теперь на фронте
+  /* ===============================
+     FILTER
+  =============================== */
+
   const products = useMemo(() => {
 
     let filtered = allProducts
 
-    // 🔍 поиск
-    if (searchQuery) {
+    const query = searchQuery.toLowerCase()
+
+    if (query) {
       filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase())
+        p.name.toLowerCase().includes(query)
       )
     }
 
-    // 📦 статус
     if (selectedStatusFilter !== "all") {
       filtered = filtered.filter(
         p => p.status === selectedStatusFilter
       )
     }
 
-    // 📂 категория
     if (selectedCategoryFilter) {
       filtered = filtered.filter((product) =>
         product.categories?.some(
@@ -64,7 +62,16 @@ export const useProducts = (searchQuery: string) => {
 
     return filtered
 
-  }, [allProducts, searchQuery, selectedStatusFilter, selectedCategoryFilter])
+  }, [
+    allProducts,
+    searchQuery,
+    selectedStatusFilter,
+    selectedCategoryFilter
+  ])
+
+  /* ===============================
+     SORT
+  =============================== */
 
   const sortedProducts = useMemo(() => {
 
@@ -75,6 +82,10 @@ export const useProducts = (searchQuery: string) => {
     })
 
   }, [products])
+
+  /* ===============================
+     DRAG
+  =============================== */
 
   const handleDragStart = (
     e: React.DragEvent,
@@ -115,7 +126,6 @@ export const useProducts = (searchQuery: string) => {
     const newOrder = [...sortedProducts]
 
     const [removed] = newOrder.splice(draggedIndex, 1)
-
     newOrder.splice(targetIndex, 0, removed)
 
     try {
@@ -128,22 +138,25 @@ export const useProducts = (searchQuery: string) => {
         }))
         .filter(p => p.newOrder !== p.oldOrder)
 
-      await Promise.all(
-        updates.map(p =>
-          updateProductOrder({
-            id: p.id,
-            menu_order: p.newOrder
-          }).unwrap()
-        )
-      )
+      // TODO: Add API endpoint for updating product order
+      // await Promise.all(
+      //   updates.map(p =>
+      //     updateProductOrder({
+      //       id: p.id,
+      //       menu_order: p.newOrder
+      //     }).unwrap()
+      //   )
+      // )
+
+      console.log("Product order would be updated:", updates)
 
     } catch (error) {
 
       console.error("Ошибка обновления порядка", error)
 
+    } finally {
+      setDraggedProductId(null)
     }
-
-    setDraggedProductId(null)
 
   }
 
@@ -152,6 +165,7 @@ export const useProducts = (searchQuery: string) => {
     products,
     sortedProducts,
     productsLoading,
+    productsError,
 
     categories,
 

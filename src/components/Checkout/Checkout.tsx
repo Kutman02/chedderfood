@@ -5,30 +5,20 @@ import { CartStep } from "@/components/Checkout/steps/CartStep"
 import { CheckoutStep } from "@/components/Checkout/steps/CheckoutStep"
 import { ConfirmOrderModal } from "@/components/Checkout/components"
 
-import type { Product } from "@/entities/product/model/types"
-import type { Order as PublicOrder } from "@/entities/order/model/types"
-
 import { useCheckout } from "@/components/Checkout/hooks/useCheckout"
 
-/* ===============================
-   LOCAL TYPES
-=============================== */
+import type { CartItem } from "@/types/ui/cart.types"
 
-type CartItem = {
-  id: number
-  product_id: number
-  name: string
-  price: number
-  quantity: number
-  image?: string
-}
+/* ===============================
+   TYPES
+=============================== */
 
 interface CartData {
   items: CartItem[]
   totalAmount: number
   totalItems: number
 
-  onAdd: (product: Product) => void
+  onAdd: (product: any) => void
   onRemove: (id: number) => void
   onClear: () => void
 
@@ -37,8 +27,6 @@ interface CartData {
 
 interface CheckoutProps {
   onClose: () => void
-  onShowReceipt?: (orderData: PublicOrder) => void
-
   cartData: CartData
 }
 
@@ -49,7 +37,12 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const step = searchParams.get("step") || "cart"
+  /* ===============================
+     STEP (safe)
+  =============================== */
+
+  const stepParam = searchParams.get("step")
+  const step = stepParam === "checkout" ? "checkout" : "cart"
 
   /* ===============================
      NAVIGATION
@@ -70,12 +63,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
   }
 
   /* ===============================
-     CHECKOUT HOOK
+     HOOK
   =============================== */
 
-  const checkout = useCheckout({
-    onClose,
-  })
+  const checkout = useCheckout({ onClose })
 
   /* ===============================
      RENDER
@@ -87,15 +78,18 @@ export const Checkout: React.FC<CheckoutProps> = ({
         open={checkout.showConfirmModal}
         formData={checkout.formData}
         orderType={checkout.orderType}
-        totalAmount={Number(checkout.totalAmount || 0)} // 🔥 FIX
+        totalAmount={checkout.totalAmount}
         errorMessage={checkout.errorMessage}
         isSubmitting={checkout.isSubmitting}
         onConfirm={checkout.handleConfirmOrder}
         onCancel={checkout.handleCancelConfirm}
       />
 
-      <div className="fixed inset-0 z-50 bg-white flex flex-col h-100dvh">
+      <div className="fixed inset-0 z-50 bg-white flex flex-col h-dvh">
 
+        {/* ===============================
+            CART STEP
+        =============================== */}
         {step === "cart" && (
           <CartStep
             items={cartData.items}
@@ -113,6 +107,9 @@ export const Checkout: React.FC<CheckoutProps> = ({
           />
         )}
 
+        {/* ===============================
+            CHECKOUT STEP
+        =============================== */}
         {step === "checkout" && (
           <CheckoutStep
             onClose={onClose}
@@ -131,13 +128,12 @@ export const Checkout: React.FC<CheckoutProps> = ({
             onCountrySelect={checkout.handleCountrySelect}
             onToggleCountryDropdown={checkout.toggleCountryDropdown}
             onOrderTypeChange={checkout.setOrderType}
+            onAutoFill={() => {}}
 
-            totalAmount={Number(checkout.totalAmount || 0)} // 🔥 FIX
+            totalAmount={checkout.totalAmount}
             cartItemsCount={cartData.items.length}
             isSubmitting={checkout.isSubmitting}
             onSubmit={checkout.handleSubmit}
-
-            onAutoFill={checkout.handleAutoFill}
           />
         )}
 

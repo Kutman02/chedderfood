@@ -90,13 +90,10 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
       if (!image.file) continue
 
-      const formData = new FormData()
-      formData.append("file", image.file)
+      const result = await uploadImage({ file: image.file }).unwrap() as { src: string }
 
-      const result = await uploadImage(formData).unwrap() as { url: string }
-
-      if (result?.url) {
-        urls.push(result.url)
+      if (result?.src) {
+        urls.push(result.src)
       }
     }
 
@@ -117,14 +114,12 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     const finalDescription = customDescription ?? description
 
     await createProduct({
-
-    name: name.trim(),
-  price: (salePrice || regularPrice).trim(),
-  category_id: selectedCategory,
-  description: finalDescription.trim(),
-  images: imageUrls as any, // 🔥 FIX
-  weight: weight || ""
-
+      name: name.trim(),
+      regular_price: regularPrice.trim(),
+      sale_price: salePrice ? salePrice.trim() : undefined,
+      description: finalDescription.trim(),
+      categories: [{ id: selectedCategory }],
+      images: imageUrls.map(url => ({ id: 0, src: url })) as any,
     }).unwrap()
   }
 

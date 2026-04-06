@@ -1,10 +1,9 @@
 import { useMemo } from "react"
 
-import type { Order } from "@/entities/order/model/types"
-import type { Product } from "@/entities/product/model/types"
+import type { Order } from "@/types"
+import type { Product } from "@/types"
 
 import { formatDate } from "../utils/formatDate"
-import { normalizeOrder } from "@/entities/order/model/normalizeOrder"
 
 export const useOrderReceipt = (
   orderData: Order | null,
@@ -12,13 +11,10 @@ export const useOrderReceipt = (
 ) => {
 
   /* ===============================
-     NORMALIZE (SAFE)
+     SOURCE OF TRUTH (NO NORMALIZE)
   =============================== */
 
-  const order = useMemo(() => {
-    if (!orderData) return null
-    return normalizeOrder(orderData)
-  }, [orderData])
+  const order = orderData
 
   /* ===============================
      PRODUCTS MAP (O(1))
@@ -39,7 +35,7 @@ export const useOrderReceipt = (
   }, [products])
 
   /* ===============================
-     EMPTY STATE (CRITICAL)
+     EMPTY STATE
   =============================== */
 
   if (!order) {
@@ -66,6 +62,26 @@ export const useOrderReceipt = (
       handlePrint: () => {},
       handleShare: async () => {},
     }
+  }
+
+  /* ===============================
+     IMAGE RESOLVER (🔥 ВАЖНО)
+  =============================== */
+
+  const getImage = (item: any, product?: Product) => {
+    if (typeof item.image === "string" && item.image.trim() !== "") {
+      return item.image
+    }
+
+    if (item.image?.src) {
+      return item.image.src
+    }
+
+    if (product?.images?.[0]?.src) {
+      return product.images[0].src
+    }
+
+    return "/placeholder-image.jpg"
   }
 
   /* ===============================
@@ -96,14 +112,16 @@ export const useOrderReceipt = (
      TOTALS
   =============================== */
 
-  const subtotal = order.items.reduce((sum, item) => {
-    return sum + Number(item.price) * Number(item.quantity)
-  }, 0)
+  const subtotal = order.items.reduce(
+    (sum, item) =>
+      sum + Number(item.price) * Number(item.quantity),
+    0
+  )
 
   const total = Number(order.total)
 
   /* ===============================
-     ITEMS (MAIN FIX)
+     ITEMS (СТАБИЛЬНЫЙ)
   =============================== */
 
   const orderItems = order.items.map((item) => {
@@ -117,13 +135,9 @@ export const useOrderReceipt = (
       name: product?.name || item.name || "Товар",
 
       quantity: item.quantity,
-
       price: item.price,
 
-      image:
-        item.image ||
-        product?.images?.[0]?.src ||
-        "/placeholder-image.jpg",
+      image: getImage(item, product),
 
       total:
         Number(item.price) * Number(item.quantity),
@@ -134,9 +148,7 @@ export const useOrderReceipt = (
      ACTIONS
   =============================== */
 
-  const handlePrint = () => {
-    window.print()
-  }
+  const handlePrint = () => window.print()
 
   const handleShare = async () => {
     if (!navigator.share) return

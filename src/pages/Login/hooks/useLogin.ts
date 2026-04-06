@@ -2,28 +2,25 @@ import { useState } from "react"
 import { useAppDispatch } from "@/app/hooks"
 import { setCredentials } from "@/app/slices/authSlice"
 import { useNavigate } from "react-router-dom"
-import { authService } from "@/services/authService"
+import { useLoginMutation } from "@/api"
 
 export const useLogin = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
-  const [isLoading, setIsLoading] = useState(false)
+  const [login, { isLoading }] = useLoginMutation()
   const [error, setError] = useState<string | null>(null)
 
-  const login = async (username: string, password: string) => {
-    if (isLoading) return
-
-    setIsLoading(true)
+  const handleLogin = async (username: string, password: string) => {
     setError(null)
 
     try {
-      const data = await authService.login({ username, password })
+      const result = await login({ username, password }).unwrap()
 
       dispatch(
         setCredentials({
-          token: data.token,
-          user: data.user,
+          token: result.token,
+          user: result.user,
         })
       )
 
@@ -31,13 +28,11 @@ export const useLogin = () => {
     } catch (err) {
       console.error("❌ Login error:", err)
       setError("Неверный логин или пароль")
-    } finally {
-      setIsLoading(false)
     }
   }
 
   return {
-    login,
+    login: handleLogin,
     isLoading,
     error,
   }

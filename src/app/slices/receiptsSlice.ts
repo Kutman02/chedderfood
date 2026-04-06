@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { CustomerData, ReceiptData } from '@/types';
-import { STORAGE_KEYS } from "@/constants/storage"
+import { STORAGE_KEYS } from "@/shared/constants/storage"
 
 type ReceiptsState = {
   receipts: ReceiptData[];

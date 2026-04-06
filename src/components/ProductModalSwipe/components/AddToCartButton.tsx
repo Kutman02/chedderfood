@@ -1,5 +1,5 @@
 import { FaShoppingCart } from "react-icons/fa"
-import type { Product } from "@/entities/product/model/types"
+import type { Product } from "@/types"
 
 import { useAppDispatch } from "@/app/hooks"
 import { addToCart } from "@/app/slices/cartSlice"

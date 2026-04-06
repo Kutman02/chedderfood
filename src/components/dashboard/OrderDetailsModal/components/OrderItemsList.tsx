@@ -67,12 +67,12 @@ export const OrderItemsList = ({ items }: Props) => {
               </div>
 
               {/* Количество */}
-              <div className="text-xl font-black text-orange-600 text-center min-w-[40px]">
+              <div className="text-xl font-black text-orange-600 text-center min-w-10">
                 {item.quantity}×
               </div>
 
               {/* Сумма */}
-              <div className="text-right min-w-[80px]">
+              <div className="text-right min-w-20">
 
                 <p className="text-lg font-black text-green-600">
                   {item.total} сом

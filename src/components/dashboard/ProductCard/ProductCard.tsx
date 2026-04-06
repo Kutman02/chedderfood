@@ -1,4 +1,5 @@
-import type { Product } from "@/entities/product/model/types"
+import { memo } from "react"
+import type { Product } from "@/types"
 
 import {
   ProductImage,
@@ -11,22 +12,24 @@ import {
 
 interface ProductCardProps {
   product: Product
+  onClick?: () => void
   onEdit?: (product: Product) => void
   isDragging?: boolean
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>
 }
 
-export const ProductCard = ({
+export const ProductCard = memo(({
   product,
+  onClick,
   onEdit,
   isDragging,
   dragHandleProps
 }: ProductCardProps) => {
 
   return (
-
     <div
-      className={`shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 flex flex-col transition-all duration-300 ease-out
+      onClick={onClick}
+      className={`shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 flex flex-col transition-all duration-300 ease-out cursor-pointer
       ${isDragging ? "opacity-50 cursor-move" : ""}`}
       {...dragHandleProps}
     >
@@ -40,7 +43,10 @@ export const ProductCard = ({
         {onEdit && (
           <ProductEditButton
             product={product}
-            onEdit={onEdit}
+            onEdit={(p) => {
+              event?.stopPropagation()
+              onEdit(p)
+            }}
           />
         )}
 
@@ -61,6 +67,5 @@ export const ProductCard = ({
       </div>
 
     </div>
-
   )
-}
+})

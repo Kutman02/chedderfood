@@ -1,7 +1,7 @@
 import type { FC } from "react"
 
-import type { Product } from "@/entities/product/model/types"
-import type { Order } from "@/entities/order/model/types"
+import type { Product } from "@/types"
+import type { Order } from "@/types"
 
 import { RESTAURANT } from "@/config/restaurant"
 import { useOrderReceipt } from "./hooks/useOrderReceipt"

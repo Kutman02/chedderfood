@@ -20,14 +20,19 @@ export const OrderCard = ({
   showConfirmation = false,
   confirmationAction = ""
 }: OrderCardProps) => {
-  
-const getStatusFromAction = () => {
-  if (confirmationAction === "принять") return "processing"
-  if (confirmationAction === "готов") return "ready"
-  if (confirmationAction === "завершить") return "completed"
-  if (confirmationAction === "отменить") return "cancelled"
-  return ""
-}
+
+  /* ===============================
+     ACTION → STATUS
+  =============================== */
+
+  const getStatusFromAction = () => {
+    if (confirmationAction === "принять") return "processing"
+    if (confirmationAction === "готов") return "ready"
+    if (confirmationAction === "завершить") return "completed"
+    if (confirmationAction === "отменить") return "cancelled"
+    return ""
+  }
+
   return (
 
     <div
@@ -52,6 +57,7 @@ const getStatusFromAction = () => {
 
       </div>
 
+      {/* 🔥 ВАЖНО: передаём как есть (уже нормализован) */}
       <button
         onClick={() => onViewDetails(order)}
         className="w-full bg-slate-100 text-slate-700 py-2 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors mb-4"
@@ -67,22 +73,25 @@ const getStatusFromAction = () => {
         />
       )}
 
-   {showConfirmation && (
-  <OrderConfirmation
-    action={confirmationAction}
-    onCancel={() => onConfirmAction(order.id, "", "")}
-    onConfirm={() => {
-      const status = getStatusFromAction()
+      {showConfirmation && (
+        <OrderConfirmation
+          action={confirmationAction}
 
-      if (status) {
-        onStatusUpdate(order.id, status)
-      }
-    }}
-  />
-)}
+          // 🔥 FIX
+          onCancel={() =>
+            onConfirmAction(order.id, "")
+          }
+
+          onConfirm={() => {
+            const status = getStatusFromAction()
+
+            if (status) {
+              onStatusUpdate(order.id, status)
+            }
+          }}
+        />
+      )}
 
     </div>
-
   )
-
 }

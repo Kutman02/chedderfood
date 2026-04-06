@@ -1,5 +1,5 @@
-import type { Order } from "@/entities/order/model/types"
-import type { Product } from "@/entities/product/model/types"
+import type { Order } from "@/types"
+import type { Product } from "@/types"
 
 import { useOrderReceipt } from "@/components/OrderReceipt/hooks/useOrderReceipt"
 

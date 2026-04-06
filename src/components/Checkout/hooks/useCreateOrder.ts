@@ -1,26 +1,39 @@
 import { useNavigate } from "react-router-dom"
-import { useCreateOrderMutation } from "@/api"
 import { useAppDispatch } from "@/app/hooks"
+
 import { addReceipt, setCustomerData } from "@/app/slices/receiptsSlice"
 import { clearCart } from "@/app/slices/cartSlice"
+
 import { RESTAURANT } from "@/config/restaurant"
 
+import { useCreateOrderMutation } from "@/api"
+
+import type {
+  CreateOrderRequest,
+} from "@/types"
+import type { CreateOrderInput } from "@/types/ui/order.types"
+
 export const useCreateOrder = () => {
-  const [createOrder] = useCreateOrderMutation()
+
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+
+  const [createOrder, { isLoading }] = useCreateOrderMutation()
 
   const create = async ({
     formData,
     cartItems,
-    totalAmount,
     orderType,
     onClose,
-  }: any) => {
+  }: CreateOrderInput) => {
 
-    const orderData = {
+    /* =========================
+       MAPPING UI → API
+    ========================= */
+
+    const orderData: CreateOrderRequest = {
       status: "on-hold",
-      customer_id: 0,
+
       billing: {
         first_name: formData.first_name,
         address_1:
@@ -29,35 +42,56 @@ export const useCreateOrder = () => {
             : formData.address,
         phone: formData.phone,
       },
+
       customer_note: formData.customer_note,
+
       line_items: cartItems,
-      total: totalAmount.toString(),
-      currency: "KGS",
+
       meta_data: [
         { key: "order_type", value: orderType },
         { key: "pickup_address", value: RESTAURANT.address },
       ],
     }
 
-    const order = await createOrder(orderData).unwrap()
+    try {
 
-    dispatch(addReceipt(order))
-    dispatch(clearCart())
+      const order = await createOrder(orderData).unwrap()
 
-    dispatch(
-      setCustomerData({
-        first_name: formData.first_name,
-        address: formData.address,
-        phone: formData.phone,
+      /* =========================
+         STATE UPDATES
+      ========================= */
+
+      dispatch(addReceipt(order))
+      dispatch(clearCart())
+
+      dispatch(
+        setCustomerData({
+          first_name: formData.first_name,
+          address: formData.address,
+          phone: formData.phone,
+        })
+      )
+
+      /* =========================
+         NAVIGATION
+      ========================= */
+
+      onClose()
+
+      navigate(`/?modal=mycheks&order=${order.id}`, {
+        replace: true,
       })
-    )
 
-    onClose()
+      return order
 
-    navigate(`/?modal=mycheks&order=${order.id}`, { replace: true })
-
-    return order
+    } catch (error) {
+      console.error("❌ create order error:", error)
+      throw error
+    }
   }
 
-  return { create }
+  return {
+    create,
+    isLoading,
+  }
 }

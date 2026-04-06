@@ -11,8 +11,7 @@ import { OrderDetailsModal } from "@/components/dashboard/OrderDetailsModal/Orde
 import { AddProductModal } from "@/components/dashboard/AddProductModal/AddProductModal"
 import { EditProductModal } from "@/components/dashboard/EditProductModal/EditProductModal"
 
-// 🔥 ДОБАВЬ ЭТО
-import { useGetProductsQuery } from "@/api/products/products.api"
+import { useGetAdminProductsQuery } from "@/api"
 
 const DashboardLayout = () => {
   const location = useLocation()
@@ -44,7 +43,7 @@ const DashboardLayout = () => {
   } = useDashboardUI()
 
   // 🔥 ПОЛУЧАЕМ ПРОДУКТЫ
-  const { data: products = [] } = useGetProductsQuery({})
+  const { data: productsData } = useGetAdminProductsQuery()
 
   /* ===============================
      AUTH GUARD
@@ -101,7 +100,7 @@ const DashboardLayout = () => {
       <OrderDetailsModal
         isOpen={orderDetailsModal.isOpen}
         order={orderDetailsModal.order}
-        products={products} // ✅ FIX
+        products={productsData?.data || []}
         onClose={() =>
           setOrderDetailsModal({
             isOpen: false,

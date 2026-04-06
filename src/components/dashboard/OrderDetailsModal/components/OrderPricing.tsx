@@ -1,5 +1,5 @@
 import { FaTruck } from "react-icons/fa"
-import type { Order } from "@/entities/order/model/types"
+import type { Order } from "@/types"
 
 interface Props {
   order: Order

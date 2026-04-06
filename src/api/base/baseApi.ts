@@ -8,7 +8,6 @@ export const baseApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
 
-    // 🔥 ВАЖНО: добавляем токен автоматически
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("token")
 
@@ -22,12 +21,10 @@ export const baseApi = createApi({
 
   tagTypes: [
     "Orders",
-    "Order",
     "Products",
-    "Product",
+    "Categories",
     "Customers",
-    "Customer",
-    "Profile"
+    "Profile",
   ],
 
   endpoints: () => ({}),

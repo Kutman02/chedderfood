@@ -6,8 +6,7 @@ import {
   useGetAnalyticsProductsQuery
 } from "@/api"
 
-import type { Order, OrderItem } from "@/entities/order/model/types"
-import type { Product } from "@/entities/product/model/types"
+import type { Order, OrderItem, Product } from "@/types"
 import type { AnalyticsData } from "../types"
 
 export const useAnalyticsData = (

@@ -1,19 +1,12 @@
 import { useState, useMemo } from "react"
 
 import {
-  useGetOrdersQuery,
+  useGetAdminOrdersQuery,
   useUpdateOrderStatusMutation
 } from "@/api"
 
-import { filterOrders } from "@/utils/utils"
-import { normalizeOrder } from "@/entities/order/model/normalizeOrder"
-
-type OrderStatus =
-  | "on-hold"
-  | "processing"
-  | "ready"
-  | "completed"
-  | "cancelled"
+import { filterOrders } from "@/shared/utils/utils"
+import type { OrderStatus } from "@/types"
 
 export const useOrders = (
   activeTab: string,
@@ -39,40 +32,25 @@ export const useOrders = (
     useUpdateOrderStatusMutation()
 
   /* =========================
-     GET ORDERS (RAW)
+     GET ORDERS
   ========================= */
 
   const {
     data: result,
     isLoading: ordersLoading,
     error: ordersError
-  } = useGetOrdersQuery(
-    {
-      status: activeTab === "all" ? undefined : activeTab,
-      search: searchQuery,
-      page,
-      per_page: 15,
-      orderby: "date",
-      order: "desc"
-    },
-    {
-      pollingInterval: activeTab === "on-hold" ? 15000 : 0
-    }
-  )
+  } = useGetAdminOrdersQuery({
+    status: activeTab === "all" ? undefined : (activeTab as OrderStatus),
+    search: searchQuery,
+    page,
+    per_page: 15,
+  })
 
-  const rawOrders = result?.data ?? []
+  const orders = result?.data ?? []
   const totalPages = result?.totalPages ?? 1
 
   /* =========================
-     NORMALIZE (🔥 КЛЮЧ)
-  ========================= */
-
-  const orders = useMemo(() => {
-    return rawOrders.map(normalizeOrder)
-  }, [rawOrders])
-
-  /* =========================
-     FILTER (🔥 ПОСЛЕ NORMALIZE)
+     FILTER
   ========================= */
 
   const filteredOrders = useMemo(() => {
@@ -80,39 +58,39 @@ export const useOrders = (
   }, [orders, searchQuery])
 
   /* =========================
-     COUNTS (RAW ОК)
+     COUNTS (🔥 ОДИН ИСТОЧНИК)
   ========================= */
 
-  const { data: onHoldRes } = useGetOrdersQuery({ status: "on-hold", per_page: 15 })
-  const { data: processingRes } = useGetOrdersQuery({ status: "processing", per_page: 15 })
-  const { data: readyRes } = useGetOrdersQuery({ status: "ready", per_page: 15 })
-  const { data: completedRes } = useGetOrdersQuery({ status: "completed", per_page: 15 })
-  const { data: cancelledRes } = useGetOrdersQuery({ status: "cancelled", per_page: 15 })
+  const countsRaw: Record<OrderStatus, number> = useMemo(() => {
 
-  const onHold = onHoldRes?.data ?? []
-  const processing = processingRes?.data ?? []
-  const ready = readyRes?.data ?? []
-  const completed = completedRes?.data ?? []
-  const cancelled = cancelledRes?.data ?? []
+    const map: Record<OrderStatus, number> = {
+      "on-hold": 0,
+      processing: 0,
+      ready: 0,
+      completed: 0,
+      cancelled: 0
+    }
 
-  const countsRaw: Record<OrderStatus, number> = {
-    "on-hold": onHold.length,
-    processing: processing.length,
-    ready: ready.length,
-    completed: completed.length,
-    cancelled: cancelled.length
-  }
+    orders.forEach(order => {
+      if (map[order.status as OrderStatus] !== undefined) {
+        map[order.status as OrderStatus]++
+      }
+    })
+
+    return map
+
+  }, [orders])
 
   const formatCount = (count: number) => {
     return count >= 15 ? "15+" : count
   }
 
   const counts: Record<OrderStatus, number | string> = {
-    "on-hold": formatCount(onHold.length),
-    processing: formatCount(processing.length),
-    ready: formatCount(ready.length),
-    completed: formatCount(completed.length),
-    cancelled: formatCount(cancelled.length)
+    "on-hold": formatCount(countsRaw["on-hold"]),
+    processing: formatCount(countsRaw.processing),
+    ready: formatCount(countsRaw.ready),
+    completed: formatCount(countsRaw.completed),
+    cancelled: formatCount(countsRaw.cancelled)
   }
 
   /* =========================
@@ -121,7 +99,7 @@ export const useOrders = (
 
   const handleStatusUpdate = async (
     id: number,
-    status: string
+    status: OrderStatus
   ) => {
 
     setProcessingIds(prev =>
@@ -177,11 +155,11 @@ export const useOrders = (
     orderId: number,
     status: string
   ) => {
-    await handleStatusUpdate(orderId, status)
+    await handleStatusUpdate(orderId, status as OrderStatus)
   }
 
   return {
-    orders: filteredOrders, // 🔥 ВАЖНО
+    orders: filteredOrders,
 
     ordersLoading,
     ordersError,

@@ -1,10 +1,6 @@
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useRef, useEffect } from "react"
 
-import type { Order } from "@/entities/order/model/types"
-import type { Product } from "@/entities/product/model/types"
-
-import { normalizeOrder } from "@/entities/order/model/normalizeOrder"
-import { useScrollLockStore } from "@/stores/scrollLockStore"
+import type { Order, Product } from "@/types"
 
 import {
   OrderDetailsHeader,
@@ -29,18 +25,6 @@ export const OrderDetailsModal = ({
 
   const shareMenuRef = useRef<HTMLDivElement | null>(null)
 
-  const lock = useScrollLockStore((s) => s.lock)
-  const unlock = useScrollLockStore((s) => s.unlock)
-
-  /* ===============================
-     NORMALIZE
-  =============================== */
-
-  const normalizedOrder: Order | null = useMemo(
-    () => (order ? normalizeOrder(order) : null),
-    [order]
-  )
-
   /* ===============================
      SCROLL LOCK (🔥 FIX)
   =============================== */
@@ -48,12 +32,12 @@ export const OrderDetailsModal = ({
   useEffect(() => {
     if (!isOpen) return
 
-    lock()
+    document.body.style.overflow = "hidden"
 
     return () => {
-      unlock()
+      document.body.style.overflow = ""
     }
-  }, [isOpen, lock, unlock])
+  }, [isOpen])
 
   /* ===============================
      ESC CLOSE
@@ -79,7 +63,7 @@ export const OrderDetailsModal = ({
      GUARD
   =============================== */
 
-  if (!isOpen || !normalizedOrder) return null
+  if (!isOpen || !order) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-black/50 backdrop-blur-sm">
@@ -87,7 +71,7 @@ export const OrderDetailsModal = ({
       <div className="bg-white w-full h-full flex flex-col overflow-hidden">
 
         <OrderDetailsHeader
-          order={normalizedOrder}
+          order={order}
           onClose={onClose}
           showShareMenu={showShareMenu}
           setShowShareMenu={setShowShareMenu}
@@ -97,7 +81,7 @@ export const OrderDetailsModal = ({
         <div className="flex-1 overflow-y-auto">
 
           <OrderDetailsContent
-            order={normalizedOrder}
+            order={order}
             products={products}
           />
 
