@@ -43,7 +43,11 @@ export {
 
 /* ADMIN - CATEGORIES */
 export {
+  useGetCategoriesQuery,
   useGetCategoriesQuery as useGetAdminCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
 } from "./admin/categories.api"
 
 /* PUBLIC - PRODUCTS */

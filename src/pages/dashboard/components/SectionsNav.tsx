@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom"
 import { CgShoppingBag } from "react-icons/cg"
-import { GoPackage } from "react-icons/go";
-import { FaUsers } from "react-icons/fa6";
+import { GoPackage } from "react-icons/go"
+import { FaUsers } from "react-icons/fa6"
+import { BiCategory } from "react-icons/bi"
 
 interface SectionsNavProps {
   ordersCount?: number
@@ -59,6 +60,16 @@ const SectionsNav = ({ ordersCount = 0 }: SectionsNavProps) => {
       >
         <FaUsers size={18} />
         Клиенты
+      </NavLink>
+
+      <NavLink
+        to="/dashboard/categories"
+        className={({ isActive }) =>
+          `${baseStyle} ${isActive ? activeStyle : inactiveStyle}`
+        }
+      >
+        <BiCategory size={18} />
+        Категории
       </NavLink>
 
     </nav>

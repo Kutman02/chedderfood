@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react"
+import { useSelector } from "react-redux"
 
-import { useGetCustomersQuery } from "@/api" // ✅ FIX
+import { useGetCustomersQuery } from "@/api"
 
 import {
   ClientsSortPanel,
@@ -11,6 +12,7 @@ import {
 import { CustomerSkeleton } from "@/components/Skeleton/components"
 
 import { useFilteredCustomers } from "@/components/dashboard/Clients/hooks/useFilteredCustomers"
+import type { RootState } from "@/app/store"
 
 interface ClientsProps {
   searchQuery: string
@@ -25,11 +27,13 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
 
   const perPage = 10
 
+  const token = useSelector((state: RootState) => state.auth.token)
+
   const {
     data: customersData,
     isLoading,
     error
-  } = useGetCustomersQuery({ per_page: 100 }) // ✅ FIX
+  } = useGetCustomersQuery({ per_page: 100 }, { skip: !token })
 
   const customers = customersData || []
 

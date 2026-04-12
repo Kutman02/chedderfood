@@ -1,4 +1,5 @@
 /* API */
+export * from "./api/common.types"
 export * from "./api/auth.types"
 export * from "./api/category.types"
 export * from "./api/customer.types"
