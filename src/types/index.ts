@@ -8,3 +8,4 @@ export * from "./api/product.types"
 /* UI */
 export * from "./ui/cart.types"
 export * from "./ui/checkout.types"
+export * from "./ui/order.types"

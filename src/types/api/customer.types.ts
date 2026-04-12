@@ -1,33 +1,26 @@
-/* CUSTOMER */
-
-export interface CustomerBilling {
-  first_name?: string
-  last_name?: string
-  phone?: string
-  address_1?: string
-  address_2?: string
-  city?: string
-  state?: string
-  postcode?: string
-  country?: string
+export interface Customer {
+  id: string
+  first_name: string
+  phone: string
+  address?: string
+  orders_count: number
+  total_spent: number
 }
 
-export interface Customer {
-  id: number
-  username: string
-  first_name?: string
-  last_name?: string
-  email?: string
-  date_created: string
-  date_modified?: string
-  billing?: CustomerBilling
-  orders_count?: number
-  total_spent?: string
-  avatar_url?: string
+export interface CustomerDetails {
+  success: boolean
+  customer: Customer
+  orders: import("./order.types").Order[]
+  orders_count: number
+  analytics?: {
+    total_spent: number
+    first_order_date: string
+    last_order_date: string
+  }
 }
 
 export interface CustomersResponse {
+  success: boolean
   data: Customer[]
   total?: number
-  totalPages?: number
 }

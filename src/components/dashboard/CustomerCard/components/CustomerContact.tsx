@@ -11,36 +11,30 @@ export const CustomerContact = ({ customer }: Props) => {
 
     <div className="space-y-2 mb-4">
 
-      {customer.billing.phone && (
+      {customer.phone && (
 
         <div className="flex items-center gap-2 text-sm">
 
           <FaPhone className="text-slate-400" size={12} />
 
           <a
-            href={`tel:${customer.billing.phone}`}
+            href={`tel:${customer.phone}`}
             className="text-orange-600 font-bold"
           >
-            {customer.billing.phone}
+            {customer.phone}
           </a>
 
         </div>
 
       )}
 
-      {customer.billing.address_1 && (
+      {customer.address && (
 
         <div className="text-sm text-slate-600">
 
           <p className="font-semibold">
-            {customer.billing.address_1}
+            {customer.address}
           </p>
-
-          {customer.billing.city && (
-            <p className="text-xs text-slate-500">
-              {customer.billing.city}
-            </p>
-          )}
 
         </div>
 

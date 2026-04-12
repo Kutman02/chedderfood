@@ -1,4 +1,4 @@
-import type { Order } from "../types";
+import type { Order } from "@/types";
 
 export const filterOrders = (
   orders: Order[] | undefined,
@@ -15,27 +15,19 @@ export const filterOrders = (
 
   return orders.filter((order) => {
 
-    const billing = order.billing ?? {};
-
     const orderNumber = String(order.number ?? order.id ?? "")
       .toLowerCase();
 
-    const firstName = (billing.first_name ?? "").toLowerCase();
-    const lastName = (billing.last_name ?? "").toLowerCase();
+    const fullName = (order.customer_name ?? "").toLowerCase();
 
-    const fullName = `${firstName} ${lastName}`.trim();
-
-    const phone = (billing.phone ?? "")
+    const phone = (order.phone ?? "")
       .toLowerCase()
       .replace(/[\s\-()]/g, "");
-
-    const email = (billing.email ?? "").toLowerCase();
 
     return (
       orderNumber.includes(search) ||
       fullName.includes(search) ||
-      phone.includes(searchClean) ||
-      email.includes(search)
+      phone.includes(searchClean)
     );
 
   });

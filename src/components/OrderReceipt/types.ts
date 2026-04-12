@@ -7,7 +7,8 @@ export interface OrderReceiptProps {
   onNewOrder: () => void
 }
 
-export type OrderItemWithImage = Omit<OrderItem, "total"> & {
+export type OrderItemWithImage = Omit<OrderItem, "total" | "price"> & {
+  price: string
   image: string
   total: number
   fallback?: string

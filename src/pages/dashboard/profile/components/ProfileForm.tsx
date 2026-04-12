@@ -12,15 +12,12 @@ export const ProfileForm = ({ profile }: Props) => {
 
   const [firstName, setFirstName] = useState(profile.first_name || "")
   const [lastName, setLastName] = useState(profile.last_name || "")
-  const [description, setDescription] = useState(profile.description || "")
 
   const [updateProfile, { isLoading }] = useUpdateProfileMutation()
 
-  // ✅ фикс: синхронизация при смене profile
   useEffect(() => {
     setFirstName(profile.first_name || "")
     setLastName(profile.last_name || "")
-    setDescription(profile.description || "")
   }, [profile])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,7 +29,6 @@ export const ProfileForm = ({ profile }: Props) => {
       await updateProfile({
         first_name: firstName,
         last_name: lastName,
-        description
       }).unwrap()
 
       alert("Профиль обновлен")
@@ -84,20 +80,6 @@ export const ProfileForm = ({ profile }: Props) => {
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           className="border rounded-lg p-2"
-        />
-      </div>
-
-      {/* Биография */}
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">
-          Биография
-        </label>
-
-        <textarea
-        aria-label="Биография"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="border rounded-lg p-2 min-h-100px" // ✅ фикс tailwind
         />
       </div>
 

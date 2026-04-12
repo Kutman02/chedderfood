@@ -6,7 +6,14 @@ import {
 } from "@/api"
 
 import { filterOrders } from "@/shared/utils/utils"
+import { useToastStore } from "@/stores/toastStore"
 import type { OrderStatus } from "@/types"
+
+/* =========================
+   ORDERS HOOK
+   Управление заказами в админ панели
+   Включает фильтрацию, сортировку и обновление статуса
+========================= */
 
 export const useOrders = (
   activeTab: string,
@@ -27,6 +34,8 @@ export const useOrders = (
     orderId: null,
     action: null
   })
+
+  const addToast = useToastStore((state) => state.addToast)
 
   const [updateStatus] =
     useUpdateOrderStatusMutation()
@@ -61,9 +70,9 @@ export const useOrders = (
      COUNTS (🔥 ОДИН ИСТОЧНИК)
   ========================= */
 
-  const countsRaw: Record<OrderStatus, number> = useMemo(() => {
+  const countsRaw = useMemo(() => {
 
-    const map: Record<OrderStatus, number> = {
+    const map: Record<"on-hold" | "processing" | "ready" | "completed" | "cancelled", number> = {
       "on-hold": 0,
       processing: 0,
       ready: 0,
@@ -85,7 +94,7 @@ export const useOrders = (
     return count >= 15 ? "15+" : count
   }
 
-  const counts: Record<OrderStatus, number | string> = {
+  const counts = {
     "on-hold": formatCount(countsRaw["on-hold"]),
     processing: formatCount(countsRaw.processing),
     ready: formatCount(countsRaw.ready),
@@ -110,6 +119,12 @@ export const useOrders = (
 
       await updateStatus({ id, status }).unwrap()
 
+      addToast(
+        `Заказ #${id} → ${status}`,
+        "success",
+        3000
+      )
+
       if (["processing", "ready", "completed"].includes(status)) {
 
         setRemovingOrderIds(prev =>
@@ -130,8 +145,9 @@ export const useOrders = (
         action: null
       })
 
-    } catch {
-      alert("Ошибка обновления")
+    } catch (error) {
+      console.error("❌ Status update error:", error)
+      addToast("Ошибка обновления статуса", "error", 4000)
     } finally {
       setProcessingIds(prev => {
         const next = new Set(prev)

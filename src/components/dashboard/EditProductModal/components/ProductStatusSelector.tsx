@@ -1,9 +1,9 @@
 import { FaStar, FaFire, FaGift } from "react-icons/fa"
-import type { ProductStatus } from "@/types"
+import type { ProductTagStatus } from "../types/editProduct.types"
 
 interface ProductStatusSelectorProps {
-  value: ProductStatus
-  onChange: (value: ProductStatus) => void
+  value: ProductTagStatus
+  onChange: (value: ProductTagStatus) => void
 }
 
 const PRODUCT_STATUSES = [

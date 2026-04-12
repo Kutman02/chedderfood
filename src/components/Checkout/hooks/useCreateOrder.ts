@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch } from "@/app/hooks"
+import { useToastStore } from "@/stores/toastStore"
 
 import { addReceipt, setCustomerData } from "@/app/slices/receiptsSlice"
 import { clearCart } from "@/app/slices/cartSlice"
@@ -10,13 +11,20 @@ import { useCreateOrderMutation } from "@/api"
 
 import type {
   CreateOrderRequest,
+  Order,
 } from "@/types"
 import type { CreateOrderInput } from "@/types/ui/order.types"
+
+/* =========================
+   CREATE ORDER HOOK
+   Создает заказ и обновляет локальное состояние
+========================= */
 
 export const useCreateOrder = () => {
 
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const addToast = useToastStore((state) => state.addToast)
 
   const [createOrder, { isLoading }] = useCreateOrderMutation()
 
@@ -55,7 +63,25 @@ export const useCreateOrder = () => {
 
     try {
 
-      const order = await createOrder(orderData).unwrap()
+      const response = await createOrder(orderData).unwrap()
+      const order: Order =
+        response.order ?? {
+          id: response.id,
+          status: response.status,
+          total: String(response.total),
+          currency: "KGS",
+          date_created: new Date().toISOString(),
+          customer_name: formData.first_name,
+          phone: formData.phone,
+          address:
+            orderType === "pickup"
+              ? RESTAURANT.address
+              : formData.address,
+          customer_note: formData.customer_note,
+          order_type: orderType,
+          line_items: [],
+          items: [],
+        }
 
       /* =========================
          STATE UPDATES
@@ -73,6 +99,16 @@ export const useCreateOrder = () => {
       )
 
       /* =========================
+         NOTIFICATION
+      ========================= */
+
+      addToast(
+        `Заказ #${order.id} создан успешно! Статус: ${order.status}`,
+        "success",
+        5000
+      )
+
+      /* =========================
          NAVIGATION
       ========================= */
 
@@ -86,6 +122,16 @@ export const useCreateOrder = () => {
 
     } catch (error) {
       console.error("❌ create order error:", error)
+      
+      /* =========================
+         ERROR NOTIFICATION
+      ========================= */
+      
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Ошибка при создании заказа. Пожалуйста, попробуйте позже."
+      
+      addToast(errorMessage, "error", 5000)
       throw error
     }
   }

@@ -6,14 +6,7 @@ interface OrderTypeBadgeProps {
 }
 
 export const OrderTypeBadge = ({ order }: OrderTypeBadgeProps) => {
-
-  const orderTypeMeta = order.meta_data?.find(
-    (m) => m.key === "picup_address"
-  )
-
-  if (!orderTypeMeta) return null
-
-  const isPickup = orderTypeMeta.value === "pickup"
+  const isPickup = order.order_type === "pickup"
 
   return (
 

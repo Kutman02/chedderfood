@@ -27,13 +27,18 @@ export {
 export {
   useGetOrdersQuery,
   useGetOrdersQuery as useGetAdminOrdersQuery,
-  useGetOrdersQuery as useGetAnalyticsOrdersQuery,
   useUpdateOrderStatusMutation,
 } from "./admin/orders.api"
+
+/* ADMIN - ANALYTICS */
+export {
+  useGetDashboardAnalyticsQuery,
+} from "./admin/analytics.api"
 
 /* ADMIN - CUSTOMERS */
 export {
   useGetCustomersQuery,
+  useGetCustomerDetailsQuery,
 } from "./admin/customers.api"
 
 /* ADMIN - CATEGORIES */

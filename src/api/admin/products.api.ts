@@ -2,11 +2,21 @@ import { baseApi } from "../base/baseApi"
 import type {
   Product,
   ProductsResponse,
-  ProductImage,
+  Category,
+  CategoriesResponse,
+  ProductStatus,
+  StockStatus,
 } from "@/types"
 
 /* =========================
-   PARAMS
+   ADMIN PRODUCTS API
+   Эндпоинты:
+   - GET /custom/v1/products (получить товары)
+   - POST /custom/v1/products (создать товар)
+   - PUT /custom/v1/products/{id} (обновить товар)
+   - PUT /custom/v1/products/{id}/visibility (изменить видимость)
+   - POST /custom/v1/media (загрузить изображение)
+   Требует аутентификацию (Bearer token)
 ========================= */
 
 export interface GetProductsParams {
@@ -22,14 +32,22 @@ export interface GetProductsParams {
 
 export interface CreateProductRequest {
   name: string
+  price: number
+  regular_price?: number
+  sale_price?: number | null
   description?: string
-  regular_price: string
-  sale_price?: string
-  categories?: Array<{ id: number }>
-  images?: ProductImage[]
+  visible?: boolean
+  stock_status?: StockStatus
+  menu_order?: number
+  category_ids?: number[]
+  image_ids?: number[]
 }
 
-export interface CreateProductResponse extends Product {}
+export interface ProductMutationResponse {
+  success: boolean
+  data: Product
+  message: string
+}
 
 /* =========================
    UPLOAD IMAGE
@@ -51,7 +69,18 @@ export interface UploadImageResponse {
 
 export interface UpdateProductRequest {
   id: number
-  data: Partial<Product>
+  data: {
+    name?: string
+    price?: number
+    regular_price?: number
+    sale_price?: number | null
+    description?: string
+    visible?: boolean
+    stock_status?: StockStatus
+    menu_order?: number
+    category_ids?: number[]
+    image_ids?: number[]
+  }
 }
 
 /* =========================
@@ -66,7 +95,8 @@ export interface UpdateProductVisibilityRequest {
 export interface UpdateProductVisibilityResponse {
   success: boolean
   id: number
-  status: "publish" | "draft"
+  status: ProductStatus
+  message?: string
 }
 
 /* =========================
@@ -107,7 +137,7 @@ export const adminProductsApi = baseApi.injectEndpoints({
     ========================= */
 
     createProduct: builder.mutation<
-      CreateProductResponse,
+      Product,
       CreateProductRequest
     >({
       query: (data) => ({
@@ -115,6 +145,8 @@ export const adminProductsApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
+
+      transformResponse: (response: ProductMutationResponse) => response.data,
 
       invalidatesTags: [
         { type: "Products" as const, id: "LIST" },
@@ -134,6 +166,8 @@ export const adminProductsApi = baseApi.injectEndpoints({
         method: "PUT",
         body: data,
       }),
+
+      transformResponse: (response: ProductMutationResponse) => response.data,
 
       invalidatesTags: (_result, _error, { id }) => [
         { type: "Products" as const, id },
@@ -165,11 +199,13 @@ export const adminProductsApi = baseApi.injectEndpoints({
        GET CATEGORIES
     ========================= */
 
-    getProductCategories: builder.query({
+    getProductCategories: builder.query<Category[], void>({
       query: () => ({
         url: "/custom/v1/categories",
         method: "GET",
       }),
+
+      transformResponse: (response: CategoriesResponse) => response.data ?? [],
 
       providesTags: [
         { type: "Categories" as const, id: "LIST" },

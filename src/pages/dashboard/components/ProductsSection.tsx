@@ -57,6 +57,9 @@ export const ProductsSection = ({
 
 }: Props) => {
 
+  // Ensure categories is always an array
+  const safeCategories = Array.isArray(categories) ? categories : []
+
   return (
     <>
       {/* Кнопка + фильтры */}
@@ -85,7 +88,7 @@ export const ProductsSection = ({
             Все товары
           </button>
 
-          {categories.map((cat) => (
+          {safeCategories.map((cat) => (
 
             <button
               key={cat.id}

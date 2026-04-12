@@ -11,10 +11,13 @@ import { useHomeLogic } from "./hooks/useHomeLogic"
 
 const Home = () => {
   const {
+    categories,
     products,
     productsByCategory,
     productsLoading,
     productsError,
+    categoriesLoading,
+    categoriesError,
 
     cartCount,
     isCartOpen,
@@ -33,24 +36,7 @@ const Home = () => {
      LOADING
   ========================= */
 
-  const isLoading = productsLoading
-
-  /* =========================
-     CATEGORIES (из products)
-  ========================= */
-
-  const categories = Object.values(
-    products.reduce((acc: Record<number, any>, product) => {
-      product.categories?.forEach((cat) => {
-        acc[cat.id] = cat
-      })
-      return acc
-    }, {})
-  )
-
-  const filteredCategories = categories.filter(
-    (c) => c.name !== "Без категории"
-  )
+  const isLoading = productsLoading || categoriesLoading
 
   /* =========================
      RENDER
@@ -66,18 +52,18 @@ const Home = () => {
             <div className="text-center py-20 text-slate-400">
               Загрузка...
             </div>
-          ) : productsError ? (
+          ) : productsError || categoriesError ? (
             <div className="text-center py-20">
-              <p className="text-red-500 font-semibold">Ошибка загрузки продуктов</p>
+              <p className="text-red-500 font-semibold">Ошибка при загрузке данных</p>
               <p className="text-slate-400 text-sm mt-2">Пожалуйста, попробуйте позже</p>
             </div>
-          ) : filteredCategories.length === 0 ? (
+          ) : categories.length === 0 ? (
             <div className="text-center py-20 text-slate-400">
               Категории не найдены
             </div>
           ) : (
             <div className="space-y-16">
-              {filteredCategories.map((category) => (
+              {categories.map((category) => (
                 <CategorySection
                   key={category.id}
                   category={category}

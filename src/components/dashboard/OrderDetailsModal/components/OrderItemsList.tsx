@@ -17,8 +17,14 @@ export const OrderItemsList = ({ items }: Props) => {
 
   if (!Array.isArray(items) || items.length === 0) {
     return (
-      <div className="text-center text-slate-400 py-6">
-        Нет товаров
+      <div className="bg-white border-2 border-red-200 rounded-xl p-4">
+        <h3 className="text-lg font-black text-slate-900 mb-2">
+          <IoFastFood className="inline mr-2" />
+          Заказанные блюда
+        </h3>
+        <div className="text-center text-red-500 py-6 text-sm">
+          ⚠️ Товары не загружены. Проверьте консоль для отладки.
+        </div>
       </div>
     )
   }

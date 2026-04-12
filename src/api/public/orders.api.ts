@@ -5,7 +5,9 @@ import type {
 } from "@/types"
 
 /* =========================
-   API
+   PUBLIC ORDERS API
+   Эндпоинт: POST /custom/v1/orders
+   Открытый доступ для создания заказов (checkout)
 ========================= */
 
 export const publicOrdersApi = baseApi.injectEndpoints({
@@ -24,6 +26,8 @@ export const publicOrdersApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
+
+      transformResponse: (response: CreateOrderResponse) => response,
 
       async onQueryStarted(
         _arg,

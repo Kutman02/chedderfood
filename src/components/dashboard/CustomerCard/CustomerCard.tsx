@@ -13,11 +13,10 @@ interface CustomerCardProps {
 export const CustomerCard = ({ customer }: CustomerCardProps) => {
 
   const fullName =
-    `${customer.first_name} ${customer.last_name}`.trim() ||
-    customer.username
+    customer.first_name || "Без имени"
 
   const totalSpent =
-    parseFloat(customer.total_spent || "0")
+    Number(customer.total_spent || 0)
 
   return (
 

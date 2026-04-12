@@ -57,16 +57,13 @@ export const ClientsList = ({ customers }: Props) => {
 
             const isOpen = openId === customer.id
 
-            const name =
-              `${customer.first_name} ${customer.last_name}`.trim() || "Без имени"
+            const name = customer.first_name || "Без имени"
 
             const phone =
-              customer.billing.phone || "—"
+              customer.phone || "—"
 
             const address =
-              customer.billing.address_1 ||
-              customer.shipping.address_1 ||
-              "—"
+              customer.address || "—"
 
             const spent =
               Number(customer.total_spent || 0)

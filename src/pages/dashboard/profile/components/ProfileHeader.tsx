@@ -39,13 +39,12 @@ export const ProfileHeader = ({ profile }: Props) => {
     `${profile.first_name?.[0] || ""}${profile.last_name?.[0] || ""}`
   ).toUpperCase()
 
-  const fallbackInitial =
-    profile.username?.[0]?.toUpperCase() || "?"
+  const fallbackInitial = profile.name?.[0]?.toUpperCase() || "?"
 
   const displayName =
-    profile.first_name ||
-    profile.display_name ||
-    profile.username
+    profile.name ||
+    `${profile.first_name || ""} ${profile.last_name || ""}`.trim() ||
+    "Профиль"
 
   /* =========================
      UPLOAD HANDLER
@@ -151,13 +150,9 @@ export const ProfileHeader = ({ profile }: Props) => {
           {displayName}
         </h2>
 
-        <p className="text-sm text-gray-500">
-          @{profile.username}
-        </p>
-
-        {profile.description && (
-          <p className="text-sm text-gray-600 mt-1 max-w-md">
-            {profile.description}
+        {profile.email && (
+          <p className="text-sm text-gray-500">
+            {profile.email}
           </p>
         )}
 

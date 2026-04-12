@@ -7,6 +7,12 @@ import {
 
 import type { Product } from "@/types"
 
+/* =========================
+   PRODUCTS HOOK
+   Управление товарами в админ панели
+   Включает фильтрацию, сортировку по порядку и перетаскивание
+========================= */
+
 export const useProducts = (searchQuery: string) => {
 
   const [selectedCategoryFilter, setSelectedCategoryFilter] =
@@ -18,7 +24,7 @@ export const useProducts = (searchQuery: string) => {
   const [draggedProductId, setDraggedProductId] =
     useState<number | null>(null)
 
-  const { data: categories } =
+  const { data: categoriesData } =
     useGetAdminCategoriesQuery()
 
   const {
@@ -26,6 +32,8 @@ export const useProducts = (searchQuery: string) => {
     isLoading: productsLoading,
     isError: productsError
   } = useGetAdminProductsQuery()
+
+  const categories = Array.isArray(categoriesData) ? categoriesData : []
 
   const allProducts: Product[] =
     productsData?.data || []

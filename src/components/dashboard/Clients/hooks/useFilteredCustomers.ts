@@ -17,20 +17,15 @@ export const useFilteredCustomers = (
 
       if (!query) return true
 
-      const fullName =
-        `${customer.first_name} ${customer.last_name}`.toLowerCase()
+      const fullName = customer.first_name.toLowerCase()
 
-      const phone = customer.billing?.phone?.toLowerCase() || ""
-      const address = customer.billing?.address_1?.toLowerCase() || ""
-      const city = customer.billing?.city?.toLowerCase() || ""
-      const username = customer.username?.toLowerCase() || ""
+      const phone = customer.phone?.toLowerCase() || ""
+      const address = customer.address?.toLowerCase() || ""
 
       return (
         fullName.includes(query) ||
         phone.includes(query) ||
-        address.includes(query) ||
-        city.includes(query) ||
-        username.includes(query)
+        address.includes(query)
       )
 
     })
@@ -40,26 +35,16 @@ export const useFilteredCustomers = (
       switch (customerSortBy) {
 
         case "newest":
-          return (
-            new Date(b.date_created).getTime() -
-            new Date(a.date_created).getTime()
-          )
+          return 0
 
         case "orders":
           return (b.orders_count || 0) - (a.orders_count || 0)
 
         case "spent":
-          return (
-            parseFloat(b.total_spent || "0") -
-            parseFloat(a.total_spent || "0")
-          )
+          return Number(b.total_spent || 0) - Number(a.total_spent || 0)
 
         case "name":
-          return (
-            `${a.first_name} ${a.last_name}`.localeCompare(
-              `${b.first_name} ${b.last_name}`
-            )
-          )
+          return a.first_name.localeCompare(b.first_name)
 
         default:
           return 0

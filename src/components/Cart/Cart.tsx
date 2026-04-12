@@ -23,7 +23,7 @@ export const Cart = () => {
     return (
       <OrderReceipt
         orderData={cart.createdOrderData}
-        products={cart.cartItems}
+        products={[]}
         onClose={cart.handleReceiptClose}
         onNewOrder={cart.handleReceiptNewOrder}
       />
@@ -38,7 +38,6 @@ export const Cart = () => {
     return (
       <Checkout
         onClose={cart.handleCloseCart}
-        onShowReceipt={cart.handleCheckoutShowReceipt}
         cartData={{
           items: cart.cartItems,
           totalAmount: cart.totalAmount,

@@ -12,11 +12,11 @@ interface AddToCartButtonProps {
 
 export const AddToCartButton = ({ product, onClose }: AddToCartButtonProps) => {
   const dispatch = useAppDispatch()
-  const showToast = useToastStore((state) => state.showToast)
+  const addToast = useToastStore((state) => state.addToast)
 
   const handleAddToCart = () => {
     dispatch(addToCart(product))
-    showToast(`Вы добавили "${product.name}" в корзину`, "success")
+    addToast(`Вы добавили "${product.name}" в корзину`, "success")
     onClose()
   }
 

@@ -8,6 +8,9 @@ export type TabConfig = {
   label: string
   color: string
   borderColor: string
+  bgColor?: string
+  icon?: unknown
+  textColor?: string
 }
 
 

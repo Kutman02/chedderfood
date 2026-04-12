@@ -7,14 +7,14 @@ import {
   CartEmpty,
 } from "@/components/Cart/components";
 
-import type { CartItem, Product } from "@/types";
+import type { CartItem } from "@/types";
 
 interface CartStepProps {
   items: CartItem[];
   totalAmount: number;
   totalItems: number;
 
-  onAdd: (product: Product) => void;
+  onAdd: (product: CartItem) => void;
   onRemove: (id: number) => void;
   onClear: () => void;
   onClose: () => void;

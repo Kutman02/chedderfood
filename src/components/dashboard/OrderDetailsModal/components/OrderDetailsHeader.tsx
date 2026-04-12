@@ -34,8 +34,10 @@ export const OrderDetailsHeader = ({
      DELIVERY TYPE (🔥 FIX)
   =============================== */
 
+  const orderTypeValue = order.order_type || "delivery"
+  
   const deliveryType =
-    order.order_type === "pickup"
+    orderTypeValue === "pickup"
       ? "Самовывоз"
       : "Доставка"
 
@@ -58,7 +60,7 @@ export const OrderDetailsHeader = ({
       <div>
 
         <h2 className="text-xl md:text-2xl font-black text-slate-900">
-          Заказ # {order.number}
+          Заказ # {order.id}
         </h2>
 
         <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">

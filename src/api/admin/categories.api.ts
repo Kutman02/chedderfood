@@ -2,7 +2,9 @@ import { baseApi } from "../base/baseApi"
 import type { Category, CategoriesResponse } from "@/types"
 
 /* =========================
-   API
+   ADMIN CATEGORIES API
+   Эндпоинт: GET /custom/v1/categories
+   Требует аутентификацию (Bearer token)
 ========================= */
 
 export const adminCategoriesApi = baseApi.injectEndpoints({
@@ -12,11 +14,13 @@ export const adminCategoriesApi = baseApi.injectEndpoints({
        GET CATEGORIES (ADMIN)
     ========================= */
 
-    getCategories: builder.query<CategoriesResponse, void>({
+    getCategories: builder.query<Category[], void>({
       query: () => ({
         url: "/custom/v1/categories",
         method: "GET",
       }),
+
+      transformResponse: (response: CategoriesResponse) => response.data ?? [],
 
       providesTags: ["Categories"],
     }),

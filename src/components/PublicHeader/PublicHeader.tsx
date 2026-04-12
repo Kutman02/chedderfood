@@ -41,7 +41,7 @@ export const PublicHeader = () => {
     if (!Array.isArray(categories)) return []
 
     return categories.filter(
-      (c: Category) => c.name !== "Без категории"
+      (c: Category) => c.id !== undefined && c.id !== null && c.name !== "Без категории"
     )
   }, [categories])
 

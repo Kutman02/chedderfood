@@ -1,5 +1,7 @@
-import type { Product, ProductStatus } from "@/types"
+import type { Product } from "@/types"
 import type { RefObject } from "react"
+
+export type ProductTagStatus = "hit" | "new" | "sale" | "none"
 
 /* =========================
    MODAL PROPS
@@ -66,8 +68,8 @@ export interface UseEditProductReturn {
   selectedCategory: number | null
   setSelectedCategory: (value: number) => void
 
-  productStatus: ProductStatus
-  setProductStatus: (value: ProductStatus) => void
+  productStatus: ProductTagStatus
+  setProductStatus: (value: ProductTagStatus) => void
 
   isHidden: boolean
   setIsHidden: (value: boolean) => void

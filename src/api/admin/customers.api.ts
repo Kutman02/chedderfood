@@ -1,8 +1,12 @@
 import { baseApi } from "../base/baseApi"
-import type { Customer, CustomersResponse } from "@/types"
+import type { Customer, CustomerDetails, CustomersResponse } from "@/types"
 
 /* =========================
-   PARAMS
+   ADMIN CUSTOMERS API
+   Эндпоинты:
+   - GET /custom/v1/customers (получить список клиентов)
+   - GET /custom/v1/customers/{phone} (получить детали клиента по телефону)
+   Требует аутентификацию (Bearer token)
 ========================= */
 
 export interface GetCustomersParams {
@@ -32,8 +36,28 @@ export const adminCustomersApi = baseApi.injectEndpoints({
         params: params || {},
       }),
 
+      transformResponse: (response: CustomersResponse) => response.data ?? [],
+
       providesTags: [
         { type: "Customers" as const, id: "LIST" },
+      ],
+    }),
+
+    /* =========================
+       GET CUSTOMER DETAILS BY PHONE
+    ========================= */
+
+    getCustomerDetails: builder.query<
+      CustomerDetails,
+      string
+    >({
+      query: (phone) => ({
+        url: `/custom/v1/customers/${encodeURIComponent(phone)}`,
+        method: "GET",
+      }),
+
+      providesTags: (_result, _error, phone) => [
+        { type: "Customers" as const, id: phone },
       ],
     }),
 
@@ -46,4 +70,5 @@ export const adminCustomersApi = baseApi.injectEndpoints({
 
 export const {
   useGetCustomersQuery,
+  useGetCustomerDetailsQuery,
 } = adminCustomersApi

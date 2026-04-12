@@ -11,13 +11,15 @@ export const OrderTypeInfo = ({ order }: Props) => {
      SAFE DATA
   =============================== */
 
+  const orderTypeValue = order.order_type || "delivery"
+  
   const orderType =
-    order.order_type === "pickup" ? "pickup" : "delivery"
+    orderTypeValue === "pickup" ? "pickup" : "delivery"
 
   const isPickup = orderType === "pickup"
 
   const addressRaw = isPickup
-    ? order.pickup_address
+    ? order.address
     : order.address
 
   const address =

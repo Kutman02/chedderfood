@@ -3,10 +3,13 @@ import type {
   User,
   AuthResponse,
   LoginRequest,
+  ProfileResponse,
+  ProfileUpdateRequest,
 } from "@/types"
 
 /* =========================
-   API
+   AUTH API
+   Эндпоинты: /custom/v1/login, /custom/v1/me
 ========================= */
 
 export const authApi = baseApi.injectEndpoints({
@@ -48,6 +51,8 @@ export const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
 
+      transformResponse: (response: ProfileResponse) => response.user,
+
       providesTags: ["Profile"],
     }),
 
@@ -60,6 +65,8 @@ export const authApi = baseApi.injectEndpoints({
         url: "/custom/v1/me",
         method: "GET",
       }),
+
+      transformResponse: (response: ProfileResponse) => response.user,
 
       providesTags: ["Profile"],
     }),
@@ -81,12 +88,14 @@ export const authApi = baseApi.injectEndpoints({
        UPDATE PROFILE
     ========================= */
 
-    updateProfile: builder.mutation<User, Partial<User>>({
+    updateProfile: builder.mutation<User, ProfileUpdateRequest>({
       query: (data) => ({
         url: "/custom/v1/me",
         method: "PUT",
         body: data,
       }),
+
+      transformResponse: (response: ProfileResponse) => response.user,
 
       invalidatesTags: ["Profile"],
     }),

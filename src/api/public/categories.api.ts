@@ -1,8 +1,10 @@
 import { baseApi } from "../base/baseApi"
-import type { CategoriesResponse } from "@/types"
+import type { Category, CategoriesResponse } from "@/types"
 
 /* =========================
-   API
+   PUBLIC CATEGORIES API
+   Эндпоинт: GET /custom/v1/categories
+   Открытый доступ для клиентов
 ========================= */
 
 export const publicCategoriesApi = baseApi.injectEndpoints({
@@ -12,11 +14,13 @@ export const publicCategoriesApi = baseApi.injectEndpoints({
        GET PUBLIC CATEGORIES (CLIENT)
     ========================= */
 
-    getPublicCategories: builder.query<CategoriesResponse, void>({
+    getPublicCategories: builder.query<Category[], void>({
       query: () => ({
         url: "/custom/v1/categories",
         method: "GET",
       }),
+
+      transformResponse: (response: CategoriesResponse) => response.data ?? [],
 
       providesTags: [
         { type: "Categories" as const, id: "LIST" },

@@ -6,32 +6,45 @@ export interface ProductImage {
 export interface ProductCategory {
   id: number
   name: string
+  slug?: string
+  description?: string
 }
 
-export type ProductStatus = "publish" | "draft"
+export interface ProductTag {
+  id?: number
+  name: string
+  slug: string
+}
+
+export type ProductStatus = "publish" | "draft" | "pending"
+export type StockStatus = "instock" | "outofstock"
 
 export interface Product {
   id: number
   name: string
 
   price: string
-  regular_price: string
-  sale_price?: string
+  regular_price?: string
+  sale_price?: string | null
 
   status: ProductStatus
-  stock_status: string
+  stock_status: StockStatus
 
   menu_order?: number
   description?: string
+  visible?: boolean
 
   images: ProductImage[]
   categories: ProductCategory[]
+  tags?: ProductTag[]
+  weight?: string | number
 }
 
-/* ADMIN RESPONSE */
-
 export interface ProductsResponse {
+  success: boolean
   data: Product[]
   total: number
-  totalPages: number
+  totalPages?: number
+  page?: number
+  per_page?: number
 }

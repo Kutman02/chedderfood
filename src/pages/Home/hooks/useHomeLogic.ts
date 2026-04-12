@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 
-import type { Product } from "@/types"
+import type { Product, Category } from "@/types"
 
 import {
   useGetPublicProductsQuery,
+  useGetPublicCategoriesQuery,
 } from "@/api"
 
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
@@ -44,7 +45,17 @@ export const useHomeLogic = () => {
     isError: productsError,
   } = useGetPublicProductsQuery()
 
+  const {
+    data: categoriesData,
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+  } = useGetPublicCategoriesQuery()
+
   const productsData = data?.data ?? []
+  const categories: Category[] = Array.isArray(categoriesData) ? categoriesData : []
+
+  // Filter out invalid categories
+  const validCategories = categories.filter(cat => cat.id !== undefined && cat.id !== null && cat.name !== "Без категории")
 
   /* =========================
      NORMALIZATION
@@ -62,30 +73,44 @@ export const useHomeLogic = () => {
 
     const grouped: Record<number, Product[]> = {}
 
+    // Initialize groups for all valid categories
+    validCategories.forEach((cat) => {
+      if (cat.id) {
+        grouped[cat.id] = []
+      }
+    })
+
+    // Add products to their categories
     normalizedProducts.forEach((product) => {
 
       if (!product.categories?.length) return
 
       product.categories.forEach((cat) => {
 
-        if (!grouped[cat.id]) {
+        if (cat.id && !grouped[cat.id]) {
           grouped[cat.id] = []
         }
 
-        grouped[cat.id].push(product)
+        if (cat.id) {
+          grouped[cat.id].push(product)
+        }
 
       })
     })
 
+    // Sort products within each category
     Object.keys(grouped).forEach((id) => {
-      grouped[Number(id)].sort((a, b) =>
-        (a.menu_order || 0) - (b.menu_order || 0)
-      )
+      const numId = Number(id)
+      if (grouped[numId] && Array.isArray(grouped[numId])) {
+        grouped[numId].sort((a, b) =>
+          (a.menu_order || 0) - (b.menu_order || 0)
+        )
+      }
     })
 
     return grouped
 
-  }, [normalizedProducts])
+  }, [normalizedProducts, validCategories])
 
   /* =========================
      CART
@@ -184,10 +209,14 @@ export const useHomeLogic = () => {
   }
 
   return {
+    categories: validCategories,
+
     products: normalizedProducts,
 
     productsLoading,
     productsError,
+    categoriesLoading,
+    categoriesError,
 
     productsByCategory,
 

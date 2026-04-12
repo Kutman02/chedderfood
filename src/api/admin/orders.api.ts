@@ -3,10 +3,13 @@ import type {
   Order,
   OrdersResponse,
   OrderStatus,
+  UpdateOrderStatusResponse,
 } from "@/types"
 
 /* =========================
-   PARAMS
+   ADMIN ORDERS API
+   Эндпоинты: GET /custom/v1/orders, PUT /custom/v1/orders/{id}
+   Требует аутентификацию (Bearer token)
 ========================= */
 
 export interface GetOrdersParams {
@@ -15,6 +18,24 @@ export interface GetOrdersParams {
   status?: OrderStatus
   search?: string
 }
+
+const normalizeOrder = (order: Order): Order => ({
+  ...order,
+  items: Array.isArray(order.items)
+    ? order.items
+    : Array.isArray(order.line_items)
+      ? order.line_items
+      : [],
+})
+
+const normalizeOrdersResponse = (response: OrdersResponse): OrdersResponse => ({
+  ...response,
+  data: Array.isArray(response.data)
+    ? response.data.map(normalizeOrder)
+    : [],
+  total: response.total ?? 0,
+  totalPages: response.totalPages ?? 1,
+})
 
 /* =========================
    UPDATE STATUS
@@ -52,6 +73,9 @@ export const adminOrdersApi = baseApi.injectEndpoints({
         params: params || {},
       }),
 
+      transformResponse: (response: OrdersResponse) =>
+        normalizeOrdersResponse(response),
+
       providesTags: (result) =>
         result
           ? [
@@ -69,7 +93,7 @@ export const adminOrdersApi = baseApi.injectEndpoints({
     ========================= */
 
     updateOrderStatus: builder.mutation<
-      UpdateOrderResponse,
+      UpdateOrderStatusResponse,
       UpdateOrderRequest
     >({
       query: ({ id, status }) => ({

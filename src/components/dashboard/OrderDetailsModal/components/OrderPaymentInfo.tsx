@@ -7,8 +7,7 @@ interface Props {
 
 export const OrderPaymentInfo = ({ order }: Props) => {
 
-  const payment =
-    order.payment_method_title || "Оплата при получении"
+  const payment = "Оплата при получении"
 
   return (
     <div className="bg-purple-50 rounded-xl p-4">

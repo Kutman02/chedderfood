@@ -11,11 +11,13 @@ export const OrderPricing = ({ order }: Props) => {
      CALCULATIONS
   =============================== */
 
-  const subtotal = order.items.reduce(
-    (sum, item) =>
-      sum + Number(item.price) * Number(item.quantity),
-    0
-  )
+  const subtotal = Array.isArray(order.items)
+    ? order.items.reduce(
+        (sum, item) =>
+          sum + Number(item.price) * Number(item.quantity),
+        0
+      )
+    : 0
 
   const total = Number(order.total)
 
@@ -24,7 +26,7 @@ export const OrderPricing = ({ order }: Props) => {
 
   // 🔥 если добавишь в normalize → order.currency
   const currency =
-    order.meta?.currency === "KGS"
+    order.currency === "KGS"
       ? "сом"
       : "сом" // fallback (потом расширишь)
 

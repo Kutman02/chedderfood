@@ -68,9 +68,7 @@ export const OrdersSection = ({
 
           onViewDetails={onViewDetails}
 
-          onConfirmAction={(orderId, _status, action) =>
-            onConfirmAction(orderId, action)
-          }
+          onConfirmAction={onConfirmAction}
 
           showConfirmation={
             expandedConfirmation.orderId === order.id

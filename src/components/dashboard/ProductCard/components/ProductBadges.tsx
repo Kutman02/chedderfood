@@ -3,7 +3,7 @@ import type { Product } from "@/types"
 
 export const ProductBadges = ({ product }: { product: Product }) => {
 
-  const tags = product.tags // ✅ уже нормализованы
+  const tags = Array.isArray(product.tags) ? product.tags : []
 
   const isHidden = product.status === "draft"
   const isOutOfStock = product.stock_status !== "instock"

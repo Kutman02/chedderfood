@@ -7,5 +7,5 @@ export interface AuthResult {
   }
   message?: string
   error?: string
-  data?: Record<string, unknown>
+  data?: unknown
 }

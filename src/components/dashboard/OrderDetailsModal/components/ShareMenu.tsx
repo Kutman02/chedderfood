@@ -9,9 +9,9 @@ export const ShareMenu = ({ order }: Props) => {
 
   const generateShareText = () => {
 
-    return `Заказ #${order.number}
-Клиент: ${order.billing.first_name}
-Телефон: ${order.billing.phone}
+    return `Заказ #${order.number ?? order.id}
+Клиент: ${order.customer_name}
+Телефон: ${order.phone}
 Сумма: ${order.total} ${order.currency}`
 
   }

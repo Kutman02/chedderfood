@@ -115,11 +115,13 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
     await createProduct({
       name: name.trim(),
-      regular_price: regularPrice.trim(),
-      sale_price: salePrice ? salePrice.trim() : undefined,
+      price: Number(salePrice || regularPrice),
+      regular_price: Number(regularPrice),
+      sale_price: salePrice ? Number(salePrice) : undefined,
       description: finalDescription.trim(),
-      categories: [{ id: selectedCategory }],
-      images: imageUrls.map(url => ({ id: 0, src: url })) as any,
+      category_ids: [selectedCategory],
+      image_ids: [],
+      visible: true,
     }).unwrap()
   }
 

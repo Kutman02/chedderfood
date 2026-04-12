@@ -9,11 +9,6 @@ export const useOrderReceipt = (
   orderData: Order | null,
   products?: Product[]
 ) => {
-
-  /* ===============================
-     SOURCE OF TRUTH (NO NORMALIZE)
-  =============================== */
-
   const order = orderData
 
   /* ===============================
@@ -84,11 +79,13 @@ export const useOrderReceipt = (
     return "/placeholder-image.jpg"
   }
 
-  /* ===============================
-     ORDER TYPE
-  =============================== */
+  const orderType = order.order_type || "delivery"
 
-  const orderType = order.order_type
+  const normalizedItems = Array.isArray(order.items)
+    ? order.items
+    : Array.isArray(order.line_items)
+      ? order.line_items
+      : []
 
   /* ===============================
      SHIPPING
@@ -99,7 +96,7 @@ export const useOrderReceipt = (
 
     address:
       orderType === "pickup"
-        ? order.pickup_address || "Не указан"
+        ? order.address || "Не указан"
         : order.address || "Не указан",
 
     cost: 0,
@@ -112,7 +109,7 @@ export const useOrderReceipt = (
      TOTALS
   =============================== */
 
-  const subtotal = order.items.reduce(
+  const subtotal = normalizedItems.reduce(
     (sum, item) =>
       sum + Number(item.price) * Number(item.quantity),
     0
@@ -124,23 +121,17 @@ export const useOrderReceipt = (
      ITEMS (СТАБИЛЬНЫЙ)
   =============================== */
 
-  const orderItems = order.items.map((item) => {
-
+  const orderItems = normalizedItems.map((item) => {
     const product = productMap.get(item.product_id)
 
     return {
       id: item.id ?? item.product_id,
       product_id: item.product_id,
-
       name: product?.name || item.name || "Товар",
-
       quantity: item.quantity,
-      price: item.price,
-
+      price: String(item.price),
       image: getImage(item, product),
-
-      total:
-        Number(item.price) * Number(item.quantity),
+      total: Number(item.total || Number(item.price) * Number(item.quantity)),
     }
   })
 

@@ -5,8 +5,8 @@ import {
   useUpdateProductMutation,
   useUploadImageMutation
 } from "@/api"
-import type { ProductStatus, ProductImage } from "@/types"
-import type { ImagePreview, UseEditProductProps } from "../types/editProduct.types"
+import type { ProductImage } from "@/types"
+import type { ImagePreview, ProductTagStatus, UseEditProductProps } from "../types/editProduct.types"
 
 export const useEditProduct = ({
   product,
@@ -23,7 +23,7 @@ export const useEditProduct = ({
   const [regularPrice, setRegularPrice] = useState("")
   const [salePrice, setSalePrice] = useState("")
 
-  const [productStatus, setProductStatus] = useState<ProductStatus>("none")
+  const [productStatus, setProductStatus] = useState<ProductTagStatus>("none")
   const [isHidden, setIsHidden] = useState(false)
 
   const [weight, setWeight] = useState("")
@@ -156,12 +156,13 @@ export const useEditProduct = ({
         id: product.id,
         data: {
           name,
-          regular_price: regularPrice,
-          sale_price: salePrice || undefined,
+          price: Number(salePrice || regularPrice),
+          regular_price: Number(regularPrice),
+          sale_price: salePrice ? Number(salePrice) : undefined,
           description: finalDescription,
-          categories: [{ id: selectedCategory || 0 }],
-          images: imageUrls.map(url => ({ id: 0, src: url })) as any,
-          status: isHidden ? "draft" : "publish",
+          category_ids: selectedCategory ? [selectedCategory] : [],
+          image_ids: [],
+          visible: !isHidden,
         }
       }).unwrap()
 

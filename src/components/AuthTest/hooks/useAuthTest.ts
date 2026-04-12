@@ -11,6 +11,8 @@ const LOG = {
 }
 
 export const useAuthTest = () => {
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
 
   const [result, setResult] = useState<AuthResult | null>(null)
   const [loading, setLoading] = useState(false)
@@ -82,10 +84,17 @@ export const useAuthTest = () => {
   }
 
   return {
+    username,
+    password,
+    setUsername,
+    setPassword,
     result,
     loading,
 
     testLogin,
     testGetCurrentUser,
+    testAppPassword: testGetCurrentUser,
+    testWooCommerceAPI: testGetCurrentUser,
+    testDebugAuth: testGetCurrentUser,
   }
 }
