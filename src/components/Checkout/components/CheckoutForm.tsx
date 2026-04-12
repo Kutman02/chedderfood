@@ -108,6 +108,26 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   {errors.address}
                 </p>
               )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                <input
+                  type="text"
+                  name="apartment"
+                  value={formData.apartment}
+                  onChange={onInputChange}
+                  placeholder="Квартира / офис"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+
+                <input
+                  type="text"
+                  name="floor"
+                  value={formData.floor}
+                  onChange={onInputChange}
+                  placeholder="Этаж"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+              </div>
             </div>
           ) : (
             <div className="bg-green-50 border border-green-200 rounded-xl p-4">
@@ -169,6 +189,28 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
               placeholder="Комментарий к заказу"
               className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+              <input
+                type="checkbox"
+                name="needs_cutlery"
+                checked={formData.needs_cutlery}
+                onChange={onInputChange}
+              />
+              Нужны приборы
+            </label>
+
+            <label className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+              <input
+                type="checkbox"
+                name="needs_napkins"
+                checked={formData.needs_napkins}
+                onChange={onInputChange}
+              />
+              Нужны салфетки
+            </label>
           </div>
         </form>
       </div>

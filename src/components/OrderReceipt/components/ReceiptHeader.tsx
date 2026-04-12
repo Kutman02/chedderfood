@@ -12,7 +12,7 @@ export const ReceiptHeader: FC<ReceiptHeaderProps> = ({
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "pending":
+      case "on-hold":
         return "Ожидает"
       case "processing":
         return "Готовится"
@@ -20,8 +20,8 @@ export const ReceiptHeader: FC<ReceiptHeaderProps> = ({
         return "Готов"
       case "cancelled":
         return "Отменён"
-      case "on-hold":
-        return "В ожидании"
+      case "ready":
+        return "Готов"
       default:
         return status
     }

@@ -93,10 +93,34 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
                 </div>
 
                 <div className="font-medium text-slate-800">
-                  {formData.address}
+                  {orderType === "pickup"
+                    ? "Самовывоз"
+                    : (formData.address || "Не указан")}
                 </div>
               </div>
             </div>
+
+            {orderType === "delivery" && formData.apartment && (
+              <div className="flex items-start gap-3">
+                <FaMapMarkerAlt className="text-slate-400 mt-1" size={14} />
+
+                <div>
+                  <div className="text-sm text-slate-500">Квартира/офис</div>
+                  <div className="font-medium text-slate-800">{formData.apartment}</div>
+                </div>
+              </div>
+            )}
+
+            {orderType === "delivery" && formData.floor && (
+              <div className="flex items-start gap-3">
+                <FaMapMarkerAlt className="text-slate-400 mt-1" size={14} />
+
+                <div>
+                  <div className="text-sm text-slate-500">Этаж</div>
+                  <div className="font-medium text-slate-800">{formData.floor}</div>
+                </div>
+              </div>
+            )}
 
             {/* Phone */}
             <div className="flex items-start gap-3">
@@ -129,6 +153,17 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
                 </div>
               </div>
             )}
+
+            <div className="flex items-start gap-3">
+              <FaNotesMedical className="text-slate-400 mt-1" size={14} />
+
+              <div>
+                <div className="text-sm text-slate-500">Дополнительно</div>
+                <div className="font-medium text-slate-800">
+                  Приборы: {formData.needs_cutlery ? "Да" : "Нет"}, салфетки: {formData.needs_napkins ? "Да" : "Нет"}
+                </div>
+              </div>
+            </div>
 
             {/* Total */}
             <div className="pt-4 border-t border-slate-200 flex justify-between items-center">

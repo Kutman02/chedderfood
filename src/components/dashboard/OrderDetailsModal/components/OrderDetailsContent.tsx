@@ -22,19 +22,7 @@ export const OrderDetailsContent = ({ order, products }: Props) => {
 
   const receipt = useOrderReceipt(order, products)
 
-  // 🔥 DEBUG вывод для диагностики
-  console.group("📋 OrderDetails Debug")
-  console.log("💰 Order ID:", order.id)
-  console.log("📦 Raw order.items:", order.items)
-  console.log("📦 Raw order.line_items:", (order as any).line_items)
-  console.log("✅ Processed receipt.items count:", receipt.orderItems.length)
-  console.log("✅ Processed items:", receipt.orderItems)
-  console.log("📦 Available products:", products.length)
-  console.groupEnd()
-
-  // 🔥 CRITICAL GUARD
   if (!receipt.order) {
-    console.warn("⚠️ Order is null - returning null")
     return null
   }
 

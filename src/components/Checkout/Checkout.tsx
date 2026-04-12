@@ -133,6 +133,9 @@ export const Checkout: React.FC<CheckoutProps> = ({
             totalAmount={checkout.totalAmount}
             cartItemsCount={cartData.items.length}
             isSubmitting={checkout.isSubmitting}
+            checkoutAllowed={checkout.checkoutAllowed}
+            checkoutBlockMessage={checkout.checkoutBlockMessage}
+            isRestaurantHoursLoading={checkout.isRestaurantHoursLoading}
             onSubmit={checkout.handleSubmit}
           />
         )}

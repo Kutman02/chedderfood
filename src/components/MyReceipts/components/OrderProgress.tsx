@@ -3,7 +3,7 @@ interface OrderProgressProps {
 }
 
 const steps = [
-  { key: "pending", label: "Принят" },
+  { key: "on-hold", label: "Принят" },
   { key: "processing", label: "Готовится" },
   { key: "ready", label: "Готов" },
   { key: "completed", label: "Завершён" }

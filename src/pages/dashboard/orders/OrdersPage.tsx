@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { OrderTabs } from "../components/OrderTabs"
 import { OrdersSection } from "../components/OrdersSection"
@@ -16,10 +16,37 @@ type OutletContext = {
 const OrdersPage = () => {
 
   const [page, setPage] = useState(1)
+  const [dateMode, setDateMode] = useState<"today" | "all" | "day" | "range">("today")
+  const [selectedDate, setSelectedDate] = useState("")
+  const [dateFrom, setDateFrom] = useState("")
+  const [dateTo, setDateTo] = useState("")
 
   const { handleViewDetails, searchQuery } = useOutletContext<OutletContext>()
 
   const { activeTab, setActiveTab } = useDashboardUI()
+
+  const dateFilter = useMemo(() => {
+    if (dateMode === "all") {
+      return { mode: "all" as const }
+    }
+
+    if (dateMode === "today") {
+      return { mode: "today" as const }
+    }
+
+    if (dateMode === "day") {
+      return {
+        mode: "day" as const,
+        date: selectedDate,
+      }
+    }
+
+    return {
+      mode: "range" as const,
+      date_from: dateFrom,
+      date_to: dateTo,
+    }
+  }, [dateFrom, dateMode, dateTo, selectedDate])
 
   const {
     orders,
@@ -33,14 +60,14 @@ const OrdersPage = () => {
     expandedConfirmation,
     handleConfirmAction,
     handleConfirmStatusUpdate
-  } = useOrders(activeTab, searchQuery, page)
+  } = useOrders(activeTab, searchQuery, page, dateFilter)
 
   /**
    * ✅ сброс страницы
    */
   useEffect(() => {
     setPage(1)
-  }, [activeTab, searchQuery])
+  }, [activeTab, dateFilter, searchQuery])
 
   /**
    * 🔔 звук нового заказа (только on-hold)
@@ -130,6 +157,94 @@ const OrdersPage = () => {
         setActiveTab={setActiveTab}
         counts={counts}
       />
+
+      <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => {
+              setDateMode("today")
+            }}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+              dateMode === "today"
+                ? "bg-orange-500 text-white"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            Сегодня
+          </button>
+
+          <button
+            onClick={() => setDateMode("all")}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+              dateMode === "all"
+                ? "bg-orange-500 text-white"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            Посмотреть все
+          </button>
+
+          <button
+            onClick={() => setDateMode("day")}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+              dateMode === "day"
+                ? "bg-orange-500 text-white"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            По дате
+          </button>
+
+          <button
+            onClick={() => setDateMode("range")}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+              dateMode === "range"
+                ? "bg-orange-500 text-white"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            Диапазон
+          </button>
+        </div>
+
+        {dateMode === "day" && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <label className="text-slate-600">Дата:</label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              aria-label="Выберите дату"
+              title="Выберите дату"
+              className="rounded-lg border border-slate-300 px-3 py-2"
+            />
+          </div>
+        )}
+
+        {dateMode === "range" && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <label className="text-slate-600">С:</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              aria-label="Начальная дата диапазона"
+              title="Начальная дата диапазона"
+              className="rounded-lg border border-slate-300 px-3 py-2"
+            />
+
+            <label className="text-slate-600">По:</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              aria-label="Конечная дата диапазона"
+              title="Конечная дата диапазона"
+              className="rounded-lg border border-slate-300 px-3 py-2"
+            />
+          </div>
+        )}
+      </div>
 
       {/* ✅ empty state */}
       {orders.length === 0 ? (

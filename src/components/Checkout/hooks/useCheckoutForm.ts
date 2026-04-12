@@ -1,15 +1,5 @@
 import { useState, useEffect } from "react"
-
-/* ===============================
-   TYPES
-=============================== */
-
-export interface CheckoutFormData {
-  first_name: string
-  address: string
-  phone: string
-  customer_note: string
-}
+import type { CheckoutFormData } from "@/types"
 
 /* ===============================
    HOOK
@@ -34,6 +24,10 @@ export const useCheckoutForm = () => {
             address: parsed.address ?? "",
             phone: parsed.phone ?? "",
             customer_note: parsed.customer_note ?? "",
+            apartment: parsed.apartment ?? "",
+            floor: parsed.floor ?? "",
+            needs_cutlery: parsed.needs_cutlery ?? false,
+            needs_napkins: parsed.needs_napkins ?? false,
           }
         }
 
@@ -46,6 +40,10 @@ export const useCheckoutForm = () => {
         address: "",
         phone: "",
         customer_note: "",
+        apartment: "",
+        floor: "",
+        needs_cutlery: false,
+        needs_napkins: false,
       }
     })
 
@@ -60,13 +58,19 @@ export const useCheckoutForm = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
 
-    const { name, value } = e.target
+    const target = e.target as HTMLInputElement | HTMLTextAreaElement
+    const { name } = target
+    const isCheckbox =
+      "checked" in target &&
+      target.type === "checkbox"
 
-    const limitedValue = value.slice(0, 100)
+    const nextValue = isCheckbox
+      ? target.checked
+      : target.value.slice(0, 255)
 
     setFormData((prev) => ({
       ...prev,
-      [name]: limitedValue,
+      [name]: nextValue,
     }))
 
     setErrors((prev) => {

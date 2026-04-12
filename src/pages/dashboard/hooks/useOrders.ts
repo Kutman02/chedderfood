@@ -18,7 +18,13 @@ import type { OrderStatus } from "@/types"
 export const useOrders = (
   activeTab: string,
   searchQuery: string,
-  page: number
+  page: number,
+  dateFilter: {
+    mode: "today" | "all" | "day" | "range"
+    date?: string
+    date_from?: string
+    date_to?: string
+  }
 ) => {
 
   const [processingIds, setProcessingIds] =
@@ -40,6 +46,25 @@ export const useOrders = (
   const [updateStatus] =
     useUpdateOrderStatusMutation()
 
+  const dateParams = (() => {
+    if (dateFilter.mode === "today") {
+      return { scope: "today" as const }
+    }
+
+    if (dateFilter.mode === "all") {
+      return { scope: "all" as const }
+    }
+
+    if (dateFilter.mode === "day") {
+      return dateFilter.date ? { date: dateFilter.date } : {}
+    }
+
+    return {
+      ...(dateFilter.date_from ? { date_from: dateFilter.date_from } : {}),
+      ...(dateFilter.date_to ? { date_to: dateFilter.date_to } : {}),
+    }
+  })()
+
   /* =========================
      GET ORDERS
   ========================= */
@@ -53,6 +78,27 @@ export const useOrders = (
     search: searchQuery,
     page,
     per_page: 15,
+    ...dateParams,
+    fields: "id,status,reason,changed_at,changed_by_user_id,total,customer_name,phone,address,apartment,floor,order_type,needs_cutlery,needs_napkins,line_items,status_history,date_created",
+  }, {
+    pollingInterval: 1500,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+    refetchOnMountOrArgChange: true,
+  })
+
+  const {
+    data: countsResult,
+  } = useGetAdminOrdersQuery({
+    page: 1,
+    per_page: 1,
+    ...dateParams,
+    fields: "id,status",
+  }, {
+    pollingInterval: 1500,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+    refetchOnMountOrArgChange: true,
   })
 
   const orders = result?.data ?? []
@@ -71,13 +117,27 @@ export const useOrders = (
   ========================= */
 
   const countsRaw = useMemo(() => {
-
     const map: Record<"on-hold" | "processing" | "ready" | "completed" | "cancelled", number> = {
       "on-hold": 0,
       processing: 0,
       ready: 0,
       completed: 0,
       cancelled: 0
+    }
+
+    const sourceCounts =
+      dateFilter.mode === "today"
+        ? countsResult?.status_counts_today ?? countsResult?.status_counts_range
+        : countsResult?.status_counts_range ?? countsResult?.status_counts_today
+
+    if (sourceCounts) {
+      return {
+        "on-hold": sourceCounts["on-hold"] ?? 0,
+        processing: sourceCounts.processing ?? 0,
+        ready: sourceCounts.ready ?? 0,
+        completed: sourceCounts.completed ?? 0,
+        cancelled: sourceCounts.cancelled ?? 0,
+      }
     }
 
     orders.forEach(order => {
@@ -88,7 +148,7 @@ export const useOrders = (
 
     return map
 
-  }, [orders])
+  }, [countsResult?.status_counts_range, countsResult?.status_counts_today, dateFilter.mode, orders])
 
   const formatCount = (count: number) => {
     return count >= 15 ? "15+" : count
@@ -161,6 +221,14 @@ export const useOrders = (
     orderId: number,
     action: string
   ) => {
+    if (!action) {
+      setExpandedConfirmation({
+        orderId: null,
+        action: null,
+      })
+      return
+    }
+
     setExpandedConfirmation({
       orderId,
       action

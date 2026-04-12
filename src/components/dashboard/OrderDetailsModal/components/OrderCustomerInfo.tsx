@@ -17,6 +17,15 @@ export const OrderCustomerInfo = ({ order }: Props) => {
   const phone =
     order.phone?.trim() || ""
 
+  const email =
+    order.email?.trim() || ""
+
+  const fullName =
+    [order.first_name, order.last_name]
+      .filter(Boolean)
+      .join(" ")
+      .trim()
+
   /* ===============================
      ACTIONS
   =============================== */
@@ -56,6 +65,15 @@ export const OrderCustomerInfo = ({ order }: Props) => {
 
         </div>
 
+        {fullName && fullName !== name && (
+          <div className="text-sm text-slate-600 flex justify-between gap-2">
+            <span>Полное имя</span>
+            <span className="text-right font-medium text-slate-900 max-w-[60%] whitespace-pre-wrap">
+              {fullName}
+            </span>
+          </div>
+        )}
+
         {/* Телефон */}
         {phone ? (
 
@@ -85,6 +103,38 @@ export const OrderCustomerInfo = ({ order }: Props) => {
             Телефон не указан
           </div>
 
+        )}
+
+        {email && (
+          <div className="text-sm text-slate-600 flex justify-between gap-2">
+            <span>Email</span>
+            <span className="text-right font-medium text-slate-900 max-w-[60%] break-all">
+              {email}
+            </span>
+          </div>
+        )}
+
+        <div className="text-sm text-slate-600 flex justify-between gap-2">
+          <span>Приборы</span>
+          <span className="text-right font-medium text-slate-900">
+            {order.needs_cutlery ? "Да" : "Нет"}
+          </span>
+        </div>
+
+        <div className="text-sm text-slate-600 flex justify-between gap-2">
+          <span>Салфетки</span>
+          <span className="text-right font-medium text-slate-900">
+            {order.needs_napkins ? "Да" : "Нет"}
+          </span>
+        </div>
+
+        {order.reason?.trim() && (
+          <div className="text-sm text-slate-600">
+            <p className="mb-1">Причина последнего изменения статуса</p>
+            <p className="font-medium text-slate-900 whitespace-pre-wrap">
+              {order.reason}
+            </p>
+          </div>
         )}
 
       </div>

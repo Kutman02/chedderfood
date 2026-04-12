@@ -9,20 +9,27 @@ export interface OrderItem {
 }
 
 export type OrderStatus =
-  | "pending"
   | "on-hold"
   | "processing"
   | "ready"
   | "completed"
   | "cancelled"
-  | "failed"
-  | "refunded"
+
+export interface StatusChange {
+  status: OrderStatus
+  reason?: string | null
+  changed_by_user_id?: number
+  changed_by_user_name?: string
+  changed_at?: string
+}
 
 export type OrderType = "delivery" | "pickup"
 
 export interface Order {
   id: number
   status: OrderStatus
+  reason?: string | null
+  status_history?: StatusChange[]
   total: string
   currency?: string
   date_created: string
@@ -30,8 +37,14 @@ export interface Order {
   customer_name: string
   phone: string
   address?: string
+  address_2?: string
   apartment?: string
   floor?: string
+  city?: string
+  postcode?: string
+  email?: string
+  first_name?: string
+  last_name?: string
   customer_note?: string
   order_type?: OrderType
   needs_cutlery?: boolean
@@ -48,6 +61,23 @@ export interface OrdersResponse {
   totalPages?: number
   page?: number
   per_page?: number
+  status_counts_today?: OrderStatusCounts
+  status_counts_range?: OrderStatusCounts
+  date_filters?: {
+    scope?: "today" | "all" | null
+    applied_scope?: "today" | "all" | "date" | "range" | null
+    date?: string | null
+    date_from?: string | null
+    date_to?: string | null
+  }
+}
+
+export interface OrderStatusCounts {
+  "on-hold": number
+  processing: number
+  ready: number
+  completed: number
+  cancelled: number
 }
 
 export interface CreateOrderRequest {
@@ -97,6 +127,9 @@ export interface UpdateOrderStatusResponse {
   success: boolean
   id: number
   status: OrderStatus
+  reason?: string | null
+  changed_by_user_id?: number
+  changed_at?: string
   message?: string
 }
 
@@ -121,7 +154,13 @@ export interface DashboardTopProduct {
 export interface DashboardAnalyticsData {
   summary: DashboardAnalyticsSummary
   top_products: DashboardTopProduct[]
-  order_status_breakdown: Partial<Record<OrderStatus, number>>
+  order_status_breakdown: {
+    pending?: number
+    processing?: number
+    completed?: number
+    cancelled?: number
+    failed?: number
+  }
 }
 
 export interface DashboardAnalyticsResponse {

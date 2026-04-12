@@ -20,6 +20,10 @@ export const CustomerInfo: FC<CustomerInfoProps> = ({ order }) => {
   const address =
     order.address?.trim() || "Не указан"
 
+  const apartment = order.apartment?.trim()
+  const floor = order.floor?.trim()
+  const email = order.email?.trim()
+
   return (
     <div className="mb-6 bg-slate-50 rounded-lg p-4">
 
@@ -47,6 +51,47 @@ export const CustomerInfo: FC<CustomerInfoProps> = ({ order }) => {
           <span className="text-slate-600">Адрес:</span>
           <span className="font-medium text-right max-w-[60%] whitespace-pre-wrap">
             {address}
+          </span>
+        </p>
+
+        {apartment && (
+          <p className="flex justify-between">
+            <span className="text-slate-600">Квартира/офис:</span>
+            <span className="font-medium text-right max-w-[60%] whitespace-pre-wrap">
+              {apartment}
+            </span>
+          </p>
+        )}
+
+        {floor && (
+          <p className="flex justify-between">
+            <span className="text-slate-600">Этаж:</span>
+            <span className="font-medium text-right max-w-[60%] whitespace-pre-wrap">
+              {floor}
+            </span>
+          </p>
+        )}
+
+        {email && (
+          <p className="flex justify-between">
+            <span className="text-slate-600">Email:</span>
+            <span className="font-medium text-right max-w-[60%] break-all">
+              {email}
+            </span>
+          </p>
+        )}
+
+        <p className="flex justify-between">
+          <span className="text-slate-600">Приборы:</span>
+          <span className="font-medium text-right">
+            {order.needs_cutlery ? "Да" : "Нет"}
+          </span>
+        </p>
+
+        <p className="flex justify-between">
+          <span className="text-slate-600">Салфетки:</span>
+          <span className="font-medium text-right">
+            {order.needs_napkins ? "Да" : "Нет"}
           </span>
         </p>
 

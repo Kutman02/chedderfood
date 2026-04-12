@@ -64,3 +64,8 @@ export {
 export {
   useGetPublicCategoriesQuery,
 } from "./public/categories.api"
+
+/* PUBLIC - RESTAURANT */
+export {
+  useGetRestaurantHoursStatusQuery,
+} from "./public/restaurant.api"

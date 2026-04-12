@@ -48,16 +48,26 @@ export const useCreateOrder = () => {
           orderType === "pickup"
             ? RESTAURANT.address
             : formData.address,
+        apartment: formData.apartment,
+        floor: formData.floor,
         phone: formData.phone,
       },
 
       customer_note: formData.customer_note,
+      needs_cutlery: formData.needs_cutlery,
+      needs_napkins: formData.needs_napkins,
 
       line_items: cartItems,
 
       meta_data: [
         { key: "order_type", value: orderType },
         { key: "pickup_address", value: RESTAURANT.address },
+        ...(formData.apartment
+          ? [{ key: "apartment", value: formData.apartment }]
+          : []),
+        ...(formData.floor
+          ? [{ key: "floor", value: formData.floor }]
+          : []),
       ],
     }
 
@@ -77,8 +87,12 @@ export const useCreateOrder = () => {
             orderType === "pickup"
               ? RESTAURANT.address
               : formData.address,
+          apartment: formData.apartment,
+          floor: formData.floor,
           customer_note: formData.customer_note,
           order_type: orderType,
+          needs_cutlery: formData.needs_cutlery,
+          needs_napkins: formData.needs_napkins,
           line_items: [],
           items: [],
         }
@@ -95,6 +109,8 @@ export const useCreateOrder = () => {
           first_name: formData.first_name,
           address: formData.address,
           phone: formData.phone,
+          apartment: formData.apartment,
+          floor: formData.floor,
         })
       )
 

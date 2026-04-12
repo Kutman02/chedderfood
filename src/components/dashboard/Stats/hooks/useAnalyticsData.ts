@@ -37,7 +37,7 @@ export const useAnalyticsData = (
       average_order_value: analytics.summary.average_order_value,
 
       cancelled_orders: breakdown.cancelled ?? 0,
-      pending_orders: (breakdown.pending ?? 0) + (breakdown["on-hold"] ?? 0),
+      pending_orders: breakdown.pending ?? 0,
       processing_orders: breakdown.processing ?? 0,
       completed_orders: breakdown.completed ?? 0,
 

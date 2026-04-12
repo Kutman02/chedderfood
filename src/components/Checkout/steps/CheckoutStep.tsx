@@ -31,6 +31,9 @@ interface CheckoutStepProps {
   totalAmount: number;
   cartItemsCount: number;
   isSubmitting: boolean;
+  checkoutAllowed: boolean;
+  checkoutBlockMessage: string;
+  isRestaurantHoursLoading: boolean;
   onSubmit: () => void;
 
   onAutoFill: () => void;
@@ -57,6 +60,9 @@ export const CheckoutStep: React.FC<CheckoutStepProps> = ({
   totalAmount,
   cartItemsCount,
   isSubmitting,
+  checkoutAllowed,
+  checkoutBlockMessage,
+  isRestaurantHoursLoading,
   onSubmit,
 
   onAutoFill,
@@ -88,6 +94,9 @@ export const CheckoutStep: React.FC<CheckoutStepProps> = ({
         totalAmount={totalAmount}
         cartItemsCount={cartItemsCount}
         isSubmitting={isSubmitting}
+        checkoutAllowed={checkoutAllowed}
+        checkoutBlockMessage={checkoutBlockMessage}
+        isRestaurantHoursLoading={isRestaurantHoursLoading}
         onSubmit={onSubmit}
       />
     </>

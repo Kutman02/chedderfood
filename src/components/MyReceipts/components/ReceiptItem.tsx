@@ -10,11 +10,8 @@ interface ReceiptItemProps {
 
 const getOrderBorder = (status: string) => {
   switch (status) {
-    case "pending":
-      return "border-2 border-yellow-400 animate-pulse"
-
     case "on-hold":
-      return "border-2 border-orange-400 animate-pulse"
+      return "border-2 border-yellow-400 animate-pulse"
 
     case "processing":
       return "border-2 border-blue-400 animate-pulse"
@@ -26,8 +23,6 @@ const getOrderBorder = (status: string) => {
       return "border-2 border-yellow-900"
 
     case "cancelled":
-    case "refunded":
-    case "failed":
       return "border-2 border-red-400"
 
     default:
@@ -41,7 +36,7 @@ export const ReceiptItem = ({
   onView
 }: ReceiptItemProps) => {
 
-  const statusValue = receipt.status || "pending"
+  const statusValue = receipt.status || "on-hold"
 
   const status = getOrderStatus(statusValue)
 

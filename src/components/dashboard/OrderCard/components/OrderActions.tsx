@@ -10,7 +10,7 @@ export const OrderActions = ({
 }: {
   order: Order
   activeTab: string
-  onConfirmAction: (id: number, status: string, action: string) => void
+  onConfirmAction: (id: number, action: string) => void
 }) => {
 
   if (activeTab === "on-hold") {
@@ -19,7 +19,7 @@ export const OrderActions = ({
       <div className="flex gap-2">
 
         <button
-          onClick={() => onConfirmAction(order.id, "processing", "принять")}
+          onClick={() => onConfirmAction(order.id, "принять")}
           className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
         >
           <IoFastFood />
@@ -27,7 +27,7 @@ export const OrderActions = ({
         </button>
 
         <button
-          onClick={() => onConfirmAction(order.id, "cancelled", "отменить")}
+          onClick={() => onConfirmAction(order.id, "отменить")}
           aria-label="Отменить заказ"
           className="px-4 bg-red-50 text-red-600 rounded-xl"
         >
@@ -44,7 +44,7 @@ export const OrderActions = ({
       <div className="flex gap-2">
 
         <button
-          onClick={() => onConfirmAction(order.id, "ready", "готов")}
+          onClick={() => onConfirmAction(order.id, "готов")}
           className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
         >
           <FaCheckCircle />
@@ -52,7 +52,7 @@ export const OrderActions = ({
         </button>
 
         <button
-          onClick={() => onConfirmAction(order.id, "cancelled", "отменить")}
+          onClick={() => onConfirmAction(order.id, "отменить")}
           aria-label="Отменить заказ"
           className="px-4 bg-red-50 text-red-600 rounded-xl"
         >
@@ -69,7 +69,7 @@ export const OrderActions = ({
       <div className="flex gap-2">
 
         <button
-          onClick={() => onConfirmAction(order.id, "completed", "завершить")}
+          onClick={() => onConfirmAction(order.id, "завершить")}
           className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
         >
           <FaCheckCircle />
@@ -77,7 +77,7 @@ export const OrderActions = ({
         </button>
 
         <button
-          onClick={() => onConfirmAction(order.id, "cancelled", "отменить")}
+          onClick={() => onConfirmAction(order.id, "отменить")}
           aria-label="Отменить заказ"
           className="px-4 bg-red-50 text-red-600 rounded-xl"
         >

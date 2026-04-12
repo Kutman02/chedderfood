@@ -5,6 +5,7 @@ import { CIS_COUNTRIES } from "../constants/countries"
 import { useCartSummary } from "./useCartSummary"
 import { useCheckoutForm } from "./useCheckoutForm"
 import { useCreateOrder } from "./useCreateOrder"
+import { useGetRestaurantHoursStatusQuery } from "@/api"
 
 interface UseCheckoutProps {
   onClose: () => void
@@ -28,6 +29,22 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
   } = useCheckoutForm()
 
   const { create, isLoading } = useCreateOrder()
+
+  const {
+    data: restaurantHoursResponse,
+    isFetching: isRestaurantHoursLoading,
+  } = useGetRestaurantHoursStatusQuery(undefined, {
+    pollingInterval: 30000,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+    refetchOnMountOrArgChange: true,
+  })
+
+  const restaurantHours = restaurantHoursResponse?.data
+  const checkoutAllowed = restaurantHours?.checkout_allowed ?? true
+  const checkoutBlockMessage = checkoutAllowed
+    ? ""
+    : restaurantHours?.message || "Сейчас ресторан не принимает заказы"
 
   /* ===============================
      UI STATE
@@ -89,6 +106,11 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
     if (!validateForm(phoneNumber)) return
 
+    if (!checkoutAllowed) {
+      setErrorMessage(checkoutBlockMessage)
+      return
+    }
+
     if (cartItems.length === 0) {
       setErrorMessage("Корзина пуста")
       return
@@ -120,7 +142,20 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
     } catch (err) {
       console.error(err)
-      setErrorMessage("Ошибка создания заказа")
+
+      const rawError = err as {
+        data?: {
+          message?: string
+          code?: string
+        }
+      }
+
+      setErrorMessage(
+        rawError?.data?.message ||
+          (rawError?.data?.code === "restaurant_closed"
+            ? checkoutBlockMessage
+            : "Ошибка создания заказа")
+      )
     }
   }
 
@@ -152,6 +187,9 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     showConfirmModal,
     isSubmitting: isLoading, // 🔥 единый источник
     errorMessage,
+    checkoutAllowed,
+    checkoutBlockMessage,
+    isRestaurantHoursLoading,
 
     handleInputChange,
     handlePhoneNumberChange,
