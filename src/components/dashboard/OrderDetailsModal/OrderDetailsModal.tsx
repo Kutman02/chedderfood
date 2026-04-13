@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 
-import type { Order, Product } from "@/types"
+import type { Product } from "@/types"
 
 import {
   OrderDetailsHeader,

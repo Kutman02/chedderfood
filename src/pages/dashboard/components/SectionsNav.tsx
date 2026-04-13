@@ -3,6 +3,7 @@ import { CgShoppingBag } from "react-icons/cg"
 import { GoPackage } from "react-icons/go"
 import { FaUsers } from "react-icons/fa6"
 import { BiCategory } from "react-icons/bi"
+import { FaTags } from "react-icons/fa"
 
 interface SectionsNavProps {
   ordersCount?: number
@@ -23,7 +24,7 @@ const badgeStyle =
 const SectionsNav = ({ ordersCount = 0 }: SectionsNavProps) => {
 
   return (
-    <nav className="flex gap-3 mb-6">
+    <nav className="mb-6 flex flex-wrap gap-3">
 
       <NavLink
         to="/dashboard/orders"
@@ -70,6 +71,16 @@ const SectionsNav = ({ ordersCount = 0 }: SectionsNavProps) => {
       >
         <BiCategory size={18} />
         Категории
+      </NavLink>
+
+      <NavLink
+        to="/dashboard/tags"
+        className={({ isActive }) =>
+          `${baseStyle} ${isActive ? activeStyle : inactiveStyle}`
+        }
+      >
+        <FaTags size={16} />
+        Метки
       </NavLink>
 
     </nav>

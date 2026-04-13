@@ -1,5 +1,7 @@
 import React, { useState } from "react"
 import { FaTag, FaFileAlt, FaDollarSign, FaBox } from "react-icons/fa"
+import type { Tag } from "@/types"
+import { ProductTagSelector } from "@/components/dashboard/ProductTagSelector"
 
 interface Category {
   id: number
@@ -8,6 +10,7 @@ interface Category {
 
 interface ProductFormProps {
   categories?: Category[]
+  tags?: Tag[]
 
   name: string
   setName: (value: string) => void
@@ -27,6 +30,9 @@ interface ProductFormProps {
   selectedCategory: number | null
   setSelectedCategory: (value: number) => void
 
+  selectedTagIds: number[]
+  setSelectedTagIds: React.Dispatch<React.SetStateAction<number[]>>
+
   isSubmitting: boolean
   images: { id: string }[]
 
@@ -35,6 +41,7 @@ interface ProductFormProps {
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   categories,
+  tags,
   name,
   setName,
   description,
@@ -47,6 +54,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   setWeight,
   selectedCategory,
   setSelectedCategory,
+  selectedTagIds,
+  setSelectedTagIds,
   isSubmitting,
   images,
   onSubmit
@@ -127,6 +136,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </select>
 
         </div>
+
+        <ProductTagSelector
+          tags={tags}
+          selectedTagIds={selectedTagIds}
+          onChange={setSelectedTagIds}
+        />
 
 
         {/* NAME */}

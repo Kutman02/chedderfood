@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import type { OrderStatus, Product } from "@/types"
 
-type SearchSection = "orders" | "products" | "customers"
+type SearchSection = "orders" | "products" | "customers" | "categories" | "tags"
 
 export const useDashboardUI = () => {
 
@@ -20,7 +20,9 @@ export const useDashboardUI = () => {
   const [searchQueries, setSearchQueries] = useState({
     orders: "",
     products: "",
-    customers: ""
+    customers: "",
+    categories: "",
+    tags: "",
   })
 
   const setSearchQuery = (
@@ -88,6 +90,12 @@ export const useDashboardUI = () => {
 
       case "customers":
         return "Поиск клиента..."
+
+      case "categories":
+        return "Поиск категории..."
+
+      case "tags":
+        return "Поиск метки..."
 
       default:
         return "Поиск..."

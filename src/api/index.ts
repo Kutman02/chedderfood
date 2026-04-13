@@ -50,6 +50,15 @@ export {
   useDeleteCategoryMutation,
 } from "./admin/categories.api"
 
+/* ADMIN - TAGS */
+export {
+  useGetTagsQuery,
+  useGetTagsQuery as useGetAdminTagsQuery,
+  useCreateTagMutation,
+  useUpdateTagMutation,
+  useDeleteTagMutation,
+} from "./admin/tags.api"
+
 /* PUBLIC - PRODUCTS */
 export {
   useGetPublicProductsQuery,
@@ -69,3 +78,10 @@ export {
 export {
   useGetRestaurantHoursStatusQuery,
 } from "./public/restaurant.api"
+
+/* PUBLIC - SITE */
+export {
+  useGetSiteFooterQuery,
+  useLazyGetSiteFooterQuery,
+  useUpdateSiteFooterMutation,
+} from "./public/footer.api"

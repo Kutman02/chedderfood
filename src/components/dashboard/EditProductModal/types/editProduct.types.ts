@@ -1,8 +1,6 @@
 import type { Product } from "@/types"
 import type { RefObject } from "react"
 
-export type ProductTagStatus = "hit" | "new" | "sale" | "none"
-
 /* =========================
    MODAL PROPS
 ========================= */
@@ -50,6 +48,11 @@ export interface UseEditProductReturn {
     name: string
   }[]
 
+  tags?: {
+    id: number
+    name: string
+  }[]
+
   images: ImagePreview[]
   setImages: React.Dispatch<React.SetStateAction<ImagePreview[]>>
 
@@ -68,8 +71,8 @@ export interface UseEditProductReturn {
   selectedCategory: number | null
   setSelectedCategory: (value: number) => void
 
-  productStatus: ProductTagStatus
-  setProductStatus: (value: ProductTagStatus) => void
+  selectedTagIds: number[]
+  setSelectedTagIds: React.Dispatch<React.SetStateAction<number[]>>
 
   isHidden: boolean
   setIsHidden: (value: boolean) => void

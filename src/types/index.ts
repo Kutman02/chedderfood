@@ -6,6 +6,8 @@ export * from "./api/customer.types"
 export * from "./api/order.types"
 export * from "./api/product.types"
 export * from "./api/restaurant.types"
+export * from "./api/footer.types"
+export * from "./api/tag.types"
 
 /* UI */
 export * from "./ui/cart.types"

@@ -1,33 +1,28 @@
 import { useCallback, useState } from "react"
 import {
-  useCreateCategoryMutation,
-  useUpdateCategoryMutation,
-  useDeleteCategoryMutation,
+  useCreateTagMutation,
+  useUpdateTagMutation,
+  useDeleteTagMutation,
 } from "@/api"
-import type { CategoryFormData } from "../types/categories.types"
+import type { TagFormData } from "../types/tags.types"
 
-interface UseCategoryActionsOptions {
+interface UseTagActionsOptions {
   onSuccess?: () => void
 }
 
-export const useCategoryActions = (
-  options?: UseCategoryActionsOptions
-) => {
-  const [createMutation] = useCreateCategoryMutation()
-  const [updateMutation] = useUpdateCategoryMutation()
-  const [deleteMutation] = useDeleteCategoryMutation()
+export const useTagActions = (options?: UseTagActionsOptions) => {
+  const [createMutation] = useCreateTagMutation()
+  const [updateMutation] = useUpdateTagMutation()
+  const [deleteMutation] = useDeleteTagMutation()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleCreate = useCallback(
-    async (data: CategoryFormData) => {
+    async (data: TagFormData) => {
       setIsSubmitting(true)
       try {
         await createMutation(data).unwrap()
         options?.onSuccess?.()
-      } catch (error) {
-        console.error("Error creating category:", error)
-        throw error
       } finally {
         setIsSubmitting(false)
       }
@@ -36,14 +31,11 @@ export const useCategoryActions = (
   )
 
   const handleUpdate = useCallback(
-    async (id: number, data: CategoryFormData) => {
+    async (id: number, data: TagFormData) => {
       setIsSubmitting(true)
       try {
         await updateMutation({ id, data }).unwrap()
         options?.onSuccess?.()
-      } catch (error) {
-        console.error("Error updating category:", error)
-        throw error
       } finally {
         setIsSubmitting(false)
       }
@@ -57,9 +49,6 @@ export const useCategoryActions = (
       try {
         await deleteMutation(id).unwrap()
         options?.onSuccess?.()
-      } catch (error) {
-        console.error("Error deleting category:", error)
-        throw error
       } finally {
         setIsSubmitting(false)
       }

@@ -1,3 +1,5 @@
+import type { Tag } from "./tag.types"
+
 export interface ProductImage {
   id: number
   src: string
@@ -8,12 +10,6 @@ export interface ProductCategory {
   name: string
   slug?: string
   description?: string
-}
-
-export interface ProductTag {
-  id?: number
-  name: string
-  slug: string
 }
 
 export type ProductStatus = "publish" | "draft" | "pending"
@@ -36,7 +32,7 @@ export interface Product {
 
   images: ProductImage[]
   categories: ProductCategory[]
-  tags?: ProductTag[]
+  tags?: Tag[]
   weight?: string | number
 }
 

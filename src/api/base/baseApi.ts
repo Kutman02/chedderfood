@@ -7,6 +7,7 @@ const PUBLIC_ENDPOINTS = new Set([
   "getPublicProducts",
   "getPublicCategories",
   "getRestaurantHoursStatus",
+  "getSiteFooter",
   "createOrder",
 ])
 
@@ -36,8 +37,10 @@ export const baseApi = createApi({
     "Orders",
     "Products",
     "Categories",
+    "Tags",
     "Customers",
     "Profile",
+    "SiteFooter",
   ],
 
   endpoints: () => ({}),

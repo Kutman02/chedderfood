@@ -60,6 +60,10 @@ const DashboardLayout = () => {
   const section =
     location.pathname.includes("/products")
       ? "products"
+      : location.pathname.includes("/tags")
+      ? "tags"
+      : location.pathname.includes("/categories")
+      ? "categories"
       : location.pathname.includes("/customers")
       ? "customers"
       : "orders"

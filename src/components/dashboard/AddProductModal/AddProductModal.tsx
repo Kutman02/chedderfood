@@ -43,6 +43,7 @@ export const AddProductModal = ({
             {/* RIGHT — form */}
             <ProductForm
               categories={product.categories || []}
+              tags={product.tags || []}
 
               name={product.name}
               setName={product.setName}
@@ -61,6 +62,9 @@ export const AddProductModal = ({
 
               selectedCategory={product.selectedCategory}
               setSelectedCategory={product.setSelectedCategory}
+
+              selectedTagIds={product.selectedTagIds}
+              setSelectedTagIds={product.setSelectedTagIds}
 
               isSubmitting={product.isSubmitting}
               images={product.images || []}

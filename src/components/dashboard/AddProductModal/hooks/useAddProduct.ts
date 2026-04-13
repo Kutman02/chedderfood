@@ -2,6 +2,7 @@ import { useState, useRef } from "react"
 
 import {
   useGetProductCategoriesQuery,
+  useGetTagsQuery,
   useCreateProductMutation,
   useUploadImageMutation
 } from "@/api"
@@ -20,6 +21,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
   const [images, setImages] = useState<ImagePreview[]>([])
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
@@ -34,6 +36,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const { data: categories } = useGetProductCategoriesQuery()
+  const { data: tags } = useGetTagsQuery()
 
   const [createProduct] = useCreateProductMutation()
   const [uploadImage] = useUploadImageMutation()
@@ -105,7 +108,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
   =============================== */
 
   const createNewProduct = async (
-    imageUrls: string[],
+    _imageUrls: string[],
     customDescription?: string
   ) => {
 
@@ -120,6 +123,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
       sale_price: salePrice ? Number(salePrice) : undefined,
       description: finalDescription.trim(),
       category_ids: [selectedCategory],
+      tag_ids: selectedTagIds,
       image_ids: [],
       visible: true,
     }).unwrap()
@@ -144,6 +148,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     setWeight("")
 
     setSelectedCategory(null)
+    setSelectedTagIds([])
   }
 
   /* ===============================
@@ -186,6 +191,7 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     fileInputRef,
 
     categories,
+    tags,
 
     images,
 
@@ -206,6 +212,9 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
     selectedCategory,
     setSelectedCategory,
+
+    selectedTagIds,
+    setSelectedTagIds,
 
     isSubmitting,
 

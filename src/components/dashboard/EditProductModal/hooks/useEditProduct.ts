@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from "react"
 
 import {
   useGetProductCategoriesQuery,
+  useGetTagsQuery,
   useUpdateProductMutation,
   useUploadImageMutation
 } from "@/api"
 import type { ProductImage } from "@/types"
-import type { ImagePreview, ProductTagStatus, UseEditProductProps } from "../types/editProduct.types"
+import type { ImagePreview, UseEditProductProps } from "../types/editProduct.types"
 
 export const useEditProduct = ({
   product,
@@ -16,6 +17,7 @@ export const useEditProduct = ({
 
   const [images, setImages] = useState<ImagePreview[]>([])
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
@@ -23,7 +25,6 @@ export const useEditProduct = ({
   const [regularPrice, setRegularPrice] = useState("")
   const [salePrice, setSalePrice] = useState("")
 
-  const [productStatus, setProductStatus] = useState<ProductTagStatus>("none")
   const [isHidden, setIsHidden] = useState(false)
 
   const [weight, setWeight] = useState("")
@@ -35,6 +36,7 @@ export const useEditProduct = ({
   // 🔥 FIX — без параметров
   const { data: categories } =
     useGetProductCategoriesQuery()
+  const { data: tags } = useGetTagsQuery()
 
   const [updateProduct] = useUpdateProductMutation()
   const [uploadImage] = useUploadImageMutation()
@@ -57,6 +59,7 @@ export const useEditProduct = ({
     setSalePrice("")
 
     setSelectedCategory(product.categories?.[0]?.id || null)
+    setSelectedTagIds(product.tags?.map((tag) => tag.id).filter(Boolean) as number[] || [])
 
     setWeight(product.weight?.toString() || "")
 
@@ -70,8 +73,6 @@ export const useEditProduct = ({
         }))
       )
     }
-
-    setProductStatus("none") // 🔥 убрали tags
 
   }, [product, isOpen])
 
@@ -148,7 +149,7 @@ export const useEditProduct = ({
 
     try {
 
-      const imageUrls = await uploadImages()
+      await uploadImages()
 
       const finalDescription = customDescription ?? description
 
@@ -161,6 +162,7 @@ export const useEditProduct = ({
           sale_price: salePrice ? Number(salePrice) : undefined,
           description: finalDescription,
           category_ids: selectedCategory ? [selectedCategory] : [],
+          tag_ids: selectedTagIds,
           image_ids: [],
           visible: !isHidden,
         }
@@ -192,6 +194,7 @@ export const useEditProduct = ({
   return {
 
     categories,
+    tags,
 
     images,
     setImages,
@@ -210,11 +213,11 @@ export const useEditProduct = ({
     salePrice,
     setSalePrice,
 
-    productStatus,
-    setProductStatus,
-
     selectedCategory,
     setSelectedCategory,
+
+    selectedTagIds,
+    setSelectedTagIds,
 
     isHidden,
     setIsHidden,

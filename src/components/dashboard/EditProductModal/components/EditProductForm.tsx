@@ -2,10 +2,10 @@ import { useState, useEffect } from "react"
 import { FaTag, FaFileAlt } from "react-icons/fa"
 import type { UseEditProductReturn } from "../types/editProduct.types"
 
-import { ProductStatusSelector } from "./ProductStatusSelector"
 import { VisibilityToggle } from "./VisibilityToggle"
 import { PriceFields } from "./PriceFields"
 import { WeightField } from "./WeightField"
+import { ProductTagSelector } from "@/components/dashboard/ProductTagSelector"
 
 interface EditProductFormProps {
   edit: UseEditProductReturn
@@ -97,12 +97,6 @@ export const EditProductForm = ({ edit }: EditProductFormProps) => {
 
       <div className="space-y-4 md:space-y-5 max-w-md mx-auto">
 
-        {/* STATUS */}
-        <ProductStatusSelector
-          value={edit.productStatus}
-          onChange={edit.setProductStatus}
-        />
-
         {/* VISIBILITY */}
         <VisibilityToggle
           value={edit.isHidden}
@@ -134,6 +128,12 @@ export const EditProductForm = ({ edit }: EditProductFormProps) => {
           </select>
 
         </div>
+
+        <ProductTagSelector
+          tags={edit.tags}
+          selectedTagIds={edit.selectedTagIds}
+          onChange={edit.setSelectedTagIds}
+        />
 
         {/* NAME */}
         <div>

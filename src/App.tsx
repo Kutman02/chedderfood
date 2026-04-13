@@ -14,6 +14,7 @@ import OrdersPage from "./pages/dashboard/orders/OrdersPage"
 import ProductsPage from "./pages/dashboard/products/ProductsPage"
 import CustomersPage from "./pages/dashboard/customers/CustomersPage"
 import CategoriesPage from "./pages/dashboard/categories/CategoriesPage"
+import TagsPage from "./pages/dashboard/tags/TagsPage"
 
 import Login from "./pages/Login/Login"
 import Home from "./pages/Home/Home"
@@ -121,6 +122,7 @@ function App() {
             <Route path="products" element={<ProductsPage />} />
             <Route path="customers" element={<CustomersPage />} />
             <Route path="categories" element={<CategoriesPage />} />
+            <Route path="tags" element={<TagsPage />} />
             <Route path="stats" element={<StatsPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>

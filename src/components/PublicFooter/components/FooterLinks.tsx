@@ -1,7 +1,19 @@
 import { Link } from "react-router-dom"
 import { FaHome, FaInfoCircle, FaAddressBook } from "react-icons/fa"
+import type { FooterLink } from "@/types"
 
-export const FooterLinks = () => {
+interface FooterLinksProps {
+  links: FooterLink[]
+}
+
+const getIconForUrl = (url: string) => {
+  if (url === "/" || url.includes("home")) return FaHome
+  if (url.includes("about")) return FaInfoCircle
+  if (url.includes("contact")) return FaAddressBook
+  return FaHome
+}
+
+export const FooterLinks = ({ links }: FooterLinksProps) => {
   return (
     <div>
       <h3 className="text-lg font-bold mb-5 text-white flex items-center gap-2">
@@ -10,46 +22,44 @@ export const FooterLinks = () => {
       </h3>
 
       <ul className="space-y-3">
+        {links.map((link, index) => {
+          const Icon = getIconForUrl(link.url)
+          const isExternal = link.url.startsWith("http")
 
-        <li>
-          <Link
-            to="/"
-            className="flex items-center gap-3 text-slate-300 hover:text-orange-400 transition-colors text-sm group"
-          >
-            <FaHome
-              className="text-orange-500/50 group-hover:text-orange-500 transition-colors"
-              size={14}
-            />
-            <span>Главная</span>
-          </Link>
-        </li>
+          if (isExternal) {
+            return (
+              <li key={index}>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-slate-300 hover:text-orange-400 transition-colors text-sm group"
+                >
+                  <Icon
+                    className="text-orange-500/50 group-hover:text-orange-500 transition-colors"
+                    size={14}
+                  />
+                  <span>{link.label}</span>
+                </a>
+              </li>
+            )
+          }
 
-        <li>
-          <Link
-            to="/about"
-            className="flex items-center gap-3 text-slate-300 hover:text-orange-400 transition-colors text-sm group"
-          >
-            <FaInfoCircle
-              className="text-orange-500/50 group-hover:text-orange-500 transition-colors"
-              size={14}
-            />
-            <span>О нас</span>
-          </Link>
-        </li>
-
-        <li>
-          <Link
-            to="/contacts"
-            className="flex items-center gap-3 text-slate-300 hover:text-orange-400 transition-colors text-sm group"
-          >
-            <FaAddressBook
-              className="text-orange-500/50 group-hover:text-orange-500 transition-colors"
-              size={14}
-            />
-            <span>Контакты</span>
-          </Link>
-        </li>
-
+          return (
+            <li key={index}>
+              <Link
+                to={link.url}
+                className="flex items-center gap-3 text-slate-300 hover:text-orange-400 transition-colors text-sm group"
+              >
+                <Icon
+                  className="text-orange-500/50 group-hover:text-orange-500 transition-colors"
+                  size={14}
+                />
+                <span>{link.label}</span>
+              </Link>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )

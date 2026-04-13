@@ -49,14 +49,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           <ProductImage
             image={productImage}
             name={product.name}
-            salePrice={product.sale_price}
+            salePrice={product.sale_price ?? undefined}
             regularPrice={product.regular_price}
           />
 
           <ProductInfo
             description={product.description}
             price={productPrice}
-            salePrice={product.sale_price}
+            salePrice={product.sale_price ?? undefined}
             regularPrice={product.regular_price}
           >
             <AddToCartButton

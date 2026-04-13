@@ -33,6 +33,7 @@ export const cartSlice = createSlice({
       } else {
         state.items[product.id] = {
           ...product,
+          sale_price: product.sale_price ?? undefined,
           product_id: product.id,
           quantity: 1,
         };

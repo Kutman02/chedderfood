@@ -40,6 +40,7 @@ export interface CreateProductRequest {
   stock_status?: StockStatus
   menu_order?: number
   category_ids?: number[]
+  tag_ids?: number[]
   image_ids?: number[]
 }
 
@@ -79,6 +80,7 @@ export interface UpdateProductRequest {
     stock_status?: StockStatus
     menu_order?: number
     category_ids?: number[]
+    tag_ids?: number[]
     image_ids?: number[]
   }
 }

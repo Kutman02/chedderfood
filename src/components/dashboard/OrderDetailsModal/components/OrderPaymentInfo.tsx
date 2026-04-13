@@ -5,7 +5,7 @@ interface Props {
   order: Order
 }
 
-export const OrderPaymentInfo = ({ order }: Props) => {
+export const OrderPaymentInfo = ({ order: _order }: Props) => {
 
   const payment = "Оплата при получении"
 
