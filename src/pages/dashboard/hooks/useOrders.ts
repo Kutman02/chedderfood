@@ -31,6 +31,8 @@ export const useOrders = (
 ) => {
 
   const supportsDateFilters = supportsDateFiltersByStatus(activeTab)
+  const shouldPaginate = supportsDateFilters
+  const ordersPerPage = shouldPaginate ? 15 : 100
 
   const [processingIds, setProcessingIds] =
     useState<Set<number>>(new Set())
@@ -51,8 +53,8 @@ export const useOrders = (
   const [updateStatus] =
     useUpdateOrderStatusMutation()
 
-  const dateParams = (() => {
-    if (!supportsDateFilters) {
+  const buildDateParams = (allowDateFilters: boolean) => {
+    if (!allowDateFilters) {
       return { scope: "all" as const }
     }
 
@@ -72,7 +74,9 @@ export const useOrders = (
       ...(dateFilter.date_from ? { date_from: dateFilter.date_from } : {}),
       ...(dateFilter.date_to ? { date_to: dateFilter.date_to } : {}),
     }
-  })()
+  }
+
+  const dateParams = buildDateParams(supportsDateFilters)
 
   /* =========================
      GET ORDERS
@@ -85,8 +89,8 @@ export const useOrders = (
   } = useGetAdminOrdersQuery({
     status: activeTab === "all" ? undefined : (activeTab as OrderStatus),
     search: searchQuery,
-    page,
-    per_page: 15,
+    page: shouldPaginate ? page : 1,
+    per_page: ordersPerPage,
     ...dateParams,
     fields: "id,status,reason,changed_at,changed_by_user_id,total,customer_name,phone,address,pickup_address,pickup_map_url,pickup_2gis_url,apartment,floor,order_type,needs_cutlery,needs_napkins,line_items,status_history,meta_data,date_created",
   }, {
@@ -96,18 +100,66 @@ export const useOrders = (
     refetchOnMountOrArgChange: true,
   })
 
-  const {
-    data: countsResult,
-  } = useGetAdminOrdersQuery({
-    page: 1,
-    per_page: 1,
-    ...dateParams,
-    fields: "id,status",
-  }, {
+  const countQueryOptions = {
     pollingInterval: 1500,
     refetchOnFocus: true,
     refetchOnReconnect: true,
     refetchOnMountOrArgChange: true,
+  }
+
+  const getCountParams = (status: OrderStatus) => ({
+    page: 1,
+    per_page: 1,
+    status,
+    ...buildDateParams(supportsDateFiltersByStatus(status)),
+    fields: "id,status",
+  })
+
+  const { data: onHoldCountResult } = useGetAdminOrdersQuery(
+    getCountParams("on-hold"),
+    countQueryOptions
+  )
+
+  const { data: processingCountResult } = useGetAdminOrdersQuery(
+    getCountParams("processing"),
+    countQueryOptions
+  )
+
+  const { data: readyCountResult } = useGetAdminOrdersQuery(
+    getCountParams("ready"),
+    countQueryOptions
+  )
+
+  const { data: completedCountResult } = useGetAdminOrdersQuery(
+    getCountParams("completed"),
+    countQueryOptions
+  )
+
+  const { data: cancelledCountResult } = useGetAdminOrdersQuery(
+    getCountParams("cancelled"),
+    countQueryOptions
+  )
+
+  const { data: todayFilteredCountResult } = useGetAdminOrdersQuery({
+    page: 1,
+    per_page: 1,
+    status: activeTab as OrderStatus,
+    scope: "today",
+    fields: "id,status",
+  }, {
+    ...countQueryOptions,
+    skip: !supportsDateFilters,
+  })
+
+  const { data: allFilteredCountResult } = useGetAdminOrdersQuery({
+    page: 1,
+    per_page: 1,
+    status: activeTab as OrderStatus,
+    scope: "all",
+    fields: "id,status",
+  }, {
+    ...countQueryOptions,
+    skip: !supportsDateFilters,
   })
 
   const orders = result?.data ?? []
@@ -136,49 +188,40 @@ export const useOrders = (
   ========================= */
 
   const countsRaw = useMemo(() => {
-    const map: Record<"on-hold" | "processing" | "ready" | "completed" | "cancelled", number> = {
-      "on-hold": 0,
-      processing: 0,
-      ready: 0,
-      completed: 0,
-      cancelled: 0
+    return {
+      "on-hold": onHoldCountResult?.total ?? 0,
+      processing: processingCountResult?.total ?? 0,
+      ready: readyCountResult?.total ?? 0,
+      completed: completedCountResult?.total ?? 0,
+      cancelled: cancelledCountResult?.total ?? 0,
     }
-
-    const sourceCounts =
-      supportsDateFilters && dateFilter.mode === "today"
-        ? countsResult?.status_counts_today ?? countsResult?.status_counts_range
-        : countsResult?.status_counts_range ?? countsResult?.status_counts_today
-
-    if (sourceCounts) {
-      return {
-        "on-hold": sourceCounts["on-hold"] ?? 0,
-        processing: sourceCounts.processing ?? 0,
-        ready: sourceCounts.ready ?? 0,
-        completed: sourceCounts.completed ?? 0,
-        cancelled: sourceCounts.cancelled ?? 0,
-      }
-    }
-
-    orders.forEach(order => {
-      if (map[order.status as OrderStatus] !== undefined) {
-        map[order.status as OrderStatus]++
-      }
-    })
-
-    return map
-
-  }, [countsResult?.status_counts_range, countsResult?.status_counts_today, dateFilter.mode, orders])
-
-  const formatCount = (count: number) => {
-    return count >= 15 ? "15+" : count
-  }
+  }, [
+    cancelledCountResult?.total,
+    completedCountResult?.total,
+    onHoldCountResult?.total,
+    processingCountResult?.total,
+    readyCountResult?.total,
+  ])
 
   const counts = {
-    "on-hold": formatCount(countsRaw["on-hold"]),
-    processing: formatCount(countsRaw.processing),
-    ready: formatCount(countsRaw.ready),
-    completed: formatCount(countsRaw.completed),
-    cancelled: formatCount(countsRaw.cancelled)
+    "on-hold": countsRaw["on-hold"],
+    processing: countsRaw.processing,
+    ready: countsRaw.ready,
+    completed: countsRaw.completed,
+    cancelled: countsRaw.cancelled,
+  }
+
+  const filterCounts = {
+    today: todayFilteredCountResult?.total ?? 0,
+    all: allFilteredCountResult?.total ?? 0,
+    day:
+      dateFilter.mode === "day" && dateFilter.date
+        ? result?.total ?? 0
+        : 0,
+    range:
+      dateFilter.mode === "range" && (dateFilter.date_from || dateFilter.date_to)
+        ? result?.total ?? 0
+        : 0,
   }
 
   /* =========================
@@ -264,6 +307,7 @@ export const useOrders = (
   return {
     orders: filteredOrders,
     supportsDateFilters,
+    shouldPaginate,
 
     ordersLoading,
     ordersError,
@@ -272,6 +316,7 @@ export const useOrders = (
 
     counts,
     countsRaw,
+    filterCounts,
 
     processingIds,
     removingOrderIds,

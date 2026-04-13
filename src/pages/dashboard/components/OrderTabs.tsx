@@ -14,6 +14,9 @@ const tabs: Array<{ key: OrderStatus, label: string }> = [
   { key: "cancelled", label: "Отменённые" }
 ]
 
+const shouldShowTabCount = (status: OrderStatus) =>
+  status !== "completed" && status !== "cancelled"
+
 const OrderTabs = ({
   activeTab,
   setActiveTab,
@@ -41,9 +44,11 @@ const OrderTabs = ({
 
             {tab.label}
 
-            <span className="ml-2 text-xs opacity-80">
-              ({counts[tab.key] || 0})
-            </span>
+            {shouldShowTabCount(tab.key) && (
+              <span className="ml-2 text-xs opacity-80">
+                ({counts[tab.key] || 0})
+              </span>
+            )}
 
           </button>
         )

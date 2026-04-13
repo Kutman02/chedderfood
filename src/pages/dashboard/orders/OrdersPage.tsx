@@ -57,10 +57,12 @@ const OrdersPage = () => {
   const {
     orders,
     supportsDateFilters: querySupportsDateFilters,
+    shouldPaginate,
     ordersLoading,
     ordersError,
     counts,
     countsRaw,
+    filterCounts,
     totalPages, // ✅ ВАЖНО
     processingIds,
     removingOrderIds,
@@ -176,7 +178,7 @@ const OrdersPage = () => {
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
-              Сегодня
+              Сегодня ({filterCounts.today})
             </button>
 
             <button
@@ -187,7 +189,7 @@ const OrdersPage = () => {
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
-              Посмотреть все
+              Посмотреть все ({filterCounts.all})
             </button>
 
             <button
@@ -198,7 +200,7 @@ const OrdersPage = () => {
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
-              По дате
+              По дате ({filterCounts.day})
             </button>
 
             <button
@@ -209,7 +211,7 @@ const OrdersPage = () => {
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
-              Диапазон
+              Диапазон ({filterCounts.range})
             </button>
           </div>
 
@@ -272,63 +274,65 @@ const OrdersPage = () => {
       )}
 
       {/* 🔥 НОВАЯ PAGINATION */}
-      <div className="flex items-center justify-center gap-2 mt-6">
+      {shouldPaginate && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
 
-        {/* Previous */}
-        <button
-          onClick={() => setPage(p => Math.max(p - 1, 1))}
-          disabled={page === 1}
-          className="px-3 py-1 text-gray-600 disabled:opacity-50"
-        >
-          ← Назад
-        </button>
+          {/* Previous */}
+          <button
+            onClick={() => setPage(p => Math.max(p - 1, 1))}
+            disabled={page === 1}
+            className="px-3 py-1 text-gray-600 disabled:opacity-50"
+          >
+            ← Назад
+          </button>
 
-        {/* Pages */}
-        {Array.from({ length: totalPages }, (_, i) => i + 1)
-          .filter(p => {
-            return (
-              p === 1 ||
-              p === totalPages ||
-              Math.abs(p - page) <= 1
-            )
-          })
-          .map((p, index, arr) => {
+          {/* Pages */}
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(p => {
+              return (
+                p === 1 ||
+                p === totalPages ||
+                Math.abs(p - page) <= 1
+              )
+            })
+            .map((p, index, arr) => {
 
-            const prev = arr[index - 1]
+              const prev = arr[index - 1]
 
-            return (
-              <span key={p} className="flex items-center">
+              return (
+                <span key={p} className="flex items-center">
 
-                {/* dots */}
-                {prev && p - prev > 1 && (
-                  <span className="px-2 text-gray-400">...</span>
-                )}
+                  {/* dots */}
+                  {prev && p - prev > 1 && (
+                    <span className="px-2 text-gray-400">...</span>
+                  )}
 
-                <button
-                  onClick={() => setPage(p)}
-                  className={`px-3 py-1 rounded ${
-                    p === page
-                      ? "bg-gray-200 font-semibold"
-                      : "text-gray-600"
-                  }`}
-                >
-                  {p}
-                </button>
+                  <button
+                    onClick={() => setPage(p)}
+                    className={`px-3 py-1 rounded ${
+                      p === page
+                        ? "bg-gray-200 font-semibold"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    {p}
+                  </button>
 
-              </span>
-            )
-          })}
+                </span>
+              )
+            })}
 
-        {/* Next */}
-        <button
-          onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-          disabled={page === totalPages}
-          className="px-3 py-1 text-gray-600 disabled:opacity-50"
-        >
-          Вперёд →
-        </button>
+          {/* Next */}
+          <button
+            onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+            disabled={page === totalPages}
+            className="px-3 py-1 text-gray-600 disabled:opacity-50"
+          >
+            Вперёд →
+          </button>
 
-      </div>
+        </div>
+      )}
     </>
   )
 }
