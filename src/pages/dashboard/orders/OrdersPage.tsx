@@ -24,8 +24,14 @@ const OrdersPage = () => {
   const { handleViewDetails, searchQuery } = useOutletContext<OutletContext>()
 
   const { activeTab, setActiveTab } = useDashboardUI()
+  const supportsDateFilters =
+    activeTab === "completed" || activeTab === "cancelled"
 
   const dateFilter = useMemo(() => {
+    if (!supportsDateFilters) {
+      return { mode: "all" as const }
+    }
+
     if (dateMode === "all") {
       return { mode: "all" as const }
     }
@@ -46,10 +52,11 @@ const OrdersPage = () => {
       date_from: dateFrom,
       date_to: dateTo,
     }
-  }, [dateFrom, dateMode, dateTo, selectedDate])
+  }, [dateFrom, dateMode, dateTo, selectedDate, supportsDateFilters])
 
   const {
     orders,
+    supportsDateFilters: querySupportsDateFilters,
     ordersLoading,
     ordersError,
     counts,
@@ -158,93 +165,93 @@ const OrdersPage = () => {
         counts={counts}
       />
 
-      <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => {
-              setDateMode("today")
-            }}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-              dateMode === "today"
-                ? "bg-orange-500 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
-          >
-            Сегодня
-          </button>
+      {querySupportsDateFilters && (
+        <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setDateMode("today")}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                dateMode === "today"
+                  ? "bg-orange-500 text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              Сегодня
+            </button>
 
-          <button
-            onClick={() => setDateMode("all")}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-              dateMode === "all"
-                ? "bg-orange-500 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
-          >
-            Посмотреть все
-          </button>
+            <button
+              onClick={() => setDateMode("all")}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                dateMode === "all"
+                  ? "bg-orange-500 text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              Посмотреть все
+            </button>
 
-          <button
-            onClick={() => setDateMode("day")}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-              dateMode === "day"
-                ? "bg-orange-500 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
-          >
-            По дате
-          </button>
+            <button
+              onClick={() => setDateMode("day")}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                dateMode === "day"
+                  ? "bg-orange-500 text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              По дате
+            </button>
 
-          <button
-            onClick={() => setDateMode("range")}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-              dateMode === "range"
-                ? "bg-orange-500 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
-          >
-            Диапазон
-          </button>
+            <button
+              onClick={() => setDateMode("range")}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                dateMode === "range"
+                  ? "bg-orange-500 text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              Диапазон
+            </button>
+          </div>
+
+          {dateMode === "day" && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+              <label className="text-slate-600">Дата:</label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                aria-label="Выберите дату"
+                title="Выберите дату"
+                className="rounded-lg border border-slate-300 px-3 py-2"
+              />
+            </div>
+          )}
+
+          {dateMode === "range" && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+              <label className="text-slate-600">С:</label>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                aria-label="Начальная дата диапазона"
+                title="Начальная дата диапазона"
+                className="rounded-lg border border-slate-300 px-3 py-2"
+              />
+
+              <label className="text-slate-600">По:</label>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                aria-label="Конечная дата диапазона"
+                title="Конечная дата диапазона"
+                className="rounded-lg border border-slate-300 px-3 py-2"
+              />
+            </div>
+          )}
         </div>
-
-        {dateMode === "day" && (
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-            <label className="text-slate-600">Дата:</label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              aria-label="Выберите дату"
-              title="Выберите дату"
-              className="rounded-lg border border-slate-300 px-3 py-2"
-            />
-          </div>
-        )}
-
-        {dateMode === "range" && (
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-            <label className="text-slate-600">С:</label>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              aria-label="Начальная дата диапазона"
-              title="Начальная дата диапазона"
-              className="rounded-lg border border-slate-300 px-3 py-2"
-            />
-
-            <label className="text-slate-600">По:</label>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              aria-label="Конечная дата диапазона"
-              title="Конечная дата диапазона"
-              className="rounded-lg border border-slate-300 px-3 py-2"
-            />
-          </div>
-        )}
-      </div>
+      )}
 
       {/* ✅ empty state */}
       {orders.length === 0 ? (

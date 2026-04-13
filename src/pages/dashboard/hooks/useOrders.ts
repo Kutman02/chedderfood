@@ -9,6 +9,9 @@ import { filterOrders } from "@/shared/utils/utils"
 import { useToastStore } from "@/stores/toastStore"
 import type { OrderStatus } from "@/types"
 
+const supportsDateFiltersByStatus = (status: string) =>
+  status === "completed" || status === "cancelled"
+
 /* =========================
    ORDERS HOOK
    Управление заказами в админ панели
@@ -26,6 +29,8 @@ export const useOrders = (
     date_to?: string
   }
 ) => {
+
+  const supportsDateFilters = supportsDateFiltersByStatus(activeTab)
 
   const [processingIds, setProcessingIds] =
     useState<Set<number>>(new Set())
@@ -47,6 +52,10 @@ export const useOrders = (
     useUpdateOrderStatusMutation()
 
   const dateParams = (() => {
+    if (!supportsDateFilters) {
+      return { scope: "all" as const }
+    }
+
     if (dateFilter.mode === "today") {
       return { scope: "today" as const }
     }
@@ -109,8 +118,18 @@ export const useOrders = (
   ========================= */
 
   const filteredOrders = useMemo(() => {
-    return filterOrders(orders, searchQuery)
-  }, [orders, searchQuery])
+    const filtered = filterOrders(orders, searchQuery)
+
+    if (!supportsDateFilters) {
+      return [...filtered].sort((left, right) => {
+        const leftDate = new Date(left.date_created).getTime()
+        const rightDate = new Date(right.date_created).getTime()
+        return rightDate - leftDate
+      })
+    }
+
+    return filtered
+  }, [orders, searchQuery, supportsDateFilters])
 
   /* =========================
      COUNTS (🔥 ОДИН ИСТОЧНИК)
@@ -126,7 +145,7 @@ export const useOrders = (
     }
 
     const sourceCounts =
-      dateFilter.mode === "today"
+      supportsDateFilters && dateFilter.mode === "today"
         ? countsResult?.status_counts_today ?? countsResult?.status_counts_range
         : countsResult?.status_counts_range ?? countsResult?.status_counts_today
 
@@ -244,6 +263,7 @@ export const useOrders = (
 
   return {
     orders: filteredOrders,
+    supportsDateFilters,
 
     ordersLoading,
     ordersError,
