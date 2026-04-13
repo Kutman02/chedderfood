@@ -55,6 +55,17 @@ const readMetaString = (
   return value || undefined
 }
 
+const readFirstMetaString = (
+  metaData: RawOrderMeta[] | undefined,
+  keys: string[]
+): string | undefined => {
+  for (const key of keys) {
+    const value = readMetaString(metaData, key)
+    if (value) return value
+  }
+  return undefined
+}
+
 const readMetaBoolean = (
   metaData: RawOrderMeta[] | undefined,
   key: string
@@ -68,6 +79,54 @@ const readMetaBoolean = (
     if (["0", "false", "no"].includes(normalized)) return false
   }
   return undefined
+}
+
+const normalizeOrderTypeValue = (
+  value: string | undefined
+): "pickup" | "delivery" | undefined => {
+  if (!value) return undefined
+
+  const normalized = value.trim().toLowerCase()
+
+  if (!normalized) return undefined
+
+  if (
+    normalized === "pickup" ||
+    normalized === "local_pickup" ||
+    normalized.includes("самовывоз")
+  ) {
+    return "pickup"
+  }
+
+  if (
+    normalized === "delivery" ||
+    normalized.includes("доставка")
+  ) {
+    return "delivery"
+  }
+
+  return undefined
+}
+
+const normalizeAddressValue = (
+  value: string | undefined
+): string | undefined => {
+  if (!value) return undefined
+
+  const normalized = value.trim()
+  if (!normalized) return undefined
+
+  const lowered = normalized.toLowerCase()
+
+  if (
+    lowered === "pickup" ||
+    lowered === "local_pickup" ||
+    lowered === "самовывоз"
+  ) {
+    return undefined
+  }
+
+  return normalized
 }
 
 const normalizeStatus = (status: string): OrderStatus => {
@@ -88,13 +147,44 @@ const normalizeOrder = (order: RawOrder): Order => {
   const metaData = Array.isArray(order.meta_data) ? order.meta_data : undefined
   const billing = order.billing
 
-  const orderTypeMeta = readMetaString(metaData, "order_type")
-  const normalizedOrderType =
-    order.order_type === "pickup" || orderTypeMeta === "pickup"
-      ? "pickup"
-      : "delivery"
+  const orderTypeMeta =
+    readMetaString(metaData, "order_type") ||
+    readMetaString(metaData, "shipping_method") ||
+    readMetaString(metaData, "order_delivery_type")
+
+  const rawOrderAddress = normalizeAddressValue(order.address)
 
   const addressFromBilling = billing?.address_1?.trim() || undefined
+  const pickupAddress =
+    normalizeAddressValue(order.pickup_address) ||
+    readFirstMetaString(metaData, [
+      "pickup_address",
+      "restaurant_pickup_address",
+      "restaurant_address",
+    ])
+
+  const detectedOrderType =
+    normalizeOrderTypeValue(order.order_type) ||
+    normalizeOrderTypeValue(orderTypeMeta) ||
+    (pickupAddress ? "pickup" : undefined) ||
+    (rawOrderAddress ? undefined : normalizeOrderTypeValue(order.address))
+
+  const normalizedOrderType = detectedOrderType || "delivery"
+
+  const pickupMapUrl =
+    order.pickup_map_url?.trim() ||
+    order.pickup_2gis_url?.trim() ||
+    readFirstMetaString(metaData, [
+      "pickup_map_url",
+      "pickup_2gis_url",
+      "pickup_2gis_link",
+      "map_2gis",
+      "map2gis",
+      "restaurant_2gis_url",
+      "restaurant_pickup_map_url",
+      "restaurant_map_url",
+      "map2gis_url",
+    ])
 
   return {
     ...order,
@@ -110,7 +200,10 @@ const normalizeOrder = (order: RawOrder): Order => {
     first_name: order.first_name || billing?.first_name,
     last_name: order.last_name || billing?.last_name,
 
-    address: order.address || addressFromBilling,
+    address:
+      rawOrderAddress ||
+      (normalizedOrderType === "pickup" ? pickupAddress : undefined) ||
+      addressFromBilling,
     address_2: order.address_2 || billing?.address_2,
     city: order.city || billing?.city,
     postcode: order.postcode || billing?.postcode,
@@ -118,6 +211,8 @@ const normalizeOrder = (order: RawOrder): Order => {
     floor: order.floor || readMetaString(metaData, "floor"),
 
     order_type: normalizedOrderType,
+    pickup_address: pickupAddress,
+    pickup_map_url: pickupMapUrl,
     needs_cutlery:
       order.needs_cutlery ?? readMetaBoolean(metaData, "needs_cutlery"),
     needs_napkins:

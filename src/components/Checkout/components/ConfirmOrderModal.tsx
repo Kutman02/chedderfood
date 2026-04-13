@@ -9,6 +9,7 @@ interface ConfirmOrderModalProps {
   formData: CheckoutFormData;
 
   orderType: "delivery" | "pickup";
+  pickupAddress: string;
 
   totalAmount: number;
 
@@ -25,6 +26,7 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
   open,
   formData,
   orderType,
+  pickupAddress,
   totalAmount,
   errorMessage,
   isSubmitting,
@@ -94,7 +96,7 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
 
                 <div className="font-medium text-slate-800">
                   {orderType === "pickup"
-                    ? "Самовывоз"
+                    ? (pickupAddress || "Адрес ресторана не указан")
                     : (formData.address || "Не указан")}
                 </div>
               </div>

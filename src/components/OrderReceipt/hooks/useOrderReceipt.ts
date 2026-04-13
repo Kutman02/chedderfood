@@ -96,7 +96,7 @@ export const useOrderReceipt = (
 
     address:
       orderType === "pickup"
-        ? order.address || "Не указан"
+        ? order.pickup_address || order.address || "Не указан"
         : order.address || "Не указан",
 
     cost: 0,

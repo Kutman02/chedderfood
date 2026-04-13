@@ -5,8 +5,6 @@ import { useToastStore } from "@/stores/toastStore"
 import { addReceipt, setCustomerData } from "@/app/slices/receiptsSlice"
 import { clearCart } from "@/app/slices/cartSlice"
 
-import { RESTAURANT } from "@/config/restaurant"
-
 import { useCreateOrderMutation } from "@/api"
 
 import type {
@@ -32,6 +30,8 @@ export const useCreateOrder = () => {
     formData,
     cartItems,
     orderType,
+    pickupAddress,
+    pickupMapUrl,
     onClose,
   }: CreateOrderInput) => {
 
@@ -44,10 +44,9 @@ export const useCreateOrder = () => {
 
       billing: {
         first_name: formData.first_name,
-        address_1:
-          orderType === "pickup"
-            ? RESTAURANT.address
-            : formData.address,
+        address_1: orderType === "pickup"
+          ? (pickupAddress || undefined)
+          : formData.address,
         apartment: formData.apartment,
         floor: formData.floor,
         phone: formData.phone,
@@ -61,7 +60,6 @@ export const useCreateOrder = () => {
 
       meta_data: [
         { key: "order_type", value: orderType },
-        { key: "pickup_address", value: RESTAURANT.address },
         ...(formData.apartment
           ? [{ key: "apartment", value: formData.apartment }]
           : []),
@@ -83,10 +81,9 @@ export const useCreateOrder = () => {
           date_created: new Date().toISOString(),
           customer_name: formData.first_name,
           phone: formData.phone,
-          address:
-            orderType === "pickup"
-              ? RESTAURANT.address
-              : formData.address,
+          address: orderType === "pickup" ? pickupAddress || "" : formData.address,
+          pickup_address: orderType === "pickup" ? pickupAddress : undefined,
+          pickup_map_url: orderType === "pickup" ? pickupMapUrl : undefined,
           apartment: formData.apartment,
           floor: formData.floor,
           customer_note: formData.customer_note,

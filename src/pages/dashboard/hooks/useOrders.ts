@@ -79,7 +79,7 @@ export const useOrders = (
     page,
     per_page: 15,
     ...dateParams,
-    fields: "id,status,reason,changed_at,changed_by_user_id,total,customer_name,phone,address,apartment,floor,order_type,needs_cutlery,needs_napkins,line_items,status_history,date_created",
+    fields: "id,status,reason,changed_at,changed_by_user_id,total,customer_name,phone,address,pickup_address,pickup_map_url,pickup_2gis_url,apartment,floor,order_type,needs_cutlery,needs_napkins,line_items,status_history,meta_data,date_created",
   }, {
     pollingInterval: 1500,
     refetchOnFocus: true,

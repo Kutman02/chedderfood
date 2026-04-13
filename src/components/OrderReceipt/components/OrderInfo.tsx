@@ -20,6 +20,11 @@ export const OrderInfo: FC<OrderInfoProps> = ({
   shippingInfo,
 }) => {
 
+  const isPickup = order.order_type === "pickup"
+  const displayAddress = isPickup
+    ? order.pickup_address || order.address || "Не указан"
+    : order.address || "Не указан"
+
   return (
     <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-6">
 
@@ -66,11 +71,11 @@ export const OrderInfo: FC<OrderInfoProps> = ({
 
         <div>
           <p className="text-slate-500">
-            Адрес
+            {isPickup ? "Адрес ресторана (самовывоз)" : "Адрес"}
           </p>
 
           <p className="font-semibold text-slate-800">
-            {order.address || "Не указан"}
+            {displayAddress}
           </p>
         </div>
 

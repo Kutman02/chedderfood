@@ -1,6 +1,5 @@
 import React from "react";
 import { FaUser, FaMapMarkerAlt, FaNotesMedical } from "react-icons/fa";
-import { RESTAURANT } from "@/config/restaurant";
 import { PhoneInput } from "./PhoneInput";
 import { OrderTypeSelector } from "./OrderTypeSelector";
 
@@ -29,6 +28,8 @@ interface CheckoutFormProps {
   onToggleCountryDropdown: () => void;
 
   onOrderTypeChange: (type: "delivery" | "pickup") => void;
+  pickupAddress: string;
+  pickupMapUrl: string;
 }
 
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({
@@ -48,6 +49,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   onToggleCountryDropdown,
 
   onOrderTypeChange,
+  pickupAddress,
+  pickupMapUrl,
 }) => {
   return (
     <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6 pb-32 md:pb-6">
@@ -136,21 +139,23 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
               </p>
 
               <p className="text-sm text-green-700">
-                Заберите заказ по адресу:
+                Адрес ресторана (самовывоз):
               </p>
 
               <p className="font-bold text-lg text-green-800">
-                {RESTAURANT.address}
+                {pickupAddress || "—"}
               </p>
 
-              <a
-                href={RESTAURANT.map2gis}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-2 text-sm font-semibold text-green-700 underline hover:text-green-900"
-              >
-                Открыть в 2ГИС
-              </a>
+              {pickupMapUrl && (
+                <a
+                  href={pickupMapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 text-sm font-semibold text-green-700 underline hover:text-green-900"
+                >
+                  Открыть в 2ГИС
+                </a>
+              )}
             </div>
           )}
 

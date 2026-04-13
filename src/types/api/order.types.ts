@@ -47,6 +47,9 @@ export interface Order {
   last_name?: string
   customer_note?: string
   order_type?: OrderType
+  pickup_address?: string
+  pickup_map_url?: string
+  pickup_2gis_url?: string
   needs_cutlery?: boolean
   needs_napkins?: boolean
   line_items?: OrderItem[]

@@ -1,5 +1,6 @@
 import type { Order } from "@/types"
 import { FaMapMarkerAlt } from "react-icons/fa"
+import { useGetRestaurantHoursStatusQuery } from "@/api"
 
 interface Props {
   order: Order
@@ -7,7 +8,20 @@ interface Props {
 
 export const OrderAddressInfo = ({ order }: Props) => {
 
-  const address = order.address
+  const { data: restaurantHoursResponse } = useGetRestaurantHoursStatusQuery()
+  const restaurantPickupAddress =
+    restaurantHoursResponse?.data?.pickup?.address?.trim() || ""
+
+  const normalizedType = (order.order_type || "").trim().toLowerCase()
+  const isPickup =
+    normalizedType === "pickup" ||
+    normalizedType === "local_pickup" ||
+    normalizedType.includes("самовывоз") ||
+    Boolean(order.pickup_address)
+
+  const address = (isPickup
+    ? (order.pickup_address || order.address || restaurantPickupAddress)
+    : order.address)
   const address2 = order.address_2?.trim()
   const apartment = order.apartment?.trim()
   const floor = order.floor?.trim()
@@ -24,7 +38,7 @@ export const OrderAddressInfo = ({ order }: Props) => {
 
       <h3 className="text-sm font-bold text-slate-500 mb-2 flex items-center gap-2">
         <FaMapMarkerAlt className="text-blue-600" />
-        Адрес доставки
+        {isPickup ? "Адрес ресторана (самовывоз)" : "Адрес доставки"}
       </h3>
 
       <p className="text-sm font-semibold text-slate-900">

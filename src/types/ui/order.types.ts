@@ -16,6 +16,8 @@ export interface CreateOrderInput {
   }[]
 
   orderType: "pickup" | "delivery"
+  pickupAddress?: string
+  pickupMapUrl?: string
   onClose: () => void
 }
 

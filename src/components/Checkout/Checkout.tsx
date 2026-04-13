@@ -78,6 +78,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
         open={checkout.showConfirmModal}
         formData={checkout.formData}
         orderType={checkout.orderType}
+        pickupAddress={checkout.pickupAddress}
         totalAmount={checkout.totalAmount}
         errorMessage={checkout.errorMessage}
         isSubmitting={checkout.isSubmitting}
@@ -129,6 +130,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
             onToggleCountryDropdown={checkout.toggleCountryDropdown}
             onOrderTypeChange={checkout.setOrderType}
             onAutoFill={() => {}}
+            pickupAddress={checkout.pickupAddress}
+            pickupMapUrl={checkout.pickupMapUrl}
 
             totalAmount={checkout.totalAmount}
             cartItemsCount={cartData.items.length}

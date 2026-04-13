@@ -2,8 +2,6 @@ import type { FC } from "react"
 
 import type { Product } from "@/types"
 import type { Order } from "@/types"
-
-import { RESTAURANT } from "@/config/restaurant"
 import { useOrderReceipt } from "./hooks/useOrderReceipt"
 
 import { ReceiptHeader } from "./components/ReceiptHeader"
@@ -71,9 +69,11 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
               KutMenu
             </h1>
 
-            <p className="text-sm text-slate-500 mt-1">
-              {RESTAURANT.address}
-            </p>
+            {order.order_type === "pickup" && (order.pickup_address || order.address) && (
+              <p className="text-sm text-slate-500 mt-1">
+                Адрес ресторана (самовывоз): {order.pickup_address || order.address}
+              </p>
+            )}
 
             <p className="text-orange-600 font-bold mt-3 text-lg">
               Чек заказа
@@ -97,7 +97,7 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
             total={receipt.total}
           />
 
-          <OrderTypeBlock orderType={receipt.orderType} />
+          <OrderTypeBlock order={order} />
 
           <CustomerInfo order={order} />
 

@@ -34,12 +34,15 @@ export const OrderDetailsHeader = ({
      DELIVERY TYPE (🔥 FIX)
   =============================== */
 
-  const orderTypeValue = order.order_type || "delivery"
-  
-  const deliveryType =
-    orderTypeValue === "pickup"
-      ? "Самовывоз"
-      : "Доставка"
+  const orderTypeValue = (order.order_type || "").trim().toLowerCase()
+
+  const isPickup =
+    orderTypeValue === "pickup" ||
+    orderTypeValue === "local_pickup" ||
+    orderTypeValue.includes("самовывоз") ||
+    Boolean(order.pickup_address)
+
+  const deliveryType = isPickup ? "Самовывоз" : "Доставка"
 
   /* ===============================
      SAFE CLOSE (🔥 FIX SCROLL BUG)

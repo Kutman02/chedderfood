@@ -26,6 +26,8 @@ interface CheckoutStepProps {
   onCountrySelect: any;
   onToggleCountryDropdown: () => void;
   onOrderTypeChange: (type: "delivery" | "pickup") => void;
+  pickupAddress: string;
+  pickupMapUrl: string;
 
   // submit
   totalAmount: number;
@@ -56,6 +58,8 @@ export const CheckoutStep: React.FC<CheckoutStepProps> = ({
   onCountrySelect,
   onToggleCountryDropdown,
   onOrderTypeChange,
+  pickupAddress,
+  pickupMapUrl,
 
   totalAmount,
   cartItemsCount,
@@ -87,6 +91,8 @@ export const CheckoutStep: React.FC<CheckoutStepProps> = ({
         onCountrySelect={onCountrySelect}
         onToggleCountryDropdown={onToggleCountryDropdown}
         onOrderTypeChange={onOrderTypeChange}
+        pickupAddress={pickupAddress}
+        pickupMapUrl={pickupMapUrl}
         onAutoFill={onAutoFill} // ✅ ВОТ ЭТО ТЫ ЗАБЫЛ
       />
 

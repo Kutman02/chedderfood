@@ -6,7 +6,13 @@ interface OrderTypeBadgeProps {
 }
 
 export const OrderTypeBadge = ({ order }: OrderTypeBadgeProps) => {
-  const isPickup = order.order_type === "pickup"
+  const normalizedType = (order.order_type || "").trim().toLowerCase()
+
+  const isPickup =
+    normalizedType === "pickup" ||
+    normalizedType === "local_pickup" ||
+    normalizedType.includes("самовывоз") ||
+    Boolean(order.pickup_address)
 
   return (
 

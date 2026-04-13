@@ -1,12 +1,17 @@
 import type { FC } from "react"
+import type { Order } from "@/types"
 
 interface OrderTypeBlockProps {
-  orderType: string
+  order: Order
 }
 
-export const OrderTypeBlock: FC<OrderTypeBlockProps> = ({ orderType }) => {
+export const OrderTypeBlock: FC<OrderTypeBlockProps> = ({ order }) => {
+
+  const orderType = order.order_type || "delivery"
 
   const isPickup = orderType === "pickup"
+  const pickupAddress = order.pickup_address?.trim() || order.address?.trim() || ""
+  const pickupMapUrl = order.pickup_map_url?.trim() || ""
 
   return (
     <div
@@ -38,6 +43,23 @@ export const OrderTypeBlock: FC<OrderTypeBlockProps> = ({ orderType }) => {
             : "Доставка"
           }
         </p>
+
+        {isPickup && pickupAddress && (
+          <p className="text-sm text-green-800 mt-1">
+            Адрес ресторана (самовывоз): {pickupAddress}
+          </p>
+        )}
+
+        {isPickup && pickupMapUrl && (
+          <a
+            href={pickupMapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-1 text-sm font-semibold text-green-700 underline hover:text-green-900"
+          >
+            Открыть в 2ГИС
+          </a>
+        )}
       </div>
 
     </div>

@@ -41,7 +41,49 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
   })
 
   const restaurantHours = restaurantHoursResponse?.data
+
+  const resolvePickupAddress = () => {
+    if (!restaurantHours) return ""
+
+    const candidates = [
+      restaurantHours.pickup?.address,
+      restaurantHours.pickup_address,
+      restaurantHours.restaurant_address,
+      restaurantHours.address,
+    ]
+
+    for (const candidate of candidates) {
+      if (typeof candidate === "string" && candidate.trim()) {
+        return candidate.trim()
+      }
+    }
+
+    return ""
+  }
+
+  const resolvePickupMapUrl = () => {
+    if (!restaurantHours) return ""
+
+    const candidates = [
+      restaurantHours.pickup?.map_url,
+      restaurantHours.pickup_map_url,
+      restaurantHours.pickup_2gis_url,
+      restaurantHours.map_2gis,
+      restaurantHours.map2gis,
+    ]
+
+    for (const candidate of candidates) {
+      if (typeof candidate === "string" && candidate.trim()) {
+        return candidate.trim()
+      }
+    }
+
+    return ""
+  }
+
   const checkoutAllowed = restaurantHours?.checkout_allowed ?? true
+  const pickupAddress = resolvePickupAddress()
+  const pickupMapUrl = resolvePickupMapUrl()
   const checkoutBlockMessage = checkoutAllowed
     ? ""
     : restaurantHours?.message || "Сейчас ресторан не принимает заказы"
@@ -137,6 +179,8 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
         },
         cartItems,
         orderType,
+        pickupAddress,
+        pickupMapUrl,
         onClose,
       })
 
@@ -190,6 +234,8 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     checkoutAllowed,
     checkoutBlockMessage,
     isRestaurantHoursLoading,
+    pickupAddress,
+    pickupMapUrl,
 
     handleInputChange,
     handlePhoneNumberChange,
