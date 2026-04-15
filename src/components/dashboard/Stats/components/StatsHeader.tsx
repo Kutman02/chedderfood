@@ -23,7 +23,7 @@ export const StatsHeader = ({
   const handleQuickRange = (days: number) => {
 
     const end = new Date()
-    const start = subDays(end, days)
+    const start = subDays(end, Math.max(days - 1, 0))
 
     setEndDate(format(end, "yyyy-MM-dd"))
     setStartDate(format(start, "yyyy-MM-dd"))
@@ -83,6 +83,8 @@ const navigate = useNavigate()
 
           <input
             type="date"
+            aria-label="Дата начала"
+            title="Дата начала"
             value={startDate}
             max={endDate}
             onChange={(e) => setStartDate(e.target.value)}
@@ -95,6 +97,8 @@ const navigate = useNavigate()
 
           <input
             type="date"
+            aria-label="Дата окончания"
+            title="Дата окончания"
             value={endDate}
             min={startDate}
             max={format(new Date(), "yyyy-MM-dd")}

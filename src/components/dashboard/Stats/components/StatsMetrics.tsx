@@ -48,7 +48,7 @@ export const StatsMetrics = ({ data }: StatsMetricsProps) => {
         <div className="flex items-center gap-2 mb-1 sm:mb-2">
           <FaShoppingCart size={14} />
           <span className="text-xs sm:text-sm font-medium opacity-90">
-            Выполнено
+            Всего заказов
           </span>
         </div>
 

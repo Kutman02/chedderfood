@@ -2,7 +2,19 @@ import { baseApi } from "../base/baseApi"
 import type { DashboardAnalyticsResponse } from "@/types"
 
 export interface GetDashboardAnalyticsParams {
-  period?: "day" | "week" | "month"
+  period?:
+    | "1d"
+    | "7d"
+    | "30d"
+    | "90d"
+    | "day"
+    | "week"
+    | "month"
+    | "daily"
+    | "weekly"
+    | "monthly"
+  date_from?: string
+  date_to?: string
 }
 
 export const adminAnalyticsApi = baseApi.injectEndpoints({

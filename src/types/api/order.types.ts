@@ -137,13 +137,40 @@ export interface UpdateOrderStatusResponse {
 }
 
 export interface DashboardAnalyticsSummary {
-  period: "day" | "week" | "month"
+  period: string
   start_date: string
   end_date: string
   total_orders: number
   total_revenue: number
   average_order_value: number
   total_items_sold: number
+}
+
+export interface DashboardRangeInfo {
+  date_from: string
+  date_to: string
+  date_from_display?: string
+  date_to_display?: string
+  label?: string
+  timezone?: string
+}
+
+export interface DashboardAvailablePeriod {
+  key: string
+  label: string
+  days: number
+}
+
+export interface DashboardSalesChartPoint {
+  date: string
+  orders: number
+  revenue: number
+}
+
+export interface DashboardOrderStatusUi {
+  waiting?: number
+  preparing?: number
+  cancelled?: number
 }
 
 export interface DashboardTopProduct {
@@ -156,14 +183,22 @@ export interface DashboardTopProduct {
 
 export interface DashboardAnalyticsData {
   summary: DashboardAnalyticsSummary
+  range?: DashboardRangeInfo
+  available_periods?: DashboardAvailablePeriod[]
+  selected_period?: string
   top_products: DashboardTopProduct[]
   order_status_breakdown: {
+    "on-hold"?: number
     pending?: number
     processing?: number
+    ready?: number
     completed?: number
     cancelled?: number
     failed?: number
+    refunded?: number
   }
+  order_status_ui?: DashboardOrderStatusUi
+  sales_chart?: DashboardSalesChartPoint[]
 }
 
 export interface DashboardAnalyticsResponse {
