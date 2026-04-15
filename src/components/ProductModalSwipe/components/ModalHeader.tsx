@@ -11,7 +11,7 @@ export const ModalHeader = ({ onClose }: ModalHeaderProps) => {
       <button
         onClick={onClose}
         aria-label="Закрыть"
-        className="p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full shrink-0 pointer-events-auto"
+        className="p-2 text-slate-700 hover:text-black transition-colors rounded-full shrink-0 pointer-events-auto"
       >
         <FaTimes size={20} />
       </button>

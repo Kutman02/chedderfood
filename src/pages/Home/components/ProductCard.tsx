@@ -90,6 +90,7 @@ export const ProductCard = ({
   const productTags = Array.isArray(product.tags)
     ? product.tags
         .filter((tag) => !isSaleTag(tag))
+        .filter((tag) => tag.id !== extraTopTag?.id)
         .slice(0, 3)
     : []
 
@@ -168,12 +169,14 @@ export const ProductCard = ({
         >
 
           {cartCount === 0 ? (
-            <div
+            <button
+              type="button"
               className="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-110 transition cursor-pointer"
               onClick={handleAddToCart}
+              aria-label="Добавить в корзину"
             >
               <FaPlus className="text-orange-500" size={14} />
-            </div>
+            </button>
           ) : (
             <div className="bg-white rounded-full shadow-md flex items-center gap-1 px-1 py-1">
 

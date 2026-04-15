@@ -47,7 +47,7 @@ export const ProductInfo = ({ product, onClose }: ProductInfoProps) => {
         !line.startsWith("•") &&
         !line.toLowerCase().includes("состав комбо")
     )
-    .join(" ")
+    .join("\n")
 
   const isCombo = comboItems.length > 0
 
@@ -107,7 +107,7 @@ export const ProductInfo = ({ product, onClose }: ProductInfoProps) => {
             </h3>
 
             {normalDescription && (
-              <p className="text-slate-700 text-sm">
+              <p className="text-slate-700 text-sm whitespace-pre-line">
                 {normalDescription}
               </p>
             )}

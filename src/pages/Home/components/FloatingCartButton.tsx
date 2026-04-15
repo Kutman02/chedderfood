@@ -33,10 +33,11 @@ export const FloatingCartButton = ({ cartCount }: FloatingCartButtonProps) => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 animate-in zoom-in-95 duration-400">
+    <div className="fixed z-40 animate-in zoom-in-95 duration-400 bottom-[max(1rem,calc(env(safe-area-inset-bottom)+0.75rem))] right-[max(1rem,calc(env(safe-area-inset-right)+0.75rem))]">
       <button
         onClick={toggleCart}
-        className="bg-orange-600 text-white px-6 py-4 rounded-full shadow-xl hover:bg-orange-700 hover:shadow-2xl transition-all duration-300 flex items-center gap-3 font-bold active:scale-95 border-2 border-white"
+        className="bg-orange-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-full shadow-xl hover:bg-orange-700 hover:shadow-2xl transition-all duration-300 flex items-center gap-2 sm:gap-3 font-bold active:scale-95 border-2 border-white"
+        aria-label={`Открыть корзину, товаров: ${safeCount}`}
       >
         <FaShoppingCart className="animate-pulse" />
 
