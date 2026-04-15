@@ -13,6 +13,10 @@ import type { Product } from "@/types"
 type OutletContext = {
   products: Product[]
   searchQuery: string
+  setSearchMeta: (
+    section: "orders" | "products" | "customers" | "categories" | "tags",
+    meta: { found: number; total: number; loading?: boolean }
+  ) => void
 }
 
 const OrdersPage = () => {
@@ -24,7 +28,7 @@ const OrdersPage = () => {
   const [dateTo, setDateTo] = useState("")
   const [expandedDetailsOrderId, setExpandedDetailsOrderId] = useState<number | null>(null)
 
-  const { products, searchQuery } = useOutletContext<OutletContext>()
+  const { products, searchQuery, setSearchMeta } = useOutletContext<OutletContext>()
 
   const { activeTab, setActiveTab } = useDashboardUI()
   const supportsDateFilters =
@@ -67,6 +71,8 @@ const OrdersPage = () => {
     countsRaw,
     filterCounts,
     totalPages, // ✅ ВАЖНО
+    foundTotal,
+    activeTabTotal,
     processingIds,
     removingOrderIds,
     expandedConfirmation,
@@ -84,6 +90,14 @@ const OrdersPage = () => {
   useEffect(() => {
     setExpandedDetailsOrderId(null)
   }, [activeTab, searchQuery, page, dateFilter])
+
+  useEffect(() => {
+    setSearchMeta("orders", {
+      found: foundTotal,
+      total: activeTabTotal,
+      loading: ordersLoading,
+    })
+  }, [activeTabTotal, foundTotal, ordersLoading, setSearchMeta])
 
   const handleToggleDetails = (orderId: number) => {
     setExpandedDetailsOrderId((currentOrderId) =>

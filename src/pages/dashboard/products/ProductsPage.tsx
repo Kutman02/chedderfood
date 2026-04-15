@@ -1,5 +1,6 @@
 import { ProductsSection } from "../components/ProductsSection"
 import { ProductSkeleton } from "@/components/Skeleton/components"
+import { useEffect } from "react"
 
 import { useProducts } from "../hooks/useProducts"
 import { useOutletContext } from "react-router-dom"
@@ -8,6 +9,10 @@ type OutletContextType = {
   handleEditProduct: (product: any) => void
   setShowAddProductModal: (value: boolean) => void
   searchQuery: string
+  setSearchMeta: (
+    section: "orders" | "products" | "customers" | "categories" | "tags",
+    meta: { found: number; total: number; loading?: boolean }
+  ) => void
 }
 
 const ProductsPage = () => {
@@ -15,12 +20,14 @@ const ProductsPage = () => {
   const {
     handleEditProduct,
     setShowAddProductModal,
-    searchQuery
+    searchQuery,
+    setSearchMeta,
   } = useOutletContext<OutletContextType>()
 
   const {
     products,
     sortedProducts,
+    totalProducts,
     productsLoading,
     productsError,
 
@@ -36,6 +43,14 @@ const ProductsPage = () => {
     handleDragOver,
     handleDrop
   } = useProducts(searchQuery)
+
+  useEffect(() => {
+    setSearchMeta("products", {
+      found: sortedProducts.length,
+      total: totalProducts,
+      loading: productsLoading,
+    })
+  }, [productsLoading, setSearchMeta, sortedProducts.length, totalProducts])
 
   if (productsError) {
     return (

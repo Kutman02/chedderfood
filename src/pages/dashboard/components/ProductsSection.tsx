@@ -68,9 +68,11 @@ export const ProductsSection = ({
 
         <button
           onClick={onAddProduct}
-          className="w-full md:w-auto bg-linear-to-r from-orange-500 to-orange-600 text-white px-6 py-4 md:py-3 rounded-xl font-black flex items-center justify-center gap-2 hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg text-base md:text-sm"
+          aria-label="Добавить товар"
+          title="Добавить товар"
+          className="w-full md:w-11 h-12 md:h-11 bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-xl font-black flex items-center justify-center hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg text-base md:text-sm"
         >
-          <FaPlus /> Добавить товар
+          <FaPlus />
         </button>
 
         {/* Категории */}

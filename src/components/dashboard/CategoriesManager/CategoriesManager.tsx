@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo, useEffect } from "react"
+import { FaPlus } from "react-icons/fa"
 import { useGetCategoriesQuery } from "@/api"
 import { useCategoryActions, useCategoryModal } from "./hooks"
 import { CategoriesList, CategoryModal } from "./components"
@@ -15,9 +16,46 @@ import type { CategoryFormData } from "./types/categories.types"
  * - Display categories list
  */
 
-export const CategoriesManager = () => {
+interface CategoriesManagerProps {
+  searchQuery?: string
+  setSearchMeta?: (
+    section: "orders" | "products" | "customers" | "categories" | "tags",
+    meta: { found: number; total: number; loading?: boolean }
+  ) => void
+}
+
+export const CategoriesManager = ({
+  searchQuery = "",
+  setSearchMeta,
+}: CategoriesManagerProps) => {
   // API & Data
   const { data: categories = [], isLoading, error } = useGetCategoriesQuery()
+
+  const filteredCategories = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+
+    if (!query) {
+      return categories
+    }
+
+    return categories.filter((category) =>
+      [category.name, category.slug, category.description]
+        .filter(Boolean)
+        .some((value) => value?.toLowerCase().includes(query))
+    )
+  }, [categories, searchQuery])
+
+  useEffect(() => {
+    if (!setSearchMeta) {
+      return
+    }
+
+    setSearchMeta("categories", {
+      found: filteredCategories.length,
+      total: categories.length,
+      loading: isLoading,
+    })
+  }, [categories.length, filteredCategories.length, isLoading, setSearchMeta])
 
   // Modal State
   const modal = useCategoryModal()
@@ -71,28 +109,17 @@ export const CategoriesManager = () => {
         </div>
         <button
           onClick={modal.handleOpenCreate}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition"
+          aria-label="Новая категория"
+          title="Новая категория"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700"
         >
-          <svg
-            className="w-5 h-5 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          Новая категория
+          <FaPlus size={16} />
         </button>
       </div>
 
       {/* Categories List */}
       <CategoriesList
-        categories={categories}
+        categories={filteredCategories}
         isLoading={isLoading}
         error={error instanceof Error ? error.message : undefined}
         onEdit={modal.handleOpenEdit}

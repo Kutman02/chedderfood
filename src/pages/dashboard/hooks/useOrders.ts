@@ -211,6 +211,11 @@ export const useOrders = (
     cancelled: countsRaw.cancelled,
   }
 
+  const activeTabTotal =
+    activeTab in countsRaw
+      ? countsRaw[activeTab as keyof typeof countsRaw]
+      : 0
+
   const filterCounts = {
     today: todayFilteredCountResult?.total ?? 0,
     all: allFilteredCountResult?.total ?? 0,
@@ -313,6 +318,8 @@ export const useOrders = (
     ordersError,
 
     totalPages,
+    foundTotal: result?.total ?? filteredOrders.length,
+    activeTabTotal,
 
     counts,
     countsRaw,

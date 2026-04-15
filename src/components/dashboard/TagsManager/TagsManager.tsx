@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { FaPlus } from "react-icons/fa"
 import { useGetTagsQuery } from "@/api"
 import { useTagActions, useTagModal } from "./hooks"
 import { TagModal, TagsList } from "./components"
@@ -6,9 +7,16 @@ import type { TagFormData } from "./types/tags.types"
 
 interface TagsManagerProps {
   searchQuery?: string
+  setSearchMeta?: (
+    section: "orders" | "products" | "customers" | "categories" | "tags",
+    meta: { found: number; total: number; loading?: boolean }
+  ) => void
 }
 
-export const TagsManager = ({ searchQuery = "" }: TagsManagerProps) => {
+export const TagsManager = ({
+  searchQuery = "",
+  setSearchMeta,
+}: TagsManagerProps) => {
   const { data: tags = [], isLoading, error } = useGetTagsQuery()
 
   const modal = useTagModal()
@@ -29,6 +37,18 @@ export const TagsManager = ({ searchQuery = "" }: TagsManagerProps) => {
         .some((value) => value?.toLowerCase().includes(query))
     )
   }, [searchQuery, tags])
+
+  useEffect(() => {
+    if (!setSearchMeta) {
+      return
+    }
+
+    setSearchMeta("tags", {
+      found: filteredTags.length,
+      total: tags.length,
+      loading: isLoading,
+    })
+  }, [filteredTags.length, isLoading, setSearchMeta, tags.length])
 
   const handleCreate = useCallback(
     (data: TagFormData) => {
@@ -67,12 +87,11 @@ export const TagsManager = ({ searchQuery = "" }: TagsManagerProps) => {
         </div>
         <button
           onClick={modal.handleOpenCreate}
-          className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700"
+          aria-label="Новая метка"
+          title="Новая метка"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700"
         >
-          <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Новая метка
+          <FaPlus size={16} />
         </button>
       </div>
 

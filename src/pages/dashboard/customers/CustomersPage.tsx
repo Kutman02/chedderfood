@@ -3,15 +3,20 @@ import { CustomersSection } from "../components/CustomersSection"
 
 type OutletContext = {
   searchQuery: string
+  setSearchMeta: (
+    section: "orders" | "products" | "customers" | "categories" | "tags",
+    meta: { found: number; total: number; loading?: boolean }
+  ) => void
 }
 
 const CustomersPage = () => {
 
-  const { searchQuery } = useOutletContext<OutletContext>()
+  const { searchQuery, setSearchMeta } = useOutletContext<OutletContext>()
 
   return (
     <CustomersSection
       searchQuery={searchQuery}
+      setSearchMeta={setSearchMeta}
     />
   )
 }

@@ -8,16 +8,21 @@ interface TagCardProps {
 
 export const TagCard = ({ tag, onEdit, onDelete }: TagCardProps) => {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 transition hover:shadow-md">
-      <div className="flex-1">
-        <h3 className="font-semibold text-gray-900">{tag.name}</h3>
-        {tag.slug && <p className="text-sm text-gray-500">Slug: {tag.slug}</p>}
+    <div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 transition hover:shadow-md sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate font-semibold text-gray-900">{tag.name}</h3>
+        {tag.slug && (
+          <div className="mt-1 flex min-w-0 items-start gap-1 text-sm text-gray-500">
+            <span className="shrink-0 text-gray-400">Slug:</span>
+            <span className="min-w-0 break-all sm:wrap-break-word">{tag.slug}</span>
+          </div>
+        )}
         {tag.description && (
-          <p className="mt-1 line-clamp-2 text-sm text-gray-600">{tag.description}</p>
+          <p className="mt-1 line-clamp-2 wrap-break-word text-sm text-gray-600">{tag.description}</p>
         )}
       </div>
 
-      <div className="ml-4 flex gap-2">
+      <div className="flex shrink-0 self-end gap-2 sm:ml-4 sm:self-center">
         <button
           onClick={() => onEdit(tag)}
           className="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"

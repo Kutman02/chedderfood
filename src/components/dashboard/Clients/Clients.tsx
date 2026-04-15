@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useSelector } from "react-redux"
 
 import { useGetCustomersQuery } from "@/api"
@@ -16,9 +16,13 @@ import type { RootState } from "@/app/store"
 
 interface ClientsProps {
   searchQuery: string
+  setSearchMeta: (
+    section: "orders" | "products" | "customers" | "categories" | "tags",
+    meta: { found: number; total: number; loading?: boolean }
+  ) => void
 }
 
-export const Clients = ({ searchQuery }: ClientsProps) => {
+export const Clients = ({ searchQuery, setSearchMeta }: ClientsProps) => {
 
   const [customerSortBy, setCustomerSortBy] =
     useState<"newest" | "orders" | "spent" | "name">("newest")
@@ -44,6 +48,14 @@ export const Clients = ({ searchQuery }: ClientsProps) => {
   )
 
   const totalPages = Math.ceil((filteredCustomers?.length || 0) / perPage)
+
+  useEffect(() => {
+    setSearchMeta("customers", {
+      found: filteredCustomers?.length || 0,
+      total: customers.length,
+      loading: isLoading,
+    })
+  }, [customers.length, filteredCustomers?.length, isLoading, setSearchMeta])
 
   const paginatedCustomers = useMemo(() => {
 

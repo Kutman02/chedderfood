@@ -172,6 +172,7 @@ export const useProducts = (searchQuery: string) => {
 
     products,
     sortedProducts,
+    totalProducts: allProducts.length,
     productsLoading,
     productsError,
 
