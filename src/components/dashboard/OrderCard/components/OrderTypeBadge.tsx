@@ -17,7 +17,7 @@ export const OrderTypeBadge = ({ order }: OrderTypeBadgeProps) => {
   return (
 
     <div
-      className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-white ${
+      className={`flex min-h-12 items-center gap-2 rounded-xl px-3 py-3 font-bold text-white sm:min-h-0 sm:py-2 ${
         isPickup ? "bg-green-600" : "bg-blue-600"
       }`}
     >
@@ -25,14 +25,14 @@ export const OrderTypeBadge = ({ order }: OrderTypeBadgeProps) => {
       {isPickup ? (
         <>
           <FaStore size={16} />
-          <span className="text-sm">
+          <span className="text-base sm:text-sm">
             Заберу сам (самовывоз)
           </span>
         </>
       ) : (
         <>
           <FaTruck size={16} />
-          <span className="text-sm">
+          <span className="text-base sm:text-sm">
             Доставка
           </span>
         </>

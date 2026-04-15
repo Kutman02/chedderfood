@@ -36,7 +36,6 @@ const DashboardLayout = () => {
     orderDetailsModal,
     setOrderDetailsModal,
 
-    handleViewDetails,
     handleEditProduct,
 
     getPlaceholder,
@@ -90,7 +89,7 @@ const DashboardLayout = () => {
         <main className="mt-6 w-full min-w-0">
           <Outlet
             context={{
-              handleViewDetails,
+              products: productsData?.data || [],
               handleEditProduct,
               setShowAddProductModal,
               searchQuery: searchQueries[section],

@@ -10,17 +10,17 @@ export const OrderPaymentInfo = ({ order: _order }: Props) => {
   const payment = "Оплата при получении"
 
   return (
-    <div className="bg-purple-50 rounded-xl p-4">
+    <section className="border-b border-slate-200 py-4 sm:rounded-2xl sm:border sm:border-violet-100 sm:bg-white/88 sm:p-4 sm:shadow-sm">
 
-      <h3 className="text-lg font-black text-slate-900 mb-2 flex items-center gap-2">
-        <FaCreditCard className="text-purple-600" />
-        Способ оплаты
+      <h3 className="mb-4 flex items-center gap-2 text-xl font-extrabold leading-none text-slate-900 sm:text-lg">
+        <FaCreditCard className="text-violet-600" />
+        Оплата
       </h3>
 
-      <p className="text-sm font-semibold">
+      <p className="rounded-xl bg-violet-50 px-3 py-3 text-sm font-semibold text-slate-900 sm:bg-violet-50">
         {payment}
       </p>
 
-    </div>
+    </section>
   )
 }

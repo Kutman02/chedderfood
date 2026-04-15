@@ -8,16 +8,20 @@ export const OrderNote: FC<OrderNoteProps> = ({ note }) => {
   if (!note?.trim()) return null
 
   return (
-    <div className="mt-6 p-4 border-2 border-amber-200 bg-amber-50 rounded-xl">
+    <section className="rounded-2xl bg-amber-50 p-4 md:border md:border-amber-200 md:p-5 md:shadow-sm">
 
-      <h4 className="flex items-center gap-2 font-bold text-amber-800 mb-2">
-        Комментарий к заказу
+      <p className="text-xs font-bold uppercase tracking-wide text-amber-700">
+        Комментарий клиента
+      </p>
+
+      <h4 className="mb-2 mt-1 text-lg font-black text-slate-900">
+        Что важно учесть
       </h4>
 
-      <p className="text-sm text-slate-700 whitespace-pre-wrap">
+      <p className="text-sm leading-6 text-slate-700 whitespace-pre-wrap">
         {note}
       </p>
 
-    </div>
+    </section>
   )
 }

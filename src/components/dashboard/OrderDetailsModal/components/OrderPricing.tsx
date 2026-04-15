@@ -36,16 +36,16 @@ export const OrderPricing = ({ order }: Props) => {
 
   return (
 
-    <div className="bg-white border-2 border-green-200 rounded-xl p-4">
+    <section className="py-4 sm:rounded-2xl sm:border sm:border-emerald-100 sm:bg-white/88 sm:p-4 sm:shadow-sm">
 
-      <h3 className="text-sm font-bold text-slate-500 mb-3">
+      <h3 className="mb-4 text-xl font-extrabold leading-none text-slate-900 sm:text-lg">
         Сумма заказа
       </h3>
 
       <div className="space-y-2">
 
         {/* Товары */}
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
 
           <span className="text-sm font-semibold text-slate-600">
             Товары
@@ -60,9 +60,9 @@ export const OrderPricing = ({ order }: Props) => {
         {/* Доставка */}
         {shipping > 0 && (
 
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
 
-            <span className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm font-semibold text-slate-600">
               <FaTruck size={12} />
               Доставка
             </span>
@@ -76,13 +76,13 @@ export const OrderPricing = ({ order }: Props) => {
         )}
 
         {/* Итог */}
-        <div className="flex justify-between items-center pt-3 border-t border-green-200">
+        <div className="flex items-center justify-between border-t border-emerald-100 pt-3">
 
           <span className="text-lg font-black text-slate-900">
             Итого
           </span>
 
-          <span className="text-3xl font-black text-green-600">
+          <span className="text-2xl font-black text-emerald-300 md:text-3xl">
             {total.toFixed(0)} {currency}
           </span>
 
@@ -90,7 +90,7 @@ export const OrderPricing = ({ order }: Props) => {
 
       </div>
 
-    </div>
+    </section>
 
   )
 

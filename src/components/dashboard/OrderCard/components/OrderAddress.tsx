@@ -41,14 +41,14 @@ export const OrderAddress = ({
 
   return (
 
-    <div className={`${activeTabData?.bgColor} p-3 rounded-xl border`}>
+    <div className={`${activeTabData?.bgColor} rounded-xl border p-3 sm:p-3`}>
 
-      <p className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
+      <p className="flex items-center gap-2 text-xs font-bold uppercase text-slate-500">
         <FaMapMarkerAlt />
         {isPickup ? "Адрес ресторана (самовывоз):" : "Адрес:"}
       </p>
 
-      <p className="text-sm font-semibold">
+      <p className="mt-1 text-base font-semibold break-words sm:text-sm">
         {address}
       </p>
 

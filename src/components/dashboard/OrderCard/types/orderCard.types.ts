@@ -1,4 +1,4 @@
-import type { Order } from "@/types"
+import type { Order, Product } from "@/types"
 
 /* =========================
    TAB CONFIG (локально или вынеси)
@@ -20,6 +20,7 @@ export type TabConfig = {
 
 export interface OrderCardProps {
   order: Order
+  products: Product[]
   activeTab: string
   activeTabData?: TabConfig
 
@@ -28,7 +29,8 @@ export interface OrderCardProps {
 
   onStatusUpdate: (id: number, status: string) => void
 
-  onViewDetails: (order: Order) => void
+  isDetailsOpen: boolean
+  onToggleDetails: (orderId: number) => void
 
   // 🔥 ЧИСТЫЙ API
   onConfirmAction: (orderId: number, action: string) => void

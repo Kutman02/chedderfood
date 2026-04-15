@@ -74,32 +74,32 @@ export const OrderCardHeader = ({
     : formatElapsed(o?.date_created, now)
 
   return (
-    <div className="flex justify-between items-start mb-4">
+    <div className="mb-4 space-y-4 sm:flex sm:items-start sm:justify-between sm:space-y-0">
 
-      <div className="flex gap-3">
+      <div className="flex min-w-0 gap-3">
 
         <div
-          className={`w-14 h-14 rounded-xl bg-linear-to-br ${activeTabData?.color}
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-linear-to-br text-base ${activeTabData?.color}
           flex items-center justify-center text-white font-black`}
         >
           # {orderNumber}
         </div>
 
-        <div>
-          <h3 className="text-lg font-black">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-xl font-black leading-none text-slate-950 sm:text-lg">
             {customerName}
           </h3>
 
           {phone ? (
             <a
               href={`tel:${phone}`}
-              className="text-orange-600 font-bold flex items-center gap-2"
+              className="mt-2 flex items-center gap-2 break-all text-lg font-bold text-orange-600 sm:mt-1 sm:text-base"
             >
               <FaPhone size={12} />
               {phone}
             </a>
           ) : (
-            <p className="text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-400 sm:mt-1">
               Нет номера
             </p>
           )}
@@ -107,20 +107,24 @@ export const OrderCardHeader = ({
 
       </div>
 
-      <div className="text-right">
-        <p className="text-xs font-bold text-slate-400 uppercase">
-          Заказ пришёл
-        </p>
-        <p className="text-sm font-black text-slate-700">
-          {createdTime}
-          {elapsed ? ` • ${elapsed}` : ""}
-        </p>
-        <p className="text-xs font-bold text-slate-400 uppercase">
-          Сумма
-        </p>
-        <p className="text-lg font-black text-green-600">
-          {total} сом
-        </p>
+      <div className="grid grid-cols-2 gap-4 rounded-2xl bg-slate-50 px-3 py-3 sm:min-w-[170px] sm:bg-transparent sm:px-0 sm:py-0">
+        <div className="text-left sm:text-right">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
+            Заказ пришёл
+          </p>
+          <p className="mt-1 text-base font-black text-slate-700 sm:text-sm">
+            {createdTime}
+            {elapsed ? ` • ${elapsed}` : ""}
+          </p>
+        </div>
+        <div className="text-left sm:text-right">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
+            Сумма
+          </p>
+          <p className="mt-1 text-xl font-black text-green-600 sm:text-lg">
+            {total} сом
+          </p>
+        </div>
       </div>
 
     </div>

@@ -2,10 +2,11 @@ import { OrderCard } from "@/components/dashboard/OrderCard/OrderCard"
 
 import { ORDER_TABS } from "../constants/dashboard.constants"
 
-import type { Order } from "@/types"
+import type { Order, Product } from "@/types"
 
 type Props = {
   orders: Order[]
+  products: Product[]
   activeTab: string
 
   processingIds: Set<number>
@@ -19,11 +20,13 @@ type Props = {
   onConfirmAction: (orderId: number, action: string) => void
   onStatusUpdate: (orderId: number, status: string) => void
 
-  onViewDetails: (order: Order) => void
+  expandedDetailsOrderId: number | null
+  onToggleDetails: (orderId: number) => void
 }
 
 export const OrdersSection = ({
   orders,
+  products,
   activeTab,
 
   processingIds,
@@ -34,7 +37,8 @@ export const OrdersSection = ({
   onConfirmAction,
   onStatusUpdate,
 
-  onViewDetails
+  expandedDetailsOrderId,
+  onToggleDetails,
 }: Props) => {
 
   const activeTabData = ORDER_TABS.find(t => t.id === activeTab)
@@ -48,13 +52,14 @@ export const OrdersSection = ({
   }
 
   return (
-    <>
+    <div className="-mx-4 space-y-3 sm:mx-0">
       {orders.map(order => (
 
         <OrderCard
           key={order.id}
 
           order={order}
+          products={products}
 
           activeTab={activeTab}
           activeTabData={activeTabData}
@@ -66,7 +71,8 @@ export const OrdersSection = ({
             onStatusUpdate(id, status)
           }
 
-          onViewDetails={onViewDetails}
+          isDetailsOpen={expandedDetailsOrderId === order.id}
+          onToggleDetails={onToggleDetails}
 
           onConfirmAction={onConfirmAction}
 
@@ -82,6 +88,6 @@ export const OrdersSection = ({
         />
 
       ))}
-    </>
+    </div>
   )
 }

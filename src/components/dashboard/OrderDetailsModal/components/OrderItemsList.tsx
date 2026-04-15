@@ -3,7 +3,6 @@ import { IoFastFood } from "react-icons/io5"
 type OrderItemView = {
   id: number
   name: string
-  image: string
   quantity: number
   price: string
   total: number
@@ -17,81 +16,63 @@ export const OrderItemsList = ({ items }: Props) => {
 
   if (!Array.isArray(items) || items.length === 0) {
     return (
-      <div className="bg-white border-2 border-red-200 rounded-xl p-4">
-        <h3 className="text-lg font-black text-slate-900 mb-2">
-          <IoFastFood className="inline mr-2" />
-          Заказанные блюда
+      <section className="py-4 sm:rounded-2xl sm:border sm:border-slate-200 sm:bg-white/80 sm:p-4 sm:shadow-sm">
+        <h3 className="mb-2 text-lg font-black text-slate-900">
+          <IoFastFood className="mr-2 inline" />
+          Состав заказа
         </h3>
-        <div className="text-center text-red-500 py-6 text-sm">
-          ⚠️ Товары не загружены. Проверьте консоль для отладки.
+        <div className="py-6 text-center text-sm text-red-500">
+          Не удалось загрузить позиции заказа.
         </div>
-      </div>
+      </section>
     )
   }
 
   return (
-    <div className="bg-white border-2 border-slate-200 rounded-xl p-4">
+    <section className="border-b border-slate-200 py-4 sm:rounded-2xl sm:border sm:border-slate-200 sm:bg-white/88 sm:p-4 sm:shadow-sm">
 
-      <h3 className="text-lg font-black text-slate-900 mb-4">
-        <IoFastFood className="inline mr-2" />
-        Заказанные блюда
-      </h3>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="text-xl font-extrabold leading-none text-slate-900 sm:text-lg">
+          <IoFastFood className="mr-2 inline" />
+          Состав заказа
+        </h3>
+
+        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+          {items.reduce((sum, item) => sum + Number(item.quantity || 0), 0)} шт.
+        </span>
+      </div>
 
       <div className="space-y-3">
 
         {items.map((item) => {
-
-          const image =
-            item.image && item.image.trim() !== ""
-              ? item.image
-              : "/placeholder-food.png"
-
           return (
             <div
               key={item.id}
-              className="flex items-center gap-4 p-3 border border-slate-100 rounded-lg"
+              className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 rounded-xl bg-white px-0 py-3 first:pt-0 last:pb-0 sm:border sm:border-slate-100 sm:bg-slate-50 sm:px-3 sm:py-3 sm:first:pt-3 sm:last:pb-3"
             >
 
-              {/* Фото */}
-              <img
-                src={image}
-                alt={item.name}
-                className="w-14 h-14 object-cover rounded-lg border"
-              />
-
-              {/* Название */}
-              <div className="flex-1">
-
-                <p className="font-bold text-slate-900 text-sm">
+              <div className="min-w-0">
+                <p className="wrap-break-word text-sm font-bold text-slate-900 md:text-base">
                   {item.name}
                 </p>
-
-                <p className="text-xs text-slate-500">
-                  {item.price} сом / шт
+                <p className="mt-1 text-xs text-slate-500 md:text-sm">
+                  {item.price} сом за 1 шт
                 </p>
-
               </div>
 
-              {/* Количество */}
-              <div className="text-xl font-black text-orange-600 text-center min-w-10">
-                {item.quantity}×
+              <p className="min-w-14 text-right text-sm font-black text-orange-600 md:text-base">
+                {item.quantity} шт
+              </p>
+
+              <p className="min-w-18 text-right text-base font-black text-emerald-600 md:text-lg">
+                {item.total} сом
+              </p>
               </div>
-
-              {/* Сумма */}
-              <div className="text-right min-w-20">
-
-                <p className="text-lg font-black text-green-600">
-                  {item.total} сом
-                </p>
-
-              </div>
-
-            </div>
           )
         })}
 
       </div>
 
-    </div>
+    </section>
   )
 }

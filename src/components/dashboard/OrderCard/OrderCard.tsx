@@ -1,3 +1,7 @@
+import { FaChevronDown } from "react-icons/fa"
+
+import { OrderDetailsContent } from "@/components/dashboard/OrderDetailsModal/components"
+
 import {
   OrderCardHeader,
   OrderTypeBadge,
@@ -10,12 +14,14 @@ import type { OrderCardProps } from "./types/orderCard.types"
 
 export const OrderCard = ({
   order,
+  products,
   activeTab,
   activeTabData,
   isProcessing,
   isRemoving,
   onStatusUpdate,
-  onViewDetails,
+  isDetailsOpen,
+  onToggleDetails,
   onConfirmAction,
   showConfirmation = false,
   confirmationAction = ""
@@ -36,7 +42,7 @@ export const OrderCard = ({
   return (
 
     <div
-      className={`bg-white rounded-2xl shadow-md border-2 ${activeTabData?.borderColor} p-5 transition-all duration-300 overflow-hidden
+      className={`w-full overflow-visible border-y bg-white px-4 py-4 shadow-md transition-all duration-300 sm:overflow-hidden sm:rounded-2xl sm:border-2 sm:p-5 ${activeTabData?.borderColor}
       ${isProcessing ? "opacity-60 pointer-events-none" : ""}
       ${isRemoving ? "animate-slide-out-up opacity-0" : ""}`}
     >
@@ -46,7 +52,7 @@ export const OrderCard = ({
         activeTabData={activeTabData}
       />
 
-      <div className="space-y-3 mb-4">
+      <div className="mb-4 space-y-3">
 
         <OrderTypeBadge order={order} />
 
@@ -59,11 +65,28 @@ export const OrderCard = ({
 
       {/* 🔥 ВАЖНО: передаём как есть (уже нормализован) */}
       <button
-        onClick={() => onViewDetails(order)}
-        className="w-full bg-slate-100 text-slate-700 py-2 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors mb-4"
+        onClick={() => onToggleDetails(order.id)}
+        className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 py-2 text-sm font-bold text-slate-700 transition-all duration-300 ease-out hover:bg-slate-200"
       >
-        Просмотреть детали заказа
+        <span>{isDetailsOpen ? "Скрыть детали заказа" : "Просмотреть детали заказа"}</span>
+        <FaChevronDown
+          size={12}
+          className={`transition-transform duration-300 ease-out ${isDetailsOpen ? "rotate-180" : "rotate-0"}`}
+        />
       </button>
+
+      <div
+        className={`grid transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${isDetailsOpen ? "mb-4 grid-rows-[1fr] opacity-100" : "mb-0 grid-rows-[0fr] opacity-0"}`}
+      >
+        <div className="overflow-hidden">
+          <div className="mx-0 border-t border-slate-200 bg-linear-to-b from-slate-50 to-stone-100 px-3 py-4 text-slate-900 sm:rounded-2xl sm:border sm:px-4 sm:py-4">
+            <OrderDetailsContent
+              order={order}
+              products={products}
+            />
+          </div>
+        </div>
+      </div>
 
       {!showConfirmation && (
         <OrderActions

@@ -1,4 +1,4 @@
-import { FaCheckCircle, FaCopy } from "react-icons/fa"
+import { FaCheckCircle, FaCopy, FaMapMarkerAlt } from "react-icons/fa"
 import type { Order } from "@/types"
 import { useGetRestaurantHoursStatusQuery } from "@/api"
 
@@ -81,44 +81,72 @@ export const OrderTypeInfo = ({ order }: Props) => {
   =============================== */
 
   return (
-    <div
-      className={`rounded-xl p-4 border-2 ${
-        isPickup
-          ? "bg-green-50 border-green-200"
-          : "bg-blue-50 border-blue-200"
-      }`}
-    >
+    <section className="border-b border-slate-200 py-4 sm:rounded-2xl sm:border sm:border-sky-100 sm:bg-white/88 sm:p-4 sm:shadow-sm">
 
-      <h3 className="flex items-center gap-2 font-black text-lg mb-3">
-        <FaCheckCircle />
-        {isPickup ? "Самовывоз" : "Доставка"}
-      </h3>
+      <div className="mb-4">
+        <h3 className="flex items-center gap-2 text-xl font-extrabold leading-none text-slate-900 sm:text-lg">
+          <FaCheckCircle className={isPickup ? "text-emerald-600" : "text-sky-600"} />
+          {isPickup ? "Самовывоз" : "Доставка"}
+        </h3>
+      </div>
 
-      {/* ADDRESS */}
       {address ? (
         <>
-          <div className="bg-white border rounded-lg p-3 flex justify-between items-start gap-3">
+          <div className="flex items-start justify-between gap-3 px-0 py-0 sm:rounded-xl sm:border sm:border-slate-100 sm:bg-slate-50 sm:px-3 sm:py-3">
 
-            <div className="flex-1">
+            <div className="flex flex-1 gap-3">
+              <div className={`mt-0.5 rounded-lg p-2 ${
+                isPickup ? "bg-emerald-100 text-emerald-700" : "bg-sky-100 text-sky-700"
+              }`}>
+                <FaMapMarkerAlt size={14} />
+              </div>
 
-              <p className="text-xs text-slate-500">
-                {isPickup
-                  ? "Адрес ресторана (самовывоз)"
-                  : "Адрес доставки"}
-              </p>
+              <div className="flex-1">
 
-              <p className="font-semibold text-slate-900 wrap-break-words">
-                {address}
-              </p>
+                <p className="text-sm font-semibold leading-6 text-slate-900 break-words">
+                  {address}
+                </p>
+
+                {!isPickup && (order.apartment || order.floor || order.address_2) && (
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
+                    {order.apartment && (
+                      <span className="rounded-full bg-white px-2.5 py-1 font-semibold shadow-sm ring-1 ring-slate-200">
+                        Квартира: {order.apartment}
+                      </span>
+                    )}
+                    {order.floor && (
+                      <span className="rounded-full bg-white px-2.5 py-1 font-semibold shadow-sm ring-1 ring-slate-200">
+                        Этаж: {order.floor}
+                      </span>
+                    )}
+                    {order.address_2 && (
+                      <span className="rounded-full bg-white px-2.5 py-1 font-semibold shadow-sm ring-1 ring-slate-200">
+                        Доп. адрес: {order.address_2}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {order.customer_note?.trim() && (
+                  <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 ring-1 ring-amber-100">
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-amber-700">
+                      Комментарий клиента
+                    </p>
+                    <p className="mt-1 text-sm text-slate-700 whitespace-pre-wrap">
+                      {order.customer_note}
+                    </p>
+                  </div>
+                )}
+              </div>
 
             </div>
 
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded text-xs shrink-0"
+              className="shrink-0 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-100 sm:self-start"
             >
               <FaCopy />
-              копировать
+              Копировать
             </button>
 
           </div>
@@ -128,7 +156,7 @@ export const OrderTypeInfo = ({ order }: Props) => {
               href={pickupMapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block mt-2 text-sm font-semibold text-green-700 underline hover:text-green-900"
+              className="mt-3 inline-flex items-center rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
             >
               Открыть в 2ГИС
             </a>
@@ -143,6 +171,6 @@ export const OrderTypeInfo = ({ order }: Props) => {
 
       )}
 
-    </div>
+    </section>
   )
 }

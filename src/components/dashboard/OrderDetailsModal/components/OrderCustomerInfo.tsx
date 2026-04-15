@@ -46,10 +46,14 @@ export const OrderCustomerInfo = ({ order }: Props) => {
 
   return (
 
-    <div className="bg-white rounded-xl border border-slate-200 p-4">
+    <section className="rounded-2xl bg-white p-0 md:border md:border-slate-200 md:p-5 md:shadow-sm">
 
-      <h3 className="text-sm font-bold text-slate-500 mb-3">
-        Клиент
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+        Кто заказал
+      </p>
+
+      <h3 className="mt-1 mb-4 text-lg font-black text-slate-900">
+        Данные клиента
       </h3>
 
       <div className="space-y-3">
@@ -59,16 +63,16 @@ export const OrderCustomerInfo = ({ order }: Props) => {
 
           <FaUser className="text-slate-400 shrink-0" />
 
-          <span className="text-base font-medium text-right max-w-[60%] whitespace-pre-wrap">
+          <span className="text-base font-semibold whitespace-pre-wrap">
             {name}
           </span>
 
         </div>
 
         {fullName && fullName !== name && (
-          <div className="text-sm text-slate-600 flex justify-between gap-2">
+          <div className="flex justify-between gap-3 text-sm text-slate-600">
             <span>Полное имя</span>
-            <span className="text-right font-medium text-slate-900 max-w-[60%] whitespace-pre-wrap">
+            <span className="max-w-[60%] text-right font-medium text-slate-900 whitespace-pre-wrap">
               {fullName}
             </span>
           </div>
@@ -77,7 +81,7 @@ export const OrderCustomerInfo = ({ order }: Props) => {
         {/* Телефон */}
         {phone ? (
 
-          <div className="flex items-center justify-between gap-2 bg-slate-50 border rounded-lg px-3 py-2">
+          <div className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2.5 md:border md:border-slate-200 md:bg-white">
 
             <a
               href={`tel:${phone}`}
@@ -89,10 +93,10 @@ export const OrderCustomerInfo = ({ order }: Props) => {
 
             <button
               onClick={handleCopyPhone}
-              className="flex items-center gap-1 text-xs bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded shrink-0"
+              className="flex shrink-0 items-center gap-1 rounded-lg bg-white px-2 py-1 text-xs font-semibold transition hover:bg-slate-100 md:bg-slate-200 md:hover:bg-slate-300"
             >
               <FaCopy />
-              копировать
+              Копировать
             </button>
 
           </div>
@@ -106,7 +110,7 @@ export const OrderCustomerInfo = ({ order }: Props) => {
         )}
 
         {email && (
-          <div className="text-sm text-slate-600 flex justify-between gap-2">
+          <div className="flex justify-between gap-2 text-sm text-slate-600">
             <span>Email</span>
             <span className="text-right font-medium text-slate-900 max-w-[60%] break-all">
               {email}
@@ -114,23 +118,18 @@ export const OrderCustomerInfo = ({ order }: Props) => {
           </div>
         )}
 
-        <div className="text-sm text-slate-600 flex justify-between gap-2">
-          <span>Приборы</span>
-          <span className="text-right font-medium text-slate-900">
-            {order.needs_cutlery ? "Да" : "Нет"}
+        <div className="flex flex-wrap gap-2 pt-1">
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${order.needs_cutlery ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+            Приборы: {order.needs_cutlery ? "нужны" : "не нужны"}
           </span>
-        </div>
-
-        <div className="text-sm text-slate-600 flex justify-between gap-2">
-          <span>Салфетки</span>
-          <span className="text-right font-medium text-slate-900">
-            {order.needs_napkins ? "Да" : "Нет"}
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${order.needs_napkins ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+            Салфетки: {order.needs_napkins ? "нужны" : "не нужны"}
           </span>
         </div>
 
         {order.reason?.trim() && (
-          <div className="text-sm text-slate-600">
-            <p className="mb-1">Причина последнего изменения статуса</p>
+          <div className="rounded-xl bg-amber-50 px-3 py-3 text-sm text-slate-700 md:border md:border-amber-200">
+            <p className="mb-1 text-xs font-bold uppercase tracking-wide text-amber-700">Причина изменения статуса</p>
             <p className="font-medium text-slate-900 whitespace-pre-wrap">
               {order.reason}
             </p>
@@ -139,7 +138,7 @@ export const OrderCustomerInfo = ({ order }: Props) => {
 
       </div>
 
-    </div>
+    </section>
 
   )
 }

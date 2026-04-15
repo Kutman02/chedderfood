@@ -8,8 +8,10 @@ import { useDashboardUI } from "../hooks/useDashboardUI"
 import { useOrders } from "../hooks/useOrders"
 import { useOutletContext } from "react-router-dom"
 
+import type { Product } from "@/types"
+
 type OutletContext = {
-  handleViewDetails: (order: any) => void
+  products: Product[]
   searchQuery: string
 }
 
@@ -20,8 +22,9 @@ const OrdersPage = () => {
   const [selectedDate, setSelectedDate] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
+  const [expandedDetailsOrderId, setExpandedDetailsOrderId] = useState<number | null>(null)
 
-  const { handleViewDetails, searchQuery } = useOutletContext<OutletContext>()
+  const { products, searchQuery } = useOutletContext<OutletContext>()
 
   const { activeTab, setActiveTab } = useDashboardUI()
   const supportsDateFilters =
@@ -77,6 +80,16 @@ const OrdersPage = () => {
   useEffect(() => {
     setPage(1)
   }, [activeTab, dateFilter, searchQuery])
+
+  useEffect(() => {
+    setExpandedDetailsOrderId(null)
+  }, [activeTab, searchQuery, page, dateFilter])
+
+  const handleToggleDetails = (orderId: number) => {
+    setExpandedDetailsOrderId((currentOrderId) =>
+      currentOrderId === orderId ? null : orderId
+    )
+  }
 
   /**
    * 🔔 звук нового заказа (только on-hold)
@@ -263,13 +276,15 @@ const OrdersPage = () => {
       ) : (
         <OrdersSection
           orders={orders}
+          products={products}
           activeTab={activeTab}
           processingIds={processingIds}
           removingOrderIds={removingOrderIds}
           expandedConfirmation={expandedConfirmation}
+          expandedDetailsOrderId={expandedDetailsOrderId}
           onConfirmAction={handleConfirmAction}
           onStatusUpdate={handleConfirmStatusUpdate}
-          onViewDetails={handleViewDetails}
+          onToggleDetails={handleToggleDetails}
         />
       )}
 

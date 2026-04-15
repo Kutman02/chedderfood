@@ -20,7 +20,7 @@ export const OrderActions = ({
 
         <button
           onClick={() => onConfirmAction(order.id, "принять")}
-          className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+          className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-base font-bold text-white shadow-sm sm:min-h-0 sm:text-base"
         >
           <IoFastFood />
           Принять
@@ -29,7 +29,7 @@ export const OrderActions = ({
         <button
           onClick={() => onConfirmAction(order.id, "отменить")}
           aria-label="Отменить заказ"
-          className="px-4 bg-red-50 text-red-600 rounded-xl"
+          className="min-h-14 rounded-xl bg-red-50 px-5 text-red-600 sm:min-h-0"
         >
           <FaTimes />
         </button>
@@ -45,7 +45,7 @@ export const OrderActions = ({
 
         <button
           onClick={() => onConfirmAction(order.id, "готов")}
-          className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+          className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 text-base font-bold text-white shadow-sm sm:min-h-0 sm:text-base"
         >
           <FaCheckCircle />
           Готов
@@ -54,7 +54,7 @@ export const OrderActions = ({
         <button
           onClick={() => onConfirmAction(order.id, "отменить")}
           aria-label="Отменить заказ"
-          className="px-4 bg-red-50 text-red-600 rounded-xl"
+          className="min-h-14 rounded-xl bg-red-50 px-5 text-red-600 sm:min-h-0"
         >
           <FaTimes />
         </button>
@@ -70,7 +70,7 @@ export const OrderActions = ({
 
         <button
           onClick={() => onConfirmAction(order.id, "завершить")}
-          className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+          className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-3 text-base font-bold text-white shadow-sm sm:min-h-0 sm:text-base"
         >
           <FaCheckCircle />
           Завершить
@@ -79,7 +79,7 @@ export const OrderActions = ({
         <button
           onClick={() => onConfirmAction(order.id, "отменить")}
           aria-label="Отменить заказ"
-          className="px-4 bg-red-50 text-red-600 rounded-xl"
+          className="min-h-14 rounded-xl bg-red-50 px-5 text-red-600 sm:min-h-0"
         >
           <FaTimes />
         </button>

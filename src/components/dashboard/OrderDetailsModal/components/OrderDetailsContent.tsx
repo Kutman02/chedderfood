@@ -4,13 +4,10 @@ import type { Product } from "@/types"
 import { useOrderReceipt } from "@/components/OrderReceipt/hooks/useOrderReceipt"
 
 import {
-  OrderCustomerInfo,
   OrderTypeInfo,
   OrderItemsList,
   OrderPricing,
   OrderPaymentInfo,
-  OrderNote,
-  OrderAddressInfo
 } from "./index"
 
 interface Props {
@@ -29,28 +26,18 @@ export const OrderDetailsContent = ({ order, products }: Props) => {
   const safeOrder = receipt.order
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+    <div className="flex-1 overflow-y-auto space-y-0 sm:space-y-4">
 
-      {/* ITEMS */}
       <OrderItemsList items={receipt.orderItems} />
 
-      {/* NOTE */}
-      <OrderNote note={safeOrder.customer_note} />
+      <div className="space-y-0 sm:space-y-4">
+        <OrderTypeInfo order={safeOrder} />
+      </div>
 
-      {/* TYPE */}
-      <OrderTypeInfo order={safeOrder} />
-
-      {/* ADDRESS */}
-      <OrderAddressInfo order={safeOrder} />
-
-      {/* CUSTOMER */}
-      <OrderCustomerInfo order={safeOrder} />
-
-      {/* PAYMENT */}
-      <OrderPaymentInfo order={safeOrder} />
-
-      {/* PRICING */}
-      <OrderPricing order={safeOrder} />
+      <div className="space-y-0 sm:space-y-4">
+        <OrderPaymentInfo order={safeOrder} />
+        <OrderPricing order={safeOrder} />
+      </div>
 
     </div>
   )
