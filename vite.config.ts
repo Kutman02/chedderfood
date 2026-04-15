@@ -14,25 +14,18 @@ export default ({ mode }: { mode: string }) => {
 
       VitePWA({
         registerType: 'autoUpdate',
+        injectRegister: 'auto',
 
         workbox: {
           skipWaiting: true,
           clientsClaim: true,
-
-          navigateFallback: '/offline.html',
+          cleanupOutdatedCaches: true,
 
           runtimeCaching: [
             {
-              // HTML
+              // Online-only app shell behavior
               urlPattern: ({ request }) => request.mode === 'navigate',
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'html-cache',
-                expiration: {
-                  maxEntries: 20,
-                  maxAgeSeconds: 60 * 60 * 24 * 7,
-                },
-              },
+              handler: 'NetworkOnly',
             },
 
             {
@@ -52,32 +45,18 @@ export default ({ mode }: { mode: string }) => {
             },
 
             {
-              // JS / CSS
+              // JS / CSS should always be fetched from network
               urlPattern: ({ request }) =>
                 request.destination === 'script' ||
                 request.destination === 'style',
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'assets-cache',
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 * 30,
-                },
-              },
+              handler: 'NetworkOnly',
             },
 
             {
-              // Images
+              // Images should also be fetched from network
               urlPattern: ({ request }) =>
                 request.destination === 'image',
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'images-cache',
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 * 30,
-                },
-              },
+              handler: 'NetworkOnly',
             },
           ],
         },

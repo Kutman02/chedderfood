@@ -1,5 +1,6 @@
 import { FaPlus, FaMinus } from "react-icons/fa"
 import type { Product } from "@/types"
+import { isSaleTag, isTopPlacementTag } from "@/shared/utils/tagPlacement"
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
@@ -11,6 +12,26 @@ interface ProductCardProps {
   product: Product
   productIndex: number
   onClick: () => void
+}
+
+const normalizeTagValue = (value?: string) => (value ?? "").toLowerCase().trim()
+
+const getBottomTagClassName = (tag: { slug?: string; name: string }) => {
+  const value = `${normalizeTagValue(tag.slug)} ${normalizeTagValue(tag.name)}`
+
+  if (value.includes("остр") || value.includes("spicy") || value.includes("hot")) {
+    return "bg-red-100 text-red-700"
+  }
+
+  if (value.includes("слад") || value.includes("sweet")) {
+    return "bg-pink-100 text-pink-700"
+  }
+
+  if (value.includes("вег") || value.includes("vegan") || value.includes("veg")) {
+    return "bg-emerald-100 text-emerald-700"
+  }
+
+  return "bg-slate-100 text-slate-700"
 }
 
 export const ProductCard = ({
@@ -62,8 +83,14 @@ export const ProductCard = ({
 
   const productPrice = product.sale_price || product.price || "0"
 
+  const extraTopTag = Array.isArray(product.tags)
+    ? product.tags.find((tag) => isTopPlacementTag(tag) && !isSaleTag(tag))
+    : undefined
+
   const productTags = Array.isArray(product.tags)
-    ? product.tags.slice(0, 2)
+    ? product.tags
+        .filter((tag) => !isSaleTag(tag))
+        .slice(0, 3)
     : []
 
   const isOutOfStock = product.stock_status === "outofstock"
@@ -110,7 +137,7 @@ export const ProductCard = ({
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
 
-        {(discountPercent !== null || isOutOfStock) && (
+        {(discountPercent !== null || isOutOfStock || extraTopTag) && (
           <div className="absolute top-2 left-2 flex flex-col gap-1">
 
             {discountPercent !== null && (
@@ -122,6 +149,12 @@ export const ProductCard = ({
             {isOutOfStock && (
               <div className="bg-red-600 text-white px-2 py-1 rounded text-[11px] font-bold">
                 Нет в наличии
+              </div>
+            )}
+
+            {extraTopTag && (
+              <div className="bg-blue-600 text-white px-2 py-1 rounded text-[11px] font-bold">
+                {extraTopTag.name}
               </div>
             )}
 
@@ -201,7 +234,7 @@ export const ProductCard = ({
             {productTags.map((tag) => (
               <span
                 key={tag.id}
-                className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-[10px] font-bold"
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getBottomTagClassName(tag)}`}
               >
                 {tag.name}
               </span>

@@ -60,9 +60,9 @@ export const ProductImageGallery = ({ product }: ProductImageGalleryProps) => {
   }
 
   return (
-    <div className="md:w-1/2 relative shrink-0">
+    <div className="relative shrink-0 h-72 sm:h-96 md:h-full md:w-1/2 bg-slate-100">
       <div
-        className="aspect-square bg-slate-100"
+        className="h-full"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}

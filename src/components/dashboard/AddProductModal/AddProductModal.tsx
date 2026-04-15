@@ -63,8 +63,11 @@ export const AddProductModal = ({
               selectedCategory={product.selectedCategory}
               setSelectedCategory={product.setSelectedCategory}
 
-              selectedTagIds={product.selectedTagIds}
-              setSelectedTagIds={product.setSelectedTagIds}
+              topTagId={product.topTagId}
+              setTopTagId={product.setTopTagId}
+
+              bottomTagIds={product.bottomTagIds}
+              setBottomTagIds={product.setBottomTagIds}
 
               isSubmitting={product.isSubmitting}
               images={product.images || []}

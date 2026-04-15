@@ -82,7 +82,7 @@ export const OrderPricing = ({ order }: Props) => {
             Итого
           </span>
 
-          <span className="text-2xl font-black text-emerald-300 md:text-3xl">
+          <span className="text-2xl font-black text-orange-500 md:text-3xl">
             {total.toFixed(0)} {currency}
           </span>
 

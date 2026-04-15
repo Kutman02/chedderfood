@@ -3,6 +3,7 @@ import { IoFastFood } from "react-icons/io5"
 type OrderItemView = {
   id: number
   name: string
+  image?: string
   quantity: number
   price: string
   total: number
@@ -37,7 +38,7 @@ export const OrderItemsList = ({ items }: Props) => {
           Состав заказа
         </h3>
 
-        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+        <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-orange-100">
           {items.reduce((sum, item) => sum + Number(item.quantity || 0), 0)} шт.
         </span>
       </div>
@@ -45,26 +46,35 @@ export const OrderItemsList = ({ items }: Props) => {
       <div className="space-y-3">
 
         {items.map((item) => {
+          const image = item.image?.trim() || "/placeholder-image.jpg"
+
           return (
             <div
               key={item.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 rounded-xl bg-white px-0 py-3 first:pt-0 last:pb-0 sm:border sm:border-slate-100 sm:bg-slate-50 sm:px-3 sm:py-3 sm:first:pt-3 sm:last:pb-3"
+              className="grid grid-cols-[56px_minmax(0,1fr)_auto_auto] items-center gap-3 rounded-xl border border-slate-600 bg-slate-800 px-3 py-3 first:pt-3 last:pb-3"
             >
 
+              <img
+                src={image}
+                alt={item.name}
+                className="h-14 w-14 rounded-lg border border-slate-600 object-cover"
+                loading="lazy"
+              />
+
               <div className="min-w-0">
-                <p className="wrap-break-word text-sm font-bold text-slate-900 md:text-base">
+                <p className="wrap-break-word text-sm font-bold text-white md:text-base">
                   {item.name}
                 </p>
-                <p className="mt-1 text-xs text-slate-500 md:text-sm">
+                <p className="mt-1 text-xs text-slate-300 md:text-sm">
                   {item.price} сом за 1 шт
                 </p>
               </div>
 
-              <p className="min-w-14 text-right text-sm font-black text-orange-600 md:text-base">
+              <p className="min-w-14 text-right text-sm font-black text-orange-300 md:text-base">
                 {item.quantity} шт
               </p>
 
-              <p className="min-w-18 text-right text-base font-black text-emerald-600 md:text-lg">
+              <p className="min-w-18 text-right text-base font-black text-emerald-300 md:text-lg">
                 {item.total} сом
               </p>
               </div>

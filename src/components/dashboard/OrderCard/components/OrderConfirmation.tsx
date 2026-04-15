@@ -1,31 +1,31 @@
 import { FaExclamationTriangle } from "react-icons/fa"
-
-interface OrderConfirmationProps {
-  action: string
-  onConfirm: () => void
-  onCancel: () => void
-}
+import type { OrderConfirmationProps } from "../types/orderCard.types"
 
 export const OrderConfirmation = ({
   action,
+  orderNumber,
   onConfirm,
   onCancel
 }: OrderConfirmationProps) => {
 
   const getMessage = () => {
     if (action === "принять") {
-      return "Вы точно хотите принять этот заказ в работу?"
+      return `Вы точно хотите принять заказ #${orderNumber} в работу?`
+    }
+
+    if (action === "готов") {
+      return `Вы точно хотите отметить заказ #${orderNumber} как готовый?`
     }
 
     if (action === "завершить") {
-      return "Вы точно хотите завершить этот заказ?"
+      return `Вы точно хотите завершить заказ #${orderNumber}?`
     }
 
     if (action === "отменить") {
-      return "Вы точно хотите отменить этот заказ?"
+      return `Вы точно хотите отменить заказ #${orderNumber}?`
     }
 
-    return "Вы точно хотите выполнить это действие?"
+    return `Вы точно хотите выполнить действие для заказа #${orderNumber}?`
   }
 
   const getButtonColor = () => {

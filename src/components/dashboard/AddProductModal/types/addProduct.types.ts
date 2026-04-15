@@ -2,6 +2,8 @@
    IMAGE PREVIEW
 ========================= */
 
+import type { Tag } from "@/types"
+
 export interface ImagePreview {
   file: File
   preview: string
@@ -64,6 +66,7 @@ export interface UseAddProductReturn {
   fileInputRef: React.RefObject<HTMLInputElement>
 
   categories?: ProductCategory[]
+  tags?: Tag[]
 
   images: ImagePreview[]
 
@@ -85,11 +88,17 @@ export interface UseAddProductReturn {
   selectedCategory: number | null
   setSelectedCategory: (value: number) => void
 
+  topTagId: number | null
+  setTopTagId: (value: number | null) => void
+
+  bottomTagIds: number[]
+  setBottomTagIds: React.Dispatch<React.SetStateAction<number[]>>
+
   isSubmitting: boolean
 
   handleImageSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
   removeImage: (id: string) => void
 
-  handleSubmit: () => void
+  handleSubmit: (description?: string) => void
   handleClose: () => void
 }

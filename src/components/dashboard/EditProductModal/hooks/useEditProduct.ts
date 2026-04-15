@@ -6,7 +6,8 @@ import {
   useUpdateProductMutation,
   useUploadImageMutation
 } from "@/api"
-import type { ProductImage } from "@/types"
+import type { ProductImage, Tag } from "@/types"
+import { getSaleTagId, isSaleTag, isTopPlacementTag } from "@/shared/utils/tagPlacement"
 import type { ImagePreview, UseEditProductProps } from "../types/editProduct.types"
 
 export const useEditProduct = ({
@@ -17,7 +18,8 @@ export const useEditProduct = ({
 
   const [images, setImages] = useState<ImagePreview[]>([])
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
+  const [topTagId, setTopTagId] = useState<number | null>(null)
+  const [bottomTagIds, setBottomTagIds] = useState<number[]>([])
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
@@ -55,11 +57,20 @@ export const useEditProduct = ({
     setName(product.name || "")
     setDescription(stripHtmlTags(product.description || ""))
 
-    setRegularPrice(product.price || "")
-    setSalePrice("")
+    setRegularPrice(product.regular_price || product.price || "")
+    setSalePrice(product.sale_price || "")
 
     setSelectedCategory(product.categories?.[0]?.id || null)
-    setSelectedTagIds(product.tags?.map((tag) => tag.id).filter(Boolean) as number[] || [])
+
+    const existingTags = product.tags ?? []
+    const selectedTop = existingTags.find((tag) => isTopPlacementTag(tag) && !isSaleTag(tag))
+
+    setTopTagId(selectedTop?.id ?? null)
+    setBottomTagIds(
+      existingTags
+        .filter((tag) => tag.id !== selectedTop?.id)
+        .map((tag) => tag.id)
+    )
 
     setWeight(product.weight?.toString() || "")
 
@@ -69,7 +80,8 @@ export const useEditProduct = ({
       setImages(
         product.images.map((img: ProductImage) => ({
           preview: img.src,
-          id: img.id?.toString() || crypto.randomUUID()
+          id: img.id?.toString() || crypto.randomUUID(),
+          imageId: img.id,
         }))
       )
     }
@@ -110,26 +122,25 @@ export const useEditProduct = ({
 
   const uploadImages = async () => {
 
-    const urls: string[] = []
+    const imageIds: number[] = []
 
     for (const img of images) {
 
-      // уже URL
-      if (!img.file && img.preview) {
-        urls.push(img.preview)
+      if (img.imageId) {
+        imageIds.push(img.imageId)
         continue
       }
 
       if (!img.file) continue
 
-      const res = await uploadImage({ file: img.file }).unwrap() as { src: string }
+      const res = await uploadImage({ file: img.file }).unwrap() as { id: number }
 
-      if (res?.src) {
-        urls.push(res.src)
+      if (res?.id) {
+        imageIds.push(res.id)
       }
     }
 
-    return urls
+    return imageIds
   }
 
   /* ===============================
@@ -145,13 +156,29 @@ export const useEditProduct = ({
       return
     }
 
+    if (images.length === 0) {
+      alert("Добавьте хотя бы одно фото товара")
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
 
-      await uploadImages()
+      const imageIds = await uploadImages()
 
       const finalDescription = customDescription ?? description
+
+      const saleTagId = getSaleTagId(tags as Tag[])
+      const shouldApplySaleTag = Boolean(salePrice)
+
+      const mergedTagIds = Array.from(
+        new Set([
+          ...(topTagId ? [topTagId] : []),
+          ...bottomTagIds,
+          ...(shouldApplySaleTag && saleTagId ? [saleTagId] : []),
+        ])
+      )
 
       await updateProduct({
         id: product.id,
@@ -162,8 +189,8 @@ export const useEditProduct = ({
           sale_price: salePrice ? Number(salePrice) : undefined,
           description: finalDescription,
           category_ids: selectedCategory ? [selectedCategory] : [],
-          tag_ids: selectedTagIds,
-          image_ids: [],
+          tag_ids: mergedTagIds,
+          image_ids: imageIds,
           visible: !isHidden,
         }
       }).unwrap()
@@ -216,8 +243,11 @@ export const useEditProduct = ({
     selectedCategory,
     setSelectedCategory,
 
-    selectedTagIds,
-    setSelectedTagIds,
+    topTagId,
+    setTopTagId,
+
+    bottomTagIds,
+    setBottomTagIds,
 
     isHidden,
     setIsHidden,

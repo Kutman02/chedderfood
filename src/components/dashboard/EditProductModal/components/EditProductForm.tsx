@@ -130,9 +130,40 @@ export const EditProductForm = ({ edit }: EditProductFormProps) => {
         </div>
 
         <ProductTagSelector
+          label="Верхняя метка"
+          helperText="Скидка ставится автоматически по цене со скидкой. Здесь можно выбрать еще 1 верхнюю метку."
           tags={edit.tags}
-          selectedTagIds={edit.selectedTagIds}
-          onChange={edit.setSelectedTagIds}
+          selectedTagIds={edit.topTagId ? [edit.topTagId] : []}
+          maxSelected={1}
+          onChange={(updater) => {
+            const previous = edit.topTagId ? [edit.topTagId] : []
+            const next =
+              typeof updater === "function"
+                ? updater(previous)
+                : updater
+
+            const nextTopTagId = next[0] ?? null
+            edit.setTopTagId(nextTopTagId)
+            edit.setBottomTagIds((prev) =>
+              nextTopTagId ? prev.filter((id) => id !== nextTopTagId) : prev
+            )
+          }}
+        />
+
+        <ProductTagSelector
+          label="Нижние метки"
+          helperText="Например: острый, сладкий, веган и т.д."
+          tags={edit.tags}
+          selectedTagIds={edit.bottomTagIds}
+          onChange={(updater) => {
+            edit.setBottomTagIds((prev) => {
+              const next = typeof updater === "function" ? updater(prev) : updater
+
+              if (!edit.topTagId) return next
+
+              return next.filter((id) => id !== edit.topTagId)
+            })
+          }}
         />
 
         {/* NAME */}

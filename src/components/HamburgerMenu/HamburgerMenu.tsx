@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import type { HamburgerMenuProps } from "./types"
+import { STORAGE_KEYS } from "@/shared/constants/storage"
 
 import { useScrollLockStore } from "@/stores/scrollLockStore"
 
@@ -35,7 +36,7 @@ export const HamburgerMenu = ({
   useEffect(() => {
     const load = () => {
       try {
-        const saved = localStorage.getItem("checkout_form")
+        const saved = localStorage.getItem(STORAGE_KEYS.CHECKOUT_FORM)
         setCustomerData(saved ? JSON.parse(saved) : null)
       } catch (e) {
         console.error(e)
@@ -51,7 +52,7 @@ export const HamburgerMenu = ({
 
   // ✅ очистка
   const handleClearCustomer = () => {
-    localStorage.removeItem("checkout_form")
+    localStorage.removeItem(STORAGE_KEYS.CHECKOUT_FORM)
     setCustomerData(null)
   }
 

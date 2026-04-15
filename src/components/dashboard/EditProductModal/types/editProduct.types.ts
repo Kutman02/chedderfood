@@ -51,6 +51,7 @@ export interface UseEditProductReturn {
   tags?: {
     id: number
     name: string
+    slug?: string
   }[]
 
   images: ImagePreview[]
@@ -71,8 +72,11 @@ export interface UseEditProductReturn {
   selectedCategory: number | null
   setSelectedCategory: (value: number) => void
 
-  selectedTagIds: number[]
-  setSelectedTagIds: React.Dispatch<React.SetStateAction<number[]>>
+  topTagId: number | null
+  setTopTagId: (value: number | null) => void
+
+  bottomTagIds: number[]
+  setBottomTagIds: React.Dispatch<React.SetStateAction<number[]>>
 
   isHidden: boolean
   setIsHidden: (value: boolean) => void

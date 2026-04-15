@@ -63,6 +63,10 @@ export const ProductInfo = ({ product, onClose }: ProductInfoProps) => {
       </button>
 
       {/* TITLE */}
+      <h2 className="md:hidden text-2xl font-black text-slate-800 mb-3 leading-tight">
+        {product.name}
+      </h2>
+
       <h2 className="hidden md:block text-2xl font-black text-slate-800 mb-4">
         {product.name}
       </h2>

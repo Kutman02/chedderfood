@@ -6,6 +6,8 @@ import {
   useCreateProductMutation,
   useUploadImageMutation
 } from "@/api"
+import type { Tag } from "@/types"
+import { getSaleTagId } from "@/shared/utils/tagPlacement"
 
 interface ImagePreview {
   file: File
@@ -21,7 +23,8 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
   const [images, setImages] = useState<ImagePreview[]>([])
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
+  const [topTagId, setTopTagId] = useState<number | null>(null)
+  const [bottomTagIds, setBottomTagIds] = useState<number[]>([])
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
@@ -78,6 +81,11 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
       return false
     }
 
+    if (images.length === 0) {
+      alert("Добавьте хотя бы одно фото товара")
+      return false
+    }
+
     return true
   }
 
@@ -87,20 +95,20 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
   const uploadImages = async () => {
 
-    const urls: string[] = []
+    const imageIds: number[] = []
 
     for (const image of images) {
 
       if (!image.file) continue
 
-      const result = await uploadImage({ file: image.file }).unwrap() as { src: string }
+      const result = await uploadImage({ file: image.file }).unwrap() as { id: number }
 
-      if (result?.src) {
-        urls.push(result.src)
+      if (result?.id) {
+        imageIds.push(result.id)
       }
     }
 
-    return urls
+    return imageIds
   }
 
   /* ===============================
@@ -108,13 +116,24 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
   =============================== */
 
   const createNewProduct = async (
-    _imageUrls: string[],
+    imageIds: number[],
     customDescription?: string
   ) => {
 
     if (!selectedCategory) return
 
     const finalDescription = customDescription ?? description
+
+    const saleTagId = getSaleTagId(tags as Tag[])
+    const shouldApplySaleTag = Boolean(salePrice)
+
+    const combinedTagIds = Array.from(
+      new Set([
+        ...(topTagId ? [topTagId] : []),
+        ...bottomTagIds,
+        ...(shouldApplySaleTag && saleTagId ? [saleTagId] : []),
+      ])
+    )
 
     await createProduct({
       name: name.trim(),
@@ -123,8 +142,8 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
       sale_price: salePrice ? Number(salePrice) : undefined,
       description: finalDescription.trim(),
       category_ids: [selectedCategory],
-      tag_ids: selectedTagIds,
-      image_ids: [],
+      tag_ids: combinedTagIds,
+      image_ids: imageIds,
       visible: true,
     }).unwrap()
   }
@@ -148,7 +167,8 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     setWeight("")
 
     setSelectedCategory(null)
-    setSelectedTagIds([])
+    setTopTagId(null)
+    setBottomTagIds([])
   }
 
   /* ===============================
@@ -163,9 +183,9 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
 
     try {
 
-      const imageUrls = await uploadImages()
+      const imageIds = await uploadImages()
 
-      await createNewProduct(imageUrls, customDescription)
+      await createNewProduct(imageIds, customDescription)
 
       resetForm()
       onClose()
@@ -213,8 +233,11 @@ export const useAddProduct = ({ onClose }: UseAddProductProps) => {
     selectedCategory,
     setSelectedCategory,
 
-    selectedTagIds,
-    setSelectedTagIds,
+    topTagId,
+    setTopTagId,
+
+    bottomTagIds,
+    setBottomTagIds,
 
     isSubmitting,
 

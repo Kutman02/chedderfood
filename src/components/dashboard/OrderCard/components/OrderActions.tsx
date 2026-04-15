@@ -12,6 +12,7 @@ export const OrderActions = ({
   activeTab: string
   onConfirmAction: (id: number, action: string) => void
 }) => {
+  const orderNumber = order.number ?? order.id
 
   if (activeTab === "on-hold") {
 
@@ -23,7 +24,7 @@ export const OrderActions = ({
           className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-base font-bold text-white shadow-sm sm:min-h-0 sm:text-base"
         >
           <IoFastFood />
-          Принять
+          Принять #{orderNumber}
         </button>
 
         <button
@@ -48,7 +49,7 @@ export const OrderActions = ({
           className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 text-base font-bold text-white shadow-sm sm:min-h-0 sm:text-base"
         >
           <FaCheckCircle />
-          Готов
+          Готов #{orderNumber}
         </button>
 
         <button
@@ -73,7 +74,7 @@ export const OrderActions = ({
           className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-3 text-base font-bold text-white shadow-sm sm:min-h-0 sm:text-base"
         >
           <FaCheckCircle />
-          Завершить
+          Завершить #{orderNumber}
         </button>
 
         <button

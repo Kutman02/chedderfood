@@ -30,8 +30,11 @@ interface ProductFormProps {
   selectedCategory: number | null
   setSelectedCategory: (value: number) => void
 
-  selectedTagIds: number[]
-  setSelectedTagIds: React.Dispatch<React.SetStateAction<number[]>>
+  topTagId: number | null
+  setTopTagId: (value: number | null) => void
+
+  bottomTagIds: number[]
+  setBottomTagIds: React.Dispatch<React.SetStateAction<number[]>>
 
   isSubmitting: boolean
   images: { id: string }[]
@@ -54,8 +57,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   setWeight,
   selectedCategory,
   setSelectedCategory,
-  selectedTagIds,
-  setSelectedTagIds,
+  topTagId,
+  setTopTagId,
+  bottomTagIds,
+  setBottomTagIds,
   isSubmitting,
   images,
   onSubmit
@@ -138,9 +143,40 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         </div>
 
         <ProductTagSelector
+          label="Верхняя метка"
+          helperText="Скидка ставится автоматически по цене со скидкой. Здесь можно выбрать еще 1 верхнюю метку."
           tags={tags}
-          selectedTagIds={selectedTagIds}
-          onChange={setSelectedTagIds}
+          selectedTagIds={topTagId ? [topTagId] : []}
+          maxSelected={1}
+          onChange={(updater) => {
+            const previous = topTagId ? [topTagId] : []
+            const next =
+              typeof updater === "function"
+                ? updater(previous)
+                : updater
+
+            const nextTopTagId = next[0] ?? null
+            setTopTagId(nextTopTagId)
+            setBottomTagIds((prev) =>
+              nextTopTagId ? prev.filter((id) => id !== nextTopTagId) : prev
+            )
+          }}
+        />
+
+        <ProductTagSelector
+          label="Нижние метки"
+          helperText="Например: острый, сладкий, веган и т.д."
+          tags={tags}
+          selectedTagIds={bottomTagIds}
+          onChange={(updater) => {
+            setBottomTagIds((prev) => {
+              const next = typeof updater === "function" ? updater(prev) : updater
+
+              if (!topTagId) return next
+
+              return next.filter((id) => id !== topTagId)
+            })
+          }}
         />
 
 

@@ -39,6 +39,8 @@ export const OrderCard = ({
     return ""
   }
 
+  const orderNumber = order.number ?? order.id
+
   return (
 
     <div
@@ -65,12 +67,13 @@ export const OrderCard = ({
 
       {/* 🔥 ВАЖНО: передаём как есть (уже нормализован) */}
       <button
+        type="button"
         onClick={() => onToggleDetails(order.id)}
-        className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 py-2 text-sm font-bold text-slate-700 transition-all duration-300 ease-out hover:bg-slate-200"
+        className="mb-4 flex min-h-14 w-full touch-manipulation select-none items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-3 text-base font-extrabold text-slate-700 transition-all duration-200 ease-out hover:bg-slate-200 active:scale-[0.99] active:bg-slate-300 sm:min-h-12 sm:py-2 sm:text-sm"
       >
         <span>{isDetailsOpen ? "Скрыть детали заказа" : "Просмотреть детали заказа"}</span>
         <FaChevronDown
-          size={12}
+          size={14}
           className={`transition-transform duration-300 ease-out ${isDetailsOpen ? "rotate-180" : "rotate-0"}`}
         />
       </button>
@@ -99,6 +102,7 @@ export const OrderCard = ({
       {showConfirmation && (
         <OrderConfirmation
           action={confirmationAction}
+          orderNumber={orderNumber}
 
           // 🔥 FIX
           onCancel={() =>

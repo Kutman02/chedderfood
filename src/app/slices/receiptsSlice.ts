@@ -7,29 +7,28 @@ type ReceiptsState = {
   customerData: CustomerData | null;
 };
 
-const RECEIPTS_KEY = STORAGE_KEYS.RECEIPTS
-const CUSTOMER_DATA_KEY = STORAGE_KEYS.CUSTOMER_DATA
-
-const loadReceipts = (): ReceiptData[] => {
-  try {
-    const raw = localStorage.getItem(RECEIPTS_KEY);
-    return raw ? (JSON.parse(raw) as ReceiptData[]) : [];
-  } catch {
-    return [];
-  }
-};
+const CHECKOUT_FORM_KEY = STORAGE_KEYS.CHECKOUT_FORM
 
 const loadCustomerData = (): CustomerData | null => {
   try {
-    const raw = localStorage.getItem(CUSTOMER_DATA_KEY);
-    return raw ? (JSON.parse(raw) as CustomerData) : null;
+    const raw = localStorage.getItem(CHECKOUT_FORM_KEY);
+
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<CustomerData>;
+
+    return {
+      first_name: parsed.first_name ?? "",
+      address: parsed.address ?? "",
+      phone: parsed.phone ?? "",
+    };
   } catch {
     return null;
   }
 };
 
 const initialState: ReceiptsState = {
-  receipts: loadReceipts(),
+  receipts: [],
   customerData: loadCustomerData(),
 };
 
@@ -65,4 +64,3 @@ export const {
 } = receiptsSlice.actions;
 
 export const receiptsReducer = receiptsSlice.reducer;
-export const receiptsStorageKeys = { RECEIPTS_KEY, CUSTOMER_DATA_KEY };
