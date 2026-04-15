@@ -1,7 +1,6 @@
-import { FaCog } from "react-icons/fa"
+import { FaBars, FaCog } from "react-icons/fa"
 import { useRef, useEffect } from "react"
 
-import { StatsButton } from "./StatsButton"
 import { SettingsDropdown } from "./SettingsDropdown"
 
 interface Props {
@@ -20,19 +19,36 @@ export const HeaderActions = ({
 
   useEffect(() => {
 
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const targetNode = event.target as Node | null
+
+      if (!targetNode) {
+        return
+      }
+
+      const dropdownRoots = document.querySelectorAll("[data-admin-settings-dropdown='true']")
+      const clickInsideDropdown = Array.from(dropdownRoots).some((root) =>
+        root.contains(targetNode)
+      )
+
+      if (clickInsideDropdown) {
+        return
+      }
+
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(targetNode)
       ) {
         setShowSettings(false)
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("touchstart", handleClickOutside)
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("touchstart", handleClickOutside)
     }
 
   }, [setShowSettings])
@@ -44,18 +60,27 @@ export const HeaderActions = ({
       className="flex items-center gap-3 relative"
     >
 
-      <StatsButton />
-
       <button
-        onClick={() => setShowSettings(true)}
+        onClick={() => setShowSettings(!showSettings)}
         aria-label="Открыть настройки"
-        className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 transition"
+        className="hidden md:flex w-10 h-10 items-center justify-center rounded-lg hover:bg-slate-100 transition"
       >
         <FaCog />
       </button>
 
+      <button
+        onClick={() => setShowSettings(!showSettings)}
+        aria-label="Открыть меню администратора"
+        className="flex md:hidden w-10 h-10 items-center justify-center rounded-lg hover:bg-slate-100 text-slate-700 transition"
+      >
+        <FaBars size={18} />
+      </button>
+
       {showSettings && (
-        <SettingsDropdown userName={userName} />
+        <SettingsDropdown
+          userName={userName}
+          onClose={() => setShowSettings(false)}
+        />
       )}
 
     </div>

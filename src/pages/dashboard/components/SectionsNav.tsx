@@ -24,7 +24,7 @@ const badgeStyle =
 const SectionsNav = ({ ordersCount = 0 }: SectionsNavProps) => {
 
   return (
-    <nav className="mb-6 flex flex-wrap gap-3">
+    <nav className="mb-6 hidden md:flex flex-wrap gap-3">
 
       <NavLink
         to="/dashboard/orders"
