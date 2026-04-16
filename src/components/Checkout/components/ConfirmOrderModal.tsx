@@ -102,13 +102,13 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
               </div>
             </div>
 
-            {orderType === "delivery" && formData.apartment && (
+            {orderType === "delivery" && formData.apartment_office && (
               <div className="flex items-start gap-3">
                 <FaMapMarkerAlt className="text-slate-400 mt-1" size={14} />
 
                 <div>
                   <div className="text-sm text-slate-500">Квартира/офис</div>
-                  <div className="font-medium text-slate-800">{formData.apartment}</div>
+                  <div className="font-medium text-slate-800">{formData.apartment_office}</div>
                 </div>
               </div>
             )}
@@ -162,7 +162,7 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
               <div>
                 <div className="text-sm text-slate-500">Дополнительно</div>
                 <div className="font-medium text-slate-800">
-                  Приборы: {formData.needs_cutlery ? "Да" : "Нет"}, салфетки: {formData.needs_napkins ? "Да" : "Нет"}
+                  Салфетки и приборы: {formData.needs_cutlery_and_napkins ? "Да" : "Нет"}
                 </div>
               </div>
             </div>

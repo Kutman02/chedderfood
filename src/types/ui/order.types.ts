@@ -4,10 +4,9 @@ export interface CreateOrderInput {
     address: string
     phone: string
     customer_note?: string
-    apartment?: string
+    apartment_office?: string
     floor?: string
-    needs_cutlery?: boolean
-    needs_napkins?: boolean
+    needs_cutlery_and_napkins?: boolean
   }
 
   cartItems: {
@@ -25,7 +24,7 @@ export interface CustomerData {
   first_name: string
   address: string
   phone: string
-  apartment?: string
+  apartment_office?: string
   floor?: string
 }
 

@@ -53,6 +53,7 @@ export const HamburgerMenu = ({
   // ✅ очистка
   const handleClearCustomer = () => {
     localStorage.removeItem(STORAGE_KEYS.CHECKOUT_FORM)
+    localStorage.removeItem(STORAGE_KEYS.CUSTOMER_DATA)
     setCustomerData(null)
   }
 

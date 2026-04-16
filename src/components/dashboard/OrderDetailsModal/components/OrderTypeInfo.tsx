@@ -103,15 +103,15 @@ export const OrderTypeInfo = ({ order }: Props) => {
 
               <div className="flex-1">
 
-                <p className="text-sm font-semibold leading-6 text-slate-900 break-words">
+                <p className="text-sm font-semibold leading-6 text-slate-900 wrap-break-word">
                   {address}
                 </p>
 
-                {!isPickup && (order.apartment || order.floor || order.address_2) && (
+                {!isPickup && ((order.apartment_office || order.apartment) || order.floor || order.address_2) && (
                   <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
-                    {order.apartment && (
+                    {(order.apartment_office || order.apartment) && (
                       <span className="rounded-full bg-white px-2.5 py-1 font-semibold shadow-sm ring-1 ring-slate-200">
-                        Квартира: {order.apartment}
+                        Квартира/офис: {order.apartment_office || order.apartment}
                       </span>
                     )}
                     {order.floor && (

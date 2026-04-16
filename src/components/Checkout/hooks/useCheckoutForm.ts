@@ -27,10 +27,15 @@ export const useCheckoutForm = () => {
             address: parsed.address ?? "",
             phone: parsed.phone ?? "",
             customer_note: parsed.customer_note ?? "",
-            apartment: parsed.apartment ?? "",
+            apartment_office:
+              parsed.apartment_office ??
+              parsed.apartment ??
+              "",
             floor: parsed.floor ?? "",
-            needs_cutlery: parsed.needs_cutlery ?? false,
-            needs_napkins: parsed.needs_napkins ?? false,
+            needs_cutlery_and_napkins:
+              parsed.needs_cutlery_and_napkins ??
+              ((parsed.needs_cutlery ?? false) ||
+                (parsed.needs_napkins ?? false)),
           }
         }
 
@@ -43,10 +48,9 @@ export const useCheckoutForm = () => {
         address: "",
         phone: "",
         customer_note: "",
-        apartment: "",
+        apartment_office: "",
         floor: "",
-        needs_cutlery: false,
-        needs_napkins: false,
+        needs_cutlery_and_napkins: false,
       }
     })
 
@@ -135,6 +139,10 @@ export const useCheckoutForm = () => {
           first_name: formData.first_name,
           address: formData.address,
           phone: formData.phone,
+          customer_note: formData.customer_note,
+          apartment_office: formData.apartment_office,
+          floor: formData.floor,
+          needs_cutlery_and_napkins: formData.needs_cutlery_and_napkins,
         })
       )
     } catch (e) {

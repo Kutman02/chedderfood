@@ -39,6 +39,29 @@ export const useCreateOrder = () => {
        MAPPING UI → API
     ========================= */
 
+    const metaData: NonNullable<CreateOrderRequest["meta_data"]> = [
+      { key: "order_type", value: orderType },
+    ]
+
+    if (formData.apartment_office?.trim()) {
+      metaData.push({
+        key: "apartment_office",
+        value: formData.apartment_office.trim(),
+      })
+    }
+
+    if (formData.floor?.trim()) {
+      metaData.push({
+        key: "floor",
+        value: formData.floor.trim(),
+      })
+    }
+
+    metaData.push({
+      key: "needs_cutlery_and_napkins",
+      value: formData.needs_cutlery_and_napkins ? "1" : "0",
+    })
+
     const orderData: CreateOrderRequest = {
       status: "on-hold",
 
@@ -47,26 +70,17 @@ export const useCreateOrder = () => {
         address_1: orderType === "pickup"
           ? (pickupAddress || undefined)
           : formData.address,
-        apartment: formData.apartment,
+        apartment_office: formData.apartment_office,
         floor: formData.floor,
         phone: formData.phone,
       },
 
       customer_note: formData.customer_note,
-      needs_cutlery: formData.needs_cutlery,
-      needs_napkins: formData.needs_napkins,
+      needs_cutlery_and_napkins: formData.needs_cutlery_and_napkins,
 
       line_items: cartItems,
 
-      meta_data: [
-        { key: "order_type", value: orderType },
-        ...(formData.apartment
-          ? [{ key: "apartment", value: formData.apartment }]
-          : []),
-        ...(formData.floor
-          ? [{ key: "floor", value: formData.floor }]
-          : []),
-      ],
+      meta_data: metaData,
     }
 
     try {
@@ -84,12 +98,11 @@ export const useCreateOrder = () => {
           address: orderType === "pickup" ? pickupAddress || "" : formData.address,
           pickup_address: orderType === "pickup" ? pickupAddress : undefined,
           pickup_map_url: orderType === "pickup" ? pickupMapUrl : undefined,
-          apartment: formData.apartment,
+          apartment_office: formData.apartment_office,
           floor: formData.floor,
           customer_note: formData.customer_note,
           order_type: orderType,
-          needs_cutlery: formData.needs_cutlery,
-          needs_napkins: formData.needs_napkins,
+          needs_cutlery_and_napkins: formData.needs_cutlery_and_napkins,
           line_items: [],
           items: [],
         }
@@ -106,7 +119,7 @@ export const useCreateOrder = () => {
           first_name: formData.first_name,
           address: formData.address,
           phone: formData.phone,
-          apartment: formData.apartment,
+          apartment_office: formData.apartment_office,
           floor: formData.floor,
         })
       )

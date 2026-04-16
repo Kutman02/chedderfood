@@ -119,12 +119,11 @@ export const OrderCustomerInfo = ({ order }: Props) => {
         )}
 
         <div className="flex flex-wrap gap-2 pt-1">
-          <span className={`rounded-full px-3 py-1 text-xs font-bold ${order.needs_cutlery ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
-            Приборы: {order.needs_cutlery ? "нужны" : "не нужны"}
-          </span>
-          <span className={`rounded-full px-3 py-1 text-xs font-bold ${order.needs_napkins ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
-            Салфетки: {order.needs_napkins ? "нужны" : "не нужны"}
-          </span>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-bold ${(order.needs_cutlery_and_napkins ?? order.needs_cutlery ?? order.needs_napkins) ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}
+            >
+              Салфетки и приборы: {(order.needs_cutlery_and_napkins ?? order.needs_cutlery ?? order.needs_napkins) ? "нужны" : "не нужны"}
+            </span>
         </div>
 
         {order.reason?.trim() && (

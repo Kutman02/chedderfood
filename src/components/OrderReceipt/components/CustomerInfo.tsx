@@ -20,7 +20,7 @@ export const CustomerInfo: FC<CustomerInfoProps> = ({ order }) => {
   const address =
     order.address?.trim() || "Не указан"
 
-  const apartment = order.apartment?.trim()
+  const apartmentOffice = (order.apartment_office || order.apartment)?.trim()
   const floor = order.floor?.trim()
   const email = order.email?.trim()
 
@@ -54,11 +54,11 @@ export const CustomerInfo: FC<CustomerInfoProps> = ({ order }) => {
           </span>
         </p>
 
-        {apartment && (
+        {apartmentOffice && (
           <p className="flex justify-between">
             <span className="text-slate-600">Квартира/офис:</span>
             <span className="font-medium text-right max-w-[60%] whitespace-pre-wrap">
-              {apartment}
+              {apartmentOffice}
             </span>
           </p>
         )}
@@ -82,16 +82,9 @@ export const CustomerInfo: FC<CustomerInfoProps> = ({ order }) => {
         )}
 
         <p className="flex justify-between">
-          <span className="text-slate-600">Приборы:</span>
+          <span className="text-slate-600">Салфетки и приборы:</span>
           <span className="font-medium text-right">
-            {order.needs_cutlery ? "Да" : "Нет"}
-          </span>
-        </p>
-
-        <p className="flex justify-between">
-          <span className="text-slate-600">Салфетки:</span>
-          <span className="font-medium text-right">
-            {order.needs_napkins ? "Да" : "Нет"}
+            {(order.needs_cutlery_and_napkins ?? order.needs_cutlery ?? order.needs_napkins) ? "Да" : "Нет"}
           </span>
         </p>
 

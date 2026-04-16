@@ -92,7 +92,7 @@ export const useOrders = (
     page: shouldPaginate ? page : 1,
     per_page: ordersPerPage,
     ...dateParams,
-    fields: "id,status,reason,changed_at,changed_by_user_id,total,customer_name,phone,address,pickup_address,pickup_map_url,pickup_2gis_url,apartment,floor,order_type,needs_cutlery,needs_napkins,line_items,status_history,meta_data,date_created",
+    fields: "id,status,reason,changed_at,changed_by_user_id,total,customer_name,phone,address,apartment_office,floor,order_type,customer_note,needs_cutlery_and_napkins,pickup_address,pickup_map_url,pickup_2gis_url,line_items,status_history,meta_data,date_created",
   }, {
     pollingInterval: 1500,
     refetchOnFocus: true,

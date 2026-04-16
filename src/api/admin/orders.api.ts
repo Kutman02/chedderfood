@@ -37,6 +37,7 @@ type RawOrder = Order & {
     email?: string
     address_1?: string
     address_2?: string
+    apartment_office?: string
     city?: string
     postcode?: string
   }
@@ -207,12 +208,21 @@ const normalizeOrder = (order: RawOrder): Order => {
     address_2: order.address_2 || billing?.address_2,
     city: order.city || billing?.city,
     postcode: order.postcode || billing?.postcode,
+    apartment_office:
+      order.apartment_office ||
+      billing?.apartment_office ||
+      readFirstMetaString(metaData, ["apartment_office", "apartment"]),
     apartment: order.apartment || readMetaString(metaData, "apartment"),
     floor: order.floor || readMetaString(metaData, "floor"),
 
     order_type: normalizedOrderType,
     pickup_address: pickupAddress,
     pickup_map_url: pickupMapUrl,
+    needs_cutlery_and_napkins:
+      order.needs_cutlery_and_napkins ??
+      readMetaBoolean(metaData, "needs_cutlery_and_napkins") ??
+      ((order.needs_cutlery ?? readMetaBoolean(metaData, "needs_cutlery") ?? false) ||
+        (order.needs_napkins ?? readMetaBoolean(metaData, "needs_napkins") ?? false)),
     needs_cutlery:
       order.needs_cutlery ?? readMetaBoolean(metaData, "needs_cutlery"),
     needs_napkins:

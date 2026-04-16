@@ -7,28 +7,69 @@ type ReceiptsState = {
   customerData: CustomerData | null;
 };
 
+const RECEIPTS_KEY = STORAGE_KEYS.RECEIPTS
+const CUSTOMER_DATA_KEY = STORAGE_KEYS.CUSTOMER_DATA
 const CHECKOUT_FORM_KEY = STORAGE_KEYS.CHECKOUT_FORM
+
+const isReceiptLike = (value: unknown): value is ReceiptData => {
+  if (!value || typeof value !== "object") return false
+
+  const candidate = value as Partial<ReceiptData>
+  return typeof candidate.id === "number"
+}
+
+const loadReceipts = (): ReceiptData[] => {
+  try {
+    const raw = localStorage.getItem(RECEIPTS_KEY)
+    if (!raw) return []
+
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+
+    return parsed.filter(isReceiptLike)
+  } catch {
+    return []
+  }
+}
+
+const normalizeCustomerData = (
+  parsed: Partial<CustomerData> & { apartment?: string }
+): CustomerData => ({
+  first_name: parsed.first_name ?? "",
+  address: parsed.address ?? "",
+  phone: parsed.phone ?? "",
+  apartment_office: parsed.apartment_office ?? parsed.apartment ?? "",
+  floor: parsed.floor ?? "",
+})
 
 const loadCustomerData = (): CustomerData | null => {
   try {
-    const raw = localStorage.getItem(CHECKOUT_FORM_KEY);
+    const customerDataRaw = localStorage.getItem(CUSTOMER_DATA_KEY)
 
-    if (!raw) return null;
+    if (customerDataRaw) {
+      const parsed = JSON.parse(customerDataRaw) as Partial<CustomerData> & {
+        apartment?: string
+      }
 
-    const parsed = JSON.parse(raw) as Partial<CustomerData>;
+      return normalizeCustomerData(parsed)
+    }
 
-    return {
-      first_name: parsed.first_name ?? "",
-      address: parsed.address ?? "",
-      phone: parsed.phone ?? "",
-    };
+    const raw = localStorage.getItem(CHECKOUT_FORM_KEY)
+
+    if (!raw) return null
+
+    const parsed = JSON.parse(raw) as Partial<CustomerData> & {
+      apartment?: string
+    }
+
+    return normalizeCustomerData(parsed)
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 const initialState: ReceiptsState = {
-  receipts: [],
+  receipts: loadReceipts(),
   customerData: loadCustomerData(),
 };
 

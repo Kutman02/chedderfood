@@ -38,6 +38,7 @@ export interface Order {
   phone: string
   address?: string
   address_2?: string
+  apartment_office?: string
   apartment?: string
   floor?: string
   city?: string
@@ -50,6 +51,7 @@ export interface Order {
   pickup_address?: string
   pickup_map_url?: string
   pickup_2gis_url?: string
+  needs_cutlery_and_napkins?: boolean
   needs_cutlery?: boolean
   needs_napkins?: boolean
   line_items?: OrderItem[]
@@ -93,6 +95,7 @@ export interface CreateOrderRequest {
     email?: string
     address_1?: string
     address_2?: string
+    apartment_office?: string
     apartment?: string
     floor?: string
     city?: string
@@ -100,6 +103,7 @@ export interface CreateOrderRequest {
   }
 
   customer_note?: string
+  needs_cutlery_and_napkins?: boolean
   needs_cutlery?: boolean
   needs_napkins?: boolean
 

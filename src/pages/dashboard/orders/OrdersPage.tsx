@@ -7,6 +7,7 @@ import { OrderSkeleton } from "@/components/Skeleton/components"
 import { useDashboardUI } from "../hooks/useDashboardUI"
 import { useOrders } from "../hooks/useOrders"
 import { useOutletContext } from "react-router-dom"
+import { useGetRestaurantHoursStatusQuery } from "@/api"
 
 import type { Product } from "@/types"
 
@@ -29,6 +30,29 @@ const OrdersPage = () => {
   const [expandedDetailsOrderId, setExpandedDetailsOrderId] = useState<number | null>(null)
 
   const { products, searchQuery, setSearchMeta } = useOutletContext<OutletContext>()
+
+  const { data: restaurantHoursResponse } = useGetRestaurantHoursStatusQuery(undefined, {
+    pollingInterval: 60000,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  })
+
+  const backendTimezone = restaurantHoursResponse?.data?.timezone || "Asia/Bishkek"
+
+  const backendTime = useMemo(() => {
+    const sourceDate = restaurantHoursResponse?.data?.now_local
+      ? new Date(restaurantHoursResponse.data.now_local)
+      : new Date()
+
+    return new Intl.DateTimeFormat("ru-RU", {
+      hour: "2-digit",
+      minute: "2-digit",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: backendTimezone,
+    }).format(sourceDate)
+  }, [backendTimezone, restaurantHoursResponse?.data?.now_local])
 
   const { activeTab, setActiveTab } = useDashboardUI()
   const supportsDateFilters =
@@ -196,6 +220,12 @@ const OrdersPage = () => {
 
       {querySupportsDateFilters && (
         <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
+          <p className="mb-3 text-xs font-medium text-slate-500">
+            Часовой пояс бэкенда: <span className="font-semibold text-slate-700">{backendTimezone}</span>
+            {" · "}
+            Время: <span className="font-semibold text-slate-700">{backendTime}</span>
+          </p>
+
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setDateMode("today")}
