@@ -221,7 +221,7 @@ const OrdersPage = () => {
       {querySupportsDateFilters && (
         <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
           <p className="mb-3 text-xs font-medium text-slate-500">
-            Часовой пояс бэкенда: <span className="font-semibold text-slate-700">{backendTimezone}</span>
+            Часовой пояс сервера: <span className="font-semibold text-slate-700">{backendTimezone}</span>
             {" · "}
             Время: <span className="font-semibold text-slate-700">{backendTime}</span>
           </p>
