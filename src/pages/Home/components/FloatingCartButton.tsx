@@ -2,6 +2,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { openCart, closeCart } from "../../../app/slices/uiSlice";
+import { HiMiniShoppingCart } from "react-icons/hi2";
 
 interface FloatingCartButtonProps {
   cartCount: number;
@@ -15,6 +16,7 @@ export const FloatingCartButton = ({ cartCount }: FloatingCartButtonProps) => {
 
   // защита от NaN
   const safeCount = Number(cartCount) || 0;
+  const displayCount = safeCount > 99 ? "99+" : String(safeCount)
 
   if (safeCount === 0) return null;
 
@@ -36,13 +38,13 @@ export const FloatingCartButton = ({ cartCount }: FloatingCartButtonProps) => {
     <div className="fixed z-40 animate-in zoom-in-95 duration-400 bottom-[max(1rem,calc(env(safe-area-inset-bottom)+0.75rem))] right-[max(1rem,calc(env(safe-area-inset-right)+0.75rem))]">
       <button
         onClick={toggleCart}
-        className="bg-orange-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-full shadow-xl hover:bg-orange-700 hover:shadow-2xl transition-all duration-300 flex items-center gap-2 sm:gap-3 font-bold active:scale-95 border-2 border-white"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-orange-600 text-white shadow-[0_10px_30px_-10px_rgba(234,88,12,0.85)] ring-4 ring-white/95 transition-all duration-300 hover:-translate-y-0.5 hover:bg-orange-700 hover:shadow-[0_14px_35px_-12px_rgba(194,65,12,0.9)] active:scale-95 sm:h-16 sm:w-16"
         aria-label={`Открыть корзину, товаров: ${safeCount}`}
       >
-        <FaShoppingCart className="animate-pulse" />
+        <HiMiniShoppingCart className="text-[20px] sm:text-[22px]" />
 
-        <span className="bg-white text-orange-600 px-2 py-1 rounded-full text-sm font-bold">
-          {safeCount}
+        <span className="absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1 text-[11px] font-black leading-none text-orange-700 ring-2 ring-orange-200 sm:h-7 sm:min-w-7 sm:text-xs">
+          {displayCount}
         </span>
       </button>
     </div>
