@@ -1,9 +1,12 @@
 import React from "react"
-import { useSearchParams } from "react-router-dom"
+import { FaShoppingBag, FaTimes, FaTrash } from "react-icons/fa"
 
-import { CartStep } from "@/components/Checkout/steps/CartStep"
-import { CheckoutStep } from "@/components/Checkout/steps/CheckoutStep"
-import { ConfirmOrderModal } from "@/components/Checkout/components"
+import { CartEmpty, CartItemCard } from "@/components/Cart/components"
+import {
+  CheckoutForm,
+  CheckoutFooter,
+  ConfirmOrderModal,
+} from "@/components/Checkout/components"
 
 import { useCheckout } from "@/components/Checkout/hooks/useCheckout"
 
@@ -34,34 +37,6 @@ export const Checkout: React.FC<CheckoutProps> = ({
   onClose,
   cartData,
 }) => {
-
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  /* ===============================
-     STEP (safe)
-  =============================== */
-
-  const stepParam = searchParams.get("step")
-  const step = stepParam === "checkout" ? "checkout" : "cart"
-
-  /* ===============================
-     NAVIGATION
-  =============================== */
-
-  const goToCheckout = () => {
-    const params = new URLSearchParams(searchParams)
-    params.set("modal", "cart")
-    params.set("step", "checkout")
-    setSearchParams(params)
-  }
-
-  const goToCart = () => {
-    const params = new URLSearchParams(searchParams)
-    params.set("modal", "cart")
-    params.set("step", "cart")
-    setSearchParams(params)
-  }
-
   /* ===============================
      HOOK
   =============================== */
@@ -86,63 +61,115 @@ export const Checkout: React.FC<CheckoutProps> = ({
         onCancel={checkout.handleCancelConfirm}
       />
 
-      <div className="fixed inset-0 z-50 bg-white flex flex-col h-dvh">
+      <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[2px] sm:p-4">
+        <div className="mx-auto flex h-dvh w-full max-w-6xl flex-col overflow-hidden bg-white sm:h-[92vh] sm:rounded-2xl sm:shadow-2xl">
 
-        {/* ===============================
-            CART STEP
-        =============================== */}
-        {step === "cart" && (
-          <CartStep
-            items={cartData.items}
-            totalAmount={cartData.totalAmount}
-            totalItems={cartData.totalItems}
+          <div className="shrink-0 border-b border-slate-200 bg-white px-4 py-3 md:px-6 md:py-4">
+            <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+                  <FaShoppingBag size={18} />
+                </div>
 
-            onAdd={cartData.onAdd}
-            onRemove={cartData.onRemove}
-            onClear={cartData.onClear}
-            onClose={onClose}
+                <div className="min-w-0">
+                  <h2 className="truncate text-lg font-black text-slate-800 md:text-2xl">
+                    Корзина и оформление
+                  </h2>
 
-            onNext={goToCheckout}
+                  <p className="text-xs text-slate-500 md:text-sm">
+                    {cartData.totalItems > 0
+                      ? `${cartData.totalItems} товаров в заказе`
+                      : "Добавьте товары для оформления"}
+                  </p>
+                </div>
+              </div>
 
-            siteUrl={cartData.siteUrl}
-          />
-        )}
+              <div className="flex items-center gap-2">
+                {cartData.items.length > 0 && (
+                  <button
+                    onClick={cartData.onClear}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-red-50 text-red-600 transition-colors hover:bg-red-100 active:scale-95"
+                    aria-label="Очистить корзину"
+                    title="Очистить корзину"
+                  >
+                    <FaTrash size={14} />
+                  </button>
+                )}
 
-        {/* ===============================
-            CHECKOUT STEP
-        =============================== */}
-        {step === "checkout" && (
-          <CheckoutStep
-            onClose={onClose}
-            onBack={goToCart}
+                <button
+                  onClick={onClose}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-800 active:scale-95"
+                  aria-label="Закрыть"
+                  title="Закрыть"
+                >
+                  <FaTimes size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
 
-            formData={checkout.formData}
-            errors={checkout.errors}
-            orderType={checkout.orderType}
+          {cartData.items.length === 0 ? (
+            <CartEmpty onClose={onClose} />
+          ) : (
+            <>
+              <div className="flex-1 overflow-y-auto">
+                <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-4 pb-28 md:px-6 md:py-6 md:pb-32">
+                  <section>
+                    <h3 className="mb-3 text-sm font-bold uppercase tracking-[0.08em] text-slate-500 md:mb-4">
+                      Выбранные товары
+                    </h3>
 
-            selectedCountry={checkout.selectedCountry}
-            phoneNumber={checkout.phoneNumber}
-            isCountryDropdownOpen={checkout.isCountryDropdownOpen}
+                    <div className="space-y-3 md:space-y-4">
+                      {cartData.items.map((item) => (
+                        <CartItemCard
+                          key={item.id}
+                          item={item}
+                          onAdd={() => cartData.onAdd(item)}
+                          onRemove={() => cartData.onRemove(item.id)}
+                          siteUrl={cartData.siteUrl}
+                        />
+                      ))}
+                    </div>
+                  </section>
 
-            onInputChange={checkout.handleInputChange}
-            onPhoneChange={checkout.handlePhoneNumberChange}
-            onCountrySelect={checkout.handleCountrySelect}
-            onToggleCountryDropdown={checkout.toggleCountryDropdown}
-            onOrderTypeChange={checkout.setOrderType}
-            onAutoFill={() => {}}
-            pickupAddress={checkout.pickupAddress}
-            pickupMapUrl={checkout.pickupMapUrl}
+                  <section className="border-t border-slate-200 pt-6 md:pt-8">
+                    <h3 className="mb-3 text-sm font-bold uppercase tracking-[0.08em] text-slate-500 md:mb-4">
+                      Данные для оформления
+                    </h3>
 
-            totalAmount={checkout.totalAmount}
-            cartItemsCount={cartData.items.length}
-            isSubmitting={checkout.isSubmitting}
-            checkoutAllowed={checkout.checkoutAllowed}
-            checkoutBlockMessage={checkout.checkoutBlockMessage}
-            isRestaurantHoursLoading={checkout.isRestaurantHoursLoading}
-            onSubmit={checkout.handleSubmit}
-          />
-        )}
+                    <CheckoutForm
+                      formData={checkout.formData}
+                      errors={checkout.errors}
+                      orderType={checkout.orderType}
+                      selectedCountry={checkout.selectedCountry}
+                      phoneNumber={checkout.phoneNumber}
+                      isCountryDropdownOpen={checkout.isCountryDropdownOpen}
+                      onInputChange={checkout.handleInputChange}
+                      onPhoneChange={checkout.handlePhoneNumberChange}
+                      onCountrySelect={checkout.handleCountrySelect}
+                      onToggleCountryDropdown={checkout.toggleCountryDropdown}
+                      onOrderTypeChange={checkout.setOrderType}
+                      pickupAddress={checkout.pickupAddress}
+                      pickupMapUrl={checkout.pickupMapUrl}
+                      onAutoFill={() => {}}
+                      embedded
+                    />
+                  </section>
+                </div>
+              </div>
 
+              <CheckoutFooter
+                totalAmount={checkout.totalAmount}
+                cartItemsCount={cartData.items.length}
+                isSubmitting={checkout.isSubmitting}
+                checkoutAllowed={checkout.checkoutAllowed}
+                checkoutBlockMessage={checkout.checkoutBlockMessage}
+                isRestaurantHoursLoading={checkout.isRestaurantHoursLoading}
+                onSubmit={checkout.handleSubmit}
+              />
+            </>
+          )}
+        </div>
       </div>
     </>
   )

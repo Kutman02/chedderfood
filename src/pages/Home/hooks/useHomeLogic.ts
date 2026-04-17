@@ -131,6 +131,13 @@ export const useHomeLogic = () => {
     )
   }, [cart])
 
+  const cartTotalAmount = useMemo(() => {
+    return Object.values(cart).reduce((sum: number, item: any) => {
+      const price = parseFloat(item.sale_price || item.price || "0")
+      return sum + price * item.quantity
+    }, 0)
+  }, [cart])
+
   /* =========================
      URL SYNC
   ========================= */
@@ -224,6 +231,7 @@ export const useHomeLogic = () => {
     removeFromCart,
 
     cartCount,
+    cartTotalAmount,
     isCartOpen,
     isReceiptsOpen,
 

@@ -110,7 +110,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
           type="tel"
           value={phoneNumber}
           onChange={onChange}
-          placeholder={`${selectedCountry.digits} цифр`}
+          placeholder="707707707"
           maxLength={selectedCountry.digits}
           className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
             error ? "border-red-500" : "border-slate-300"

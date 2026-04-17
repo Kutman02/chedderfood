@@ -20,6 +20,7 @@ const Home = () => {
     categoriesError,
 
     cartCount,
+  cartTotalAmount,
     isCartOpen,
     isReceiptsOpen,
 
@@ -76,7 +77,7 @@ const Home = () => {
         </div>
       </main>
 
-      <FloatingCartButton cartCount={cartCount} />
+      <FloatingCartButton cartCount={cartCount} totalAmount={cartTotalAmount} />
 
       <PublicFooter />
 

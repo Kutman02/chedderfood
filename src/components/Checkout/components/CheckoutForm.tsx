@@ -10,6 +10,7 @@ interface CheckoutFormProps {
   formData: CheckoutFormData;
   errors: Partial<CheckoutFormData>;
   onAutoFill: () => void;
+  embedded?: boolean;
 
   orderType: "delivery" | "pickup";
 
@@ -36,6 +37,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   formData,
   errors,
   onAutoFill, // ✅ FIX
+  embedded = false,
 
   orderType,
 
@@ -53,7 +55,13 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   pickupMapUrl,
 }) => {
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4 md:p-6 pb-32 md:pb-6">
+    <div
+      className={
+        embedded
+          ? ""
+          : "flex-1 overflow-y-auto px-4 py-4 md:p-6 pb-32 md:pb-6"
+      }
+    >
       <div className="max-w-2xl mx-auto">
         <form className="space-y-6">
           {/* Тип заказа */}
@@ -118,7 +126,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   name="apartment_office"
                   value={formData.apartment_office}
                   onChange={onInputChange}
-                  placeholder="Квартира / офис"
+                  placeholder="Подъезд, офис и т.п."
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
 
