@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo } from "react"
 import { FaPhone } from "react-icons/fa"
 import type { OrderCardHeaderProps } from "../types/orderCard.types"
 
@@ -7,35 +7,70 @@ const timeFormatter = new Intl.DateTimeFormat("ru-RU", {
   minute: "2-digit",
 })
 
-const formatElapsed = (dateCreated: string, now: number) => {
-  const createdAt = new Date(dateCreated).getTime()
+const parseDateTimestamp = (value: unknown): number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value > 1e12 ? value : value * 1000
+  }
 
-  if (Number.isNaN(createdAt)) {
+  if (typeof value !== "string") {
     return null
   }
 
-  const diffMinutes = Math.max(0, Math.floor((now - createdAt) / 60000))
+  const raw = value.trim()
+  if (!raw) return null
 
-  if (diffMinutes < 60) {
-    return `${diffMinutes} мин`
+  if (/^\d+$/.test(raw)) {
+    const numeric = Number(raw)
+    if (Number.isFinite(numeric)) {
+      return numeric > 1e12 ? numeric : numeric * 1000
+    }
   }
 
-  const hours = Math.floor(diffMinutes / 60)
-  const minutes = diffMinutes % 60
-
-  if (minutes === 0) {
-    return `${hours} ч`
+  const directParsed = Date.parse(raw)
+  if (!Number.isNaN(directParsed)) {
+    return directParsed
   }
 
-  return `${hours} ч ${minutes} мин`
+  const normalized = raw.replace(" ", "T").replace(/([+-]\d{2})(\d{2})$/, "$1:$2")
+  const normalizedParsed = Date.parse(normalized)
+
+  if (!Number.isNaN(normalizedParsed)) {
+    return normalizedParsed
+  }
+
+  return null
+}
+
+const resolveCreatedTimestamp = (order: any): number | null => {
+  const firstHistoryDate = Array.isArray(order?.status_history)
+    ? order.status_history
+        .map((entry: any) => entry?.changed_at)
+        .find((value: unknown) => typeof value === "string" && value.trim().length > 0)
+    : null
+
+  const candidates: unknown[] = [
+    order?.date_created_unix,
+    order?.date_created,
+    order?.date_created_gmt,
+    order?.created_at,
+    order?.changed_at,
+    firstHistoryDate,
+  ]
+
+  for (const candidate of candidates) {
+    const timestamp = parseDateTimestamp(candidate)
+    if (timestamp !== null) {
+      return timestamp
+    }
+  }
+
+  return null
 }
 
 export const OrderCardHeader = ({
   order,
   activeTabData
 }: OrderCardHeaderProps) => {
-  const [now, setNow] = useState(() => Date.now())
-
   const o = order as any // 🔥 FIX
 
   const customerName =
@@ -50,28 +85,24 @@ export const OrderCardHeader = ({
   const total =
     o?.total || "0"
 
-  const createdAt = useMemo(() => new Date(o?.date_created), [o?.date_created])
+  const createdTimestamp = useMemo(
+    () => resolveCreatedTimestamp(o),
+    [o?.date_created_unix, o?.date_created, o?.date_created_gmt, o?.created_at, o?.changed_at, o?.date_created_human, o?.status_history]
+  )
   const isCompletedOrder = o?.status === "completed" || o?.status === "cancelled"
 
-  useEffect(() => {
-    if (isCompletedOrder) {
-      return
-    }
-
-    const intervalId = window.setInterval(() => {
-      setNow(Date.now())
-    }, 60000)
-
-    return () => window.clearInterval(intervalId)
-  }, [isCompletedOrder])
-
-  const createdTime = Number.isNaN(createdAt.getTime())
+  const createdTime = createdTimestamp === null
     ? "--:--"
-    : timeFormatter.format(createdAt)
+    : timeFormatter.format(new Date(createdTimestamp))
+
+  const elapsedFromBackend =
+    typeof o?.date_created_human === "string" && o.date_created_human.trim()
+      ? o.date_created_human.trim()
+      : null
 
   const elapsed = isCompletedOrder
     ? null
-    : formatElapsed(o?.date_created, now)
+    : elapsedFromBackend
 
   return (
     <div className="mb-4 space-y-4 sm:flex sm:items-start sm:justify-between sm:space-y-0">
@@ -107,7 +138,7 @@ export const OrderCardHeader = ({
 
       </div>
 
-      <div className="grid grid-cols-2 gap-4 rounded-2xl bg-slate-50 px-3 py-3 sm:min-w-[170px] sm:bg-transparent sm:px-0 sm:py-0">
+      <div className="grid grid-cols-2 gap-4 rounded-2xl bg-slate-50 px-3 py-3 sm:min-w-42.5 sm:bg-transparent sm:px-0 sm:py-0">
         <div className="text-left sm:text-right">
           <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
             Заказ пришёл

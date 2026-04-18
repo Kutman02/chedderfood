@@ -43,6 +43,73 @@ type RawOrder = Order & {
   }
   meta_data?: RawOrderMeta[]
   line_items?: Order["line_items"]
+  date_created_gmt?: string
+  created_at?: string
+  changed_at?: string | null
+  date_created_unix?: number | string
+  date_created_human?: string
+}
+
+const parseDateTimestamp = (value: unknown): number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    // Unix seconds fallback
+    return value > 1e12 ? value : value * 1000
+  }
+
+  if (typeof value !== "string") {
+    return null
+  }
+
+  const raw = value.trim()
+  if (!raw) return null
+
+  if (/^\d+$/.test(raw)) {
+    const numeric = Number(raw)
+    if (Number.isFinite(numeric)) {
+      return numeric > 1e12 ? numeric : numeric * 1000
+    }
+  }
+
+  const directParsed = Date.parse(raw)
+  if (!Number.isNaN(directParsed)) {
+    return directParsed
+  }
+
+  // Safari often fails on `YYYY-MM-DD HH:mm:ss`
+  const normalized = raw.replace(" ", "T").replace(/([+-]\d{2})(\d{2})$/, "$1:$2")
+
+  const normalizedParsed = Date.parse(normalized)
+  if (!Number.isNaN(normalizedParsed)) {
+    return normalizedParsed
+  }
+
+  return null
+}
+
+const resolveOrderDateCreated = (order: RawOrder): string => {
+  const firstHistoryDate = Array.isArray(order.status_history)
+    ? order.status_history
+        .map((entry) => entry?.changed_at)
+        .find((value): value is string => typeof value === "string" && value.trim().length > 0)
+    : undefined
+
+  const candidates: unknown[] = [
+    order.date_created_unix,
+    order.date_created,
+    order.date_created_gmt,
+    order.created_at,
+    order.changed_at,
+    firstHistoryDate,
+  ]
+
+  for (const candidate of candidates) {
+    const timestamp = parseDateTimestamp(candidate)
+    if (timestamp !== null) {
+      return new Date(timestamp).toISOString()
+    }
+  }
+
+  return typeof order.date_created === "string" ? order.date_created : ""
 }
 
 const readMetaString = (
@@ -190,6 +257,7 @@ const normalizeOrder = (order: RawOrder): Order => {
   return {
     ...order,
     status: normalizeStatus(order.status),
+    date_created: resolveOrderDateCreated(order),
 
     customer_name:
       order.customer_name?.trim() ||

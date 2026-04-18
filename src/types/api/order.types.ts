@@ -33,6 +33,9 @@ export interface Order {
   total: string
   currency?: string
   date_created: string
+  date_created_unix?: number
+  date_created_human?: string
+  changed_at?: string | null
 
   customer_name: string
   phone: string

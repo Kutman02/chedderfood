@@ -83,9 +83,6 @@ export const ReceiptItem = ({
             Заказ: #{receipt.number ?? receipt.id}
           </h3>
 
-          {/* <p className="text-sm text-slate-500">
-            Детали заказа
-          </p> */}
         </div>
 
         <span
