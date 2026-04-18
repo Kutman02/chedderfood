@@ -1,5 +1,10 @@
 import { useState, useMemo, useEffect } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom"
 
 import type { Product, Category } from "@/types"
 
@@ -23,7 +28,9 @@ import {
 export const useHomeLogic = () => {
 
   const dispatch = useAppDispatch()
+  const location = useLocation()
   const navigate = useNavigate()
+  const { productId: productRouteId } = useParams<{ productId: string }>()
 
   const cart = useAppSelector((s) => s.cart.items)
 
@@ -142,7 +149,7 @@ export const useHomeLogic = () => {
   useEffect(() => {
 
     const modal = searchParams.get("modal")
-    const productId = searchParams.get("productId")
+    const legacyProductId = searchParams.get("productId")
 
     if (modal === "cart") {
       const step = searchParams.get("step")
@@ -167,16 +174,32 @@ export const useHomeLogic = () => {
       dispatch(closeReceipts())
       return
 
-    } else if (modal === "product" && productId && normalizedProducts.length) {
+    } else if (modal === "product" && legacyProductId) {
+      navigate(`/product/${legacyProductId}`, {
+        replace: true,
+      })
+      return
+    }
+
+    if (productRouteId) {
+      if (!normalizedProducts.length) {
+        return
+      }
 
       const product = normalizedProducts.find(
-        (p) => p.id === Number(productId)
+        (p) => p.id === Number(productRouteId)
       )
 
       if (product) {
         setSelectedProduct(product)
         setIsModalOpen(true)
+      } else {
+        setIsModalOpen(false)
+        setSelectedProduct(null)
+        navigate("/", { replace: true })
       }
+
+      return
 
     } else {
       dispatch(closeCart())
@@ -185,7 +208,7 @@ export const useHomeLogic = () => {
       setSelectedProduct(null)
     }
 
-  }, [searchParams, dispatch, normalizedProducts, navigate])
+  }, [searchParams, dispatch, productRouteId, normalizedProducts, navigate])
 
   /* =========================
      MODAL
@@ -196,18 +219,18 @@ export const useHomeLogic = () => {
     setSelectedProduct(product)
     setIsModalOpen(true)
 
-    const params = new URLSearchParams(searchParams)
-
-    params.set("modal", "product")
-    params.set("productId", String(product.id))
-
-    setSearchParams(params)
+    navigate(`/product/${product.id}`)
   }
 
   const closeProductModal = () => {
 
     setIsModalOpen(false)
     setSelectedProduct(null)
+
+    if (location.pathname.startsWith("/product/")) {
+      navigate("/")
+      return
+    }
 
     const params = new URLSearchParams(searchParams)
 

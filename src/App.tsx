@@ -58,6 +58,7 @@ function App() {
 
           {/* Главная */}
           <Route path="/" element={<Home />} />
+          <Route path="/product/:productId" element={<Home />} />
 
           {/* Login */}
           <Route

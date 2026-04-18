@@ -12,6 +12,11 @@ export const useModalRedirect = () => {
     if (modal && location.pathname !== "/") {
       const productId = searchParams.get("productId")
 
+      if (modal === "product" && productId) {
+        navigate(`/product/${productId}`, { replace: true })
+        return
+      }
+
       const params = new URLSearchParams()
       params.set("modal", modal)
 
