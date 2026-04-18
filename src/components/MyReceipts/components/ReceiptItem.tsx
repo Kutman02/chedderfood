@@ -16,6 +16,45 @@ interface ReceiptItemProps {
   onView: (receipt: Order) => void
 }
 
+const timeFormatter = new Intl.DateTimeFormat("ru-RU", {
+  hour: "2-digit",
+  minute: "2-digit",
+})
+
+const parseDateTimestamp = (value: unknown): number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value > 1e12 ? value : value * 1000
+  }
+
+  if (typeof value !== "string") {
+    return null
+  }
+
+  const raw = value.trim()
+  if (!raw) return null
+
+  if (/^\d+$/.test(raw)) {
+    const numeric = Number(raw)
+    if (Number.isFinite(numeric)) {
+      return numeric > 1e12 ? numeric : numeric * 1000
+    }
+  }
+
+  const parsed = Date.parse(raw)
+  if (!Number.isNaN(parsed)) {
+    return parsed
+  }
+
+  const normalized = raw.replace(" ", "T").replace(/([+-]\d{2})(\d{2})$/, "$1:$2")
+  const normalizedParsed = Date.parse(normalized)
+
+  if (!Number.isNaN(normalizedParsed)) {
+    return normalizedParsed
+  }
+
+  return null
+}
+
 const getOrderBorder = (status: string) => {
   switch (status) {
     case "on-hold":
@@ -58,6 +97,25 @@ export const ReceiptItem = ({
       ? receipt.line_items
       : []
 
+  const createdTimestamp =
+    parseDateTimestamp(receipt.date_created_unix) ??
+    parseDateTimestamp(receipt.date_created) ??
+    parseDateTimestamp(receipt.changed_at)
+
+  const createdTime = createdTimestamp === null
+    ? null
+    : timeFormatter.format(new Date(createdTimestamp))
+
+  const elapsedFromBackend =
+    typeof receipt.date_created_human === "string" && receipt.date_created_human.trim()
+      ? receipt.date_created_human.trim()
+      : null
+
+  const createdMetaText =
+    createdTime || elapsedFromBackend
+      ? `${createdTime || "--:--"}${elapsedFromBackend ? ` • ${elapsedFromBackend}` : ""}`
+      : null
+
   const itemsCount = normalizedItems.length
 
   return (
@@ -82,6 +140,12 @@ export const ReceiptItem = ({
           <h3 className="font-semibold text-lg text-slate-800">
             Заказ: #{receipt.number ?? receipt.id}
           </h3>
+
+          {createdMetaText && (
+            <p className="mt-1 text-xs font-semibold text-slate-500 sm:text-sm">
+              {createdMetaText}
+            </p>
+          )}
 
         </div>
 

@@ -11,11 +11,27 @@ const RECEIPTS_KEY = STORAGE_KEYS.RECEIPTS
 const CUSTOMER_DATA_KEY = STORAGE_KEYS.CUSTOMER_DATA
 const CHECKOUT_FORM_KEY = STORAGE_KEYS.CHECKOUT_FORM
 
-const isReceiptLike = (value: unknown): value is ReceiptData => {
-  if (!value || typeof value !== "object") return false
+const normalizeReceipt = (value: unknown): ReceiptData | null => {
+  if (!value || typeof value !== "object") return null
 
   const candidate = value as Partial<ReceiptData>
-  return typeof candidate.id === "number"
+
+  const idRaw = (candidate as { id?: unknown }).id
+  const normalizedId =
+    typeof idRaw === "number"
+      ? idRaw
+      : typeof idRaw === "string"
+        ? Number(idRaw)
+        : Number.NaN
+
+  if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
+    return null
+  }
+
+  return {
+    ...candidate,
+    id: normalizedId,
+  } as ReceiptData
 }
 
 const loadReceipts = (): ReceiptData[] => {
@@ -26,7 +42,9 @@ const loadReceipts = (): ReceiptData[] => {
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
 
-    return parsed.filter(isReceiptLike)
+    return parsed
+      .map(normalizeReceipt)
+      .filter((receipt): receipt is ReceiptData => receipt !== null)
   } catch {
     return []
   }
@@ -79,7 +97,13 @@ export const receiptsSlice = createSlice({
   reducers: {
     addReceipt: (state, action: PayloadAction<ReceiptData>) => {
       const receipt = action.payload;
-      state.receipts = [receipt, ...state.receipts.filter(r => r.id !== receipt.id)].slice(0, 50);
+      const normalized = normalizeReceipt(receipt)
+
+      if (!normalized) {
+        return
+      }
+
+      state.receipts = [normalized, ...state.receipts.filter(r => r.id !== normalized.id)].slice(0, 50);
     },
     deleteReceipt: (state, action: PayloadAction<number>) => {
       const receiptToDelete = state.receipts.find((r) => r.id === action.payload)
