@@ -1,8 +1,14 @@
 export const STORAGE_KEYS = {
+  AUTH_TOKEN: "kutmenu_auth_token",
+  AUTH_USER: "kutmenu_auth_user",
+
   CART: "kutmenu_cart",
   CHECKOUT_FORM: "checkout_form",
-
-  // Legacy keys kept only for one-way cleanup of old persisted data.
   RECEIPTS: "kutmenu_receipts",
   CUSTOMER_DATA: "kutmenu_customer_data",
+}
+
+export const LEGACY_STORAGE_KEYS = {
+  AUTH_TOKEN: "token",
+  AUTH_USER: "user",
 }

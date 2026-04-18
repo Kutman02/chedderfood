@@ -2,12 +2,13 @@ import { useEffect, useState } from "react"
 import { useAppDispatch } from "@/app/hooks"
 import { setCredentials, logout } from "@/app/slices/authSlice"
 import { useGetMeQuery } from "@/api"
+import { authStorage } from "@/shared/lib/storage"
 
 export const useAuthInit = () => {
   const dispatch = useAppDispatch()
   const [isAuthChecked, setIsAuthChecked] = useState(false)
 
-  const token = localStorage.getItem("token")
+  const token = authStorage.getToken()
   const { data: user, error } = useGetMeQuery(
     undefined,
     { skip: !token }

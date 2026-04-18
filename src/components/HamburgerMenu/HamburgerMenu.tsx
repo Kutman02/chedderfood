@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react"
 import type { HamburgerMenuProps } from "./types"
 import { STORAGE_KEYS } from "@/shared/constants/storage"
+import { storage } from "@/shared/lib/storage"
+import { useAppDispatch } from "@/app/hooks"
+import { clearCart } from "@/app/slices/cartSlice"
+import { clearReceipts, clearCustomerData } from "@/app/slices/receiptsSlice"
 
 import { useScrollLockStore } from "@/stores/scrollLockStore"
 
@@ -15,6 +19,7 @@ export const HamburgerMenu = ({
   onCartOpen,
   toggleReceipts
 }: HamburgerMenuProps) => {
+  const dispatch = useAppDispatch()
 
   const [open, setOpen] = useState(false)
   const [customerData, setCustomerData] = useState(null)
@@ -36,7 +41,7 @@ export const HamburgerMenu = ({
   useEffect(() => {
     const load = () => {
       try {
-        const saved = localStorage.getItem(STORAGE_KEYS.CHECKOUT_FORM)
+        const saved = storage.getString(STORAGE_KEYS.CHECKOUT_FORM)
         setCustomerData(saved ? JSON.parse(saved) : null)
       } catch (e) {
         console.error(e)
@@ -52,8 +57,21 @@ export const HamburgerMenu = ({
 
   // ✅ очистка
   const handleClearCustomer = () => {
-    localStorage.removeItem(STORAGE_KEYS.CHECKOUT_FORM)
-    localStorage.removeItem(STORAGE_KEYS.CUSTOMER_DATA)
+    dispatch(clearReceipts())
+    dispatch(clearCart())
+    dispatch(clearCustomerData())
+
+    storage.removeMany([
+      STORAGE_KEYS.RECEIPTS,
+      STORAGE_KEYS.CART,
+      STORAGE_KEYS.CHECKOUT_FORM,
+      STORAGE_KEYS.CUSTOMER_DATA,
+      "receipts",
+      "orders_receipts",
+      "customer_data",
+      "customerData",
+    ])
+
     setCustomerData(null)
   }
 

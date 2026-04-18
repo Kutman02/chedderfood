@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { User } from "@/types"
+import { authStorage } from "@/shared/lib/storage"
 
 type AuthState = {
   token: string | null
@@ -7,10 +8,8 @@ type AuthState = {
 }
 
 const initialState: AuthState = {
-  token: localStorage.getItem("token"),
-  user: localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user") as string)
-    : null,
+  token: authStorage.getToken(),
+  user: authStorage.getUser(),
 }
 
 export const authSlice = createSlice({
@@ -24,16 +23,14 @@ export const authSlice = createSlice({
       state.token = action.payload.token
       state.user = action.payload.user
 
-      localStorage.setItem("token", action.payload.token)
-      localStorage.setItem("user", JSON.stringify(action.payload.user))
+      authStorage.setSession(action.payload.token, action.payload.user)
     },
 
     logout: (state) => {
       state.token = null
       state.user = null
 
-      localStorage.removeItem("token")
-      localStorage.removeItem("user")
+      authStorage.clearSession()
     },
   },
 })

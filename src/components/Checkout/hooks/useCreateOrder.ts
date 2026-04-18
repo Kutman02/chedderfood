@@ -4,7 +4,6 @@ import { useToastStore } from "@/stores/toastStore"
 
 import { addReceipt, setCustomerData } from "@/app/slices/receiptsSlice"
 import { clearCart } from "@/app/slices/cartSlice"
-import { STORAGE_KEYS } from "@/shared/constants/storage"
 
 import { useCreateOrderMutation } from "@/api"
 
@@ -138,26 +137,33 @@ export const useCreateOrder = () => {
     try {
 
       const response = await createOrder(orderData).unwrap()
-      const order: Order =
-        response.order ?? {
-          id: response.id,
-          status: response.status,
-          total: String(response.total),
-          currency: "KGS",
-          date_created: new Date().toISOString(),
-          customer_name: formData.first_name,
-          phone: formData.phone,
-          address: orderType === "pickup" ? pickupAddress || "" : formData.address,
-          pickup_address: orderType === "pickup" ? pickupAddress : undefined,
-          pickup_map_url: orderType === "pickup" ? pickupMapUrl : undefined,
-          apartment_office: formData.apartment_office,
-          floor: formData.floor,
-          customer_note: formData.customer_note,
-          order_type: orderType,
-          needs_cutlery_and_napkins: formData.needs_cutlery_and_napkins,
-          line_items: [],
-          items: [],
-        }
+      const fallbackOrder: Order = {
+        id: response.id,
+        status: response.status,
+        total: String(response.total),
+        currency: "KGS",
+        date_created: new Date().toISOString(),
+        customer_name: formData.first_name,
+        phone: formData.phone,
+        address: orderType === "pickup" ? pickupAddress || "" : formData.address,
+        pickup_address: orderType === "pickup" ? pickupAddress : undefined,
+        pickup_map_url: orderType === "pickup" ? pickupMapUrl : undefined,
+        apartment_office: formData.apartment_office,
+        floor: formData.floor,
+        customer_note: formData.customer_note,
+        order_type: orderType,
+        needs_cutlery_and_napkins: formData.needs_cutlery_and_napkins,
+        public_key: response.public_key,
+        line_items: [],
+        items: [],
+      }
+
+      const order: Order = response.order
+        ? {
+            ...response.order,
+            public_key: response.order.public_key ?? response.public_key,
+          }
+        : fallbackOrder
 
       /* =========================
          STATE UPDATES
@@ -165,12 +171,6 @@ export const useCreateOrder = () => {
 
       dispatch(addReceipt(order))
       dispatch(clearCart())
-
-      try {
-        localStorage.removeItem(STORAGE_KEYS.CART)
-      } catch {
-        // noop: cart is already cleared in redux, storage cleanup is best-effort
-      }
 
       dispatch(
         setCustomerData({
@@ -198,7 +198,7 @@ export const useCreateOrder = () => {
 
       onClose()
 
-      navigate(`/?modal=mycheks&order=${order.id}`, {
+      navigate(`/mycheks?order=${order.id}`, {
         replace: true,
       })
 

@@ -6,6 +6,7 @@ import type {
   ProfileResponse,
   ProfileUpdateRequest,
 } from "@/types"
+import { authStorage } from "@/shared/lib/storage"
 
 /* =========================
    AUTH API
@@ -31,9 +32,7 @@ export const authApi = baseApi.injectEndpoints({
         { queryFulfilled }
       ) {
         try {
-          const { data } = await queryFulfilled
-
-          localStorage.setItem("token", data.token)
+          await queryFulfilled
 
         } catch (error) {
           console.error("Login error:", error)
@@ -77,7 +76,7 @@ export const authApi = baseApi.injectEndpoints({
 
     logout: builder.mutation<void, void>({
       queryFn: async () => {
-        localStorage.removeItem("token")
+        authStorage.clearSession()
         return { data: undefined }
       },
 

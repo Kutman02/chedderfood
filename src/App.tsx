@@ -1,6 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import type { ReactNode } from "react"
-import { useEffect } from "react"
 
 import { useAppSelector } from "./app/hooks"
 import { useAuthInit } from "@/hooks/useAuthInit"
@@ -20,6 +19,8 @@ import Login from "./pages/Login/Login"
 import Home from "./pages/Home/Home"
 import AboutUs from "./pages/AboutUs/AboutUs"
 import Contacts from "./pages/Contacts/Contacts"
+import CartPage from "./pages/Cart/CartPage"
+import MyCheks from "./pages/MyCheks/MyCheks"
 
 import AuthTest from "./components/AuthTest/AuthTest"
 import WooCommerceTest from "./components/WooCommerceTest/WooCommerceTest"
@@ -38,17 +39,6 @@ const PrivateRoute = ({ children }: { children: ReactNode }) => {
   }
 
   return children
-}
-
-// редирект на главную с query параметром
-const ModalRedirect = ({ modal }: { modal: string }) => {
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    navigate(`/?modal=${modal}`, { replace: true })
-  }, [navigate, modal])
-
-  return null
 }
 
 function App() {
@@ -100,9 +90,9 @@ function App() {
           />
 
           {/* Модалки */}
-          <Route path="/cart" element={<ModalRedirect modal="cart" />} />
-          <Route path="/mycheks" element={<ModalRedirect modal="mycheks" />} />
-          <Route path="/myreceipts" element={<ModalRedirect modal="myreceipts" />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/mycheks" element={<MyCheks />} />
+          <Route path="/myreceipts" element={<Navigate to="/mycheks" replace />} />
 
           {/* Тесты */}
           <Route path="/auth-test" element={<AuthTest />} />

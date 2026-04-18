@@ -30,12 +30,14 @@ export interface Order {
   status: OrderStatus
   reason?: string | null
   status_history?: StatusChange[]
+  public_key?: string | null
   total: string
   currency?: string
   date_created: string
   date_created_unix?: number
   date_created_human?: string
   changed_at?: string | null
+  changed_by_user_id?: number | null
 
   customer_name: string
   phone: string
@@ -127,6 +129,7 @@ export interface CreateOrderResponse {
   status: OrderStatus
   total: number
   items_count?: number
+  public_key?: string
   order?: Order
   message?: string
 }

@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { CartMap, Product } from "@/types";
 import { STORAGE_KEYS } from "@/shared/constants/storage" 
+import { storage } from "@/shared/lib/storage"
 
 type CartState = {
   items: CartMap;
@@ -9,12 +10,7 @@ type CartState = {
 const CART_KEY = STORAGE_KEYS.CART;
 
 const loadCart = (): CartMap => {
-  try {
-    const raw = localStorage.getItem(CART_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
+  return storage.getJSON<CartMap>(CART_KEY, {})
 };
 
 const initialState: CartState = {

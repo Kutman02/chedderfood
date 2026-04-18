@@ -89,7 +89,14 @@ export const ReceiptItem = ({
 
   const status = getOrderStatus(statusValue)
 
-  const canDelete = ["cancelled", "completed"].includes(statusValue)
+  const canDelete = [
+    "completed",
+    "cancelled",
+    "canceled",
+    "failed",
+    "refunded",
+    "trash",
+  ].includes(statusValue)
 
   const normalizedItems = Array.isArray(receipt.items)
     ? receipt.items
@@ -214,7 +221,7 @@ export const ReceiptItem = ({
 
       <div className="flex gap-2 pt-2">
 
-        {canDelete && (
+        {canDelete ? (
           <button
             onClick={() => onDelete(receipt.id, statusValue)}
             className="
@@ -230,6 +237,24 @@ export const ReceiptItem = ({
             "
           >
             Удалить
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="
+              w-full
+              border border-slate-200
+              text-sm
+              py-2
+              rounded-lg
+              text-slate-400
+              bg-slate-50
+              cursor-not-allowed
+            "
+            title="Удаление доступно только для завершенных или отмененных заказов"
+          >
+            Удаление недоступно
           </button>
         )}
 

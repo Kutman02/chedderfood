@@ -13,8 +13,6 @@ export const Cart = () => {
     setSearchParams,
   });
 
-  const modal = searchParams.get("modal");
-
   /* =========================
      RECEIPT
   ========================= */
@@ -34,22 +32,18 @@ export const Cart = () => {
      CHECKOUT FLOW
   ========================= */
 
-  if (modal === "cart") {
-    return (
-      <Checkout
-        onClose={cart.handleCloseCart}
-        cartData={{
-          items: cart.cartItems,
-          totalAmount: cart.totalAmount,
-          totalItems: cart.totalItems,
-          onAdd: cart.handleAdd,
-          onRemove: cart.handleRemove,
-          onClear: cart.handleClearCart,
-          siteUrl: cart.siteUrl,
-        }}
-      />
-    );
-  }
-
-  return null;
+  return (
+    <Checkout
+      onClose={cart.handleCloseCart}
+      cartData={{
+        items: cart.cartItems,
+        totalAmount: cart.totalAmount,
+        totalItems: cart.totalItems,
+        onAdd: cart.handleAdd,
+        onRemove: cart.handleRemove,
+        onClear: cart.handleClearCart,
+        siteUrl: cart.siteUrl,
+      }}
+    />
+  );
 };

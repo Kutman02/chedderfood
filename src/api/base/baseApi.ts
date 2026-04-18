@@ -1,9 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
 import { API_BASE_URL } from "@/app/services/apiConfig"
+import { authStorage } from "@/shared/lib/storage"
 
 const PUBLIC_ENDPOINTS = new Set([
   "login",
+  "getPublicOrderStatus",
   "getPublicProducts",
   "getPublicCategories",
   "getRestaurantHoursStatus",
@@ -25,7 +27,7 @@ export const baseApi = createApi({
         return headers
       }
 
-      const token = localStorage.getItem("token")
+      const token = authStorage.getToken()
 
       if (token) {
         headers.set("Authorization", `Bearer ${token}`)

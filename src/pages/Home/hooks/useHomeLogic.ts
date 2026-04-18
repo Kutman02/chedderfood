@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 
 import type { Product, Category } from "@/types"
 
@@ -16,19 +16,16 @@ import {
 } from "@/app/slices/cartSlice"
 
 import {
-  closeReceipts,
-  openCart,
-  openReceipts,
   closeCart,
+  closeReceipts,
 } from "@/app/slices/uiSlice"
 
 export const useHomeLogic = () => {
 
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const cart = useAppSelector((s) => s.cart.items)
-  const isCartOpen = useAppSelector((s) => s.ui.isCartOpen)
-  const isReceiptsOpen = useAppSelector((s) => s.ui.isReceiptsOpen)
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -148,12 +145,34 @@ export const useHomeLogic = () => {
     const productId = searchParams.get("productId")
 
     if (modal === "cart") {
-      dispatch(openCart())
+      const step = searchParams.get("step")
+      const params = new URLSearchParams()
+
+      if (step) {
+        params.set("step", step)
+      }
+
+      navigate(`/cart${params.toString() ? `?${params.toString()}` : ""}`, {
+        replace: true,
+      })
+      dispatch(closeCart())
       dispatch(closeReceipts())
+      return
 
     } else if (modal === "receipts" || modal === "mycheks") {
+      const orderId = searchParams.get("order")
+      const params = new URLSearchParams()
+
+      if (orderId) {
+        params.set("order", orderId)
+      }
+
+      navigate(`/mycheks${params.toString() ? `?${params.toString()}` : ""}`, {
+        replace: true,
+      })
       dispatch(closeCart())
-      dispatch(openReceipts())
+      dispatch(closeReceipts())
+      return
 
     } else if (modal === "product" && productId && normalizedProducts.length) {
 
@@ -173,7 +192,7 @@ export const useHomeLogic = () => {
       setSelectedProduct(null)
     }
 
-  }, [searchParams, dispatch, normalizedProducts])
+  }, [searchParams, dispatch, normalizedProducts, navigate])
 
   /* =========================
      MODAL
@@ -205,16 +224,6 @@ export const useHomeLogic = () => {
     setSearchParams(params)
   }
 
-  const closeReceiptsHandler = () => {
-
-    dispatch(closeReceipts())
-
-    const params = new URLSearchParams(searchParams)
-    params.delete("modal")
-
-    setSearchParams(params)
-  }
-
   return {
     categories: validCategories,
 
@@ -232,15 +241,11 @@ export const useHomeLogic = () => {
 
     cartCount,
     cartTotalAmount,
-    isCartOpen,
-    isReceiptsOpen,
 
     selectedProduct,
     isModalOpen,
 
     openProductModal,
     closeProductModal,
-
-    closeReceipts: closeReceiptsHandler,
   }
 }

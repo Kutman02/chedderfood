@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react"
 import { useGetPublicCategoriesQuery } from "@/api"
-import { useSearchParams } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import type { Category } from "@/types"
 
 import { useAppSelector } from "@/app/hooks"
@@ -10,7 +10,8 @@ import { HeaderTop } from "./components/HeaderTop"
 import { CategorySkeleton } from "../Skeleton/components"
 
 export const PublicHeader = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const location = useLocation()
   const headerRef = useRef<HTMLElement | null>(null)
 
   const receipts = useAppSelector((s) => s.receipts.receipts)
@@ -50,27 +51,21 @@ export const PublicHeader = () => {
   =============================== */
 
   const handleOpenReceipts = () => {
-    const newParams = new URLSearchParams(searchParams)
-
-    if (searchParams.get("modal") === "mycheks") {
-      newParams.delete("modal")
-    } else {
-      newParams.set("modal", "mycheks")
+    if (location.pathname === "/mycheks") {
+      navigate("/")
+      return
     }
 
-    setSearchParams(newParams)
+    navigate("/mycheks")
   }
 
   const handleCartToggle = () => {
-    const newParams = new URLSearchParams(searchParams)
-
-    if (searchParams.get("modal") === "cart") {
-      newParams.delete("modal")
-    } else {
-      newParams.set("modal", "cart")
+    if (location.pathname === "/cart") {
+      navigate("/")
+      return
     }
 
-    setSearchParams(newParams)
+    navigate("/cart")
   }
 
   /* ===============================

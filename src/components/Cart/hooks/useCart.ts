@@ -1,4 +1,5 @@
 import { useState, useLayoutEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { addToCart, clearCart, removeFromCart } from "@/app/slices/cartSlice";
@@ -15,6 +16,7 @@ interface UseCartProps {
 
 export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
   const SITE_URL = import.meta.env.VITE_SITE_URL;
+  const navigate = useNavigate();
 
   const dispatch = useAppDispatch();
   const cart = useAppSelector((s) => s.cart.items);
@@ -30,7 +32,7 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
      URL STATE
   ========================= */
 
-  const step = searchParams.get("step"); // cart | checkout
+  const step = searchParams.get("step") ?? "cart"; // cart | checkout
 
   /* =========================
      SCROLL LOCK
@@ -79,12 +81,7 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
 
   const handleCloseCart = () => {
     dispatch(closeCart());
-
-    const params = new URLSearchParams(searchParams);
-    params.delete("modal");
-    params.delete("step");
-
-    setSearchParams(params);
+    navigate("/", { replace: true });
   };
 
   /* =========================
@@ -93,7 +90,6 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
 
   const handleCheckout = () => {
     const params = new URLSearchParams(searchParams);
-    params.set("modal", "cart");
     params.set("step", "checkout");
 
     setSearchParams(params);
@@ -101,7 +97,6 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
 
   const handleBackToCart = () => {
     const params = new URLSearchParams(searchParams);
-    params.set("modal", "cart");
     params.set("step", "cart");
 
     setSearchParams(params);
@@ -120,24 +115,14 @@ export const useCart = ({ searchParams, setSearchParams }: UseCartProps) => {
 
   const handleReceiptClose = () => {
     setShowReceipt(false);
-
-    const params = new URLSearchParams(searchParams);
-    params.set("modal", "mycheks");
-    params.delete("step");
-
-    setSearchParams(params);
+    navigate("/mycheks", { replace: true });
   };
 
   const handleReceiptNewOrder = () => {
     setShowReceipt(false);
 
     dispatch(closeCart());
-
-    const params = new URLSearchParams(searchParams);
-    params.delete("modal");
-    params.delete("step");
-
-    setSearchParams(params);
+    navigate("/", { replace: true });
   };
 
   return {

@@ -8,7 +8,9 @@ import {
   FaChartBar
 } from "react-icons/fa"
 import { createPortal } from "react-dom"
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
+import { useAppDispatch } from "@/app/hooks"
+import { logout } from "@/app/slices/authSlice"
 
 interface Props {
   userName: string | null
@@ -26,11 +28,13 @@ const menuItems = [
 ]
 
 export const SettingsDropdown = ({ userName, onClose }: Props) => {
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const handleLogout = () => {
-    localStorage.clear()
+    dispatch(logout())
     onClose()
-    window.location.reload()
+    navigate("/login", { replace: true })
   }
 
   const firstLetter = userName?.charAt(0).toUpperCase()

@@ -1,8 +1,6 @@
 import { PublicHeader } from "../../components/PublicHeader/PublicHeader"
 import { PublicFooter } from "../../components/PublicFooter/PublicFooter"
-import { Cart } from "../../components/Cart/Cart"
 import { ProductModalSwipe } from "../../components/ProductModalSwipe/ProductModalSwipe"
-import { MyReceipts } from "../../components/MyReceipts/MyReceipts"
 
 import { CategorySection } from "./components/CategorySection"
 import { FloatingCartButton } from "./components/FloatingCartButton"
@@ -12,7 +10,6 @@ import { useHomeLogic } from "./hooks/useHomeLogic"
 const Home = () => {
   const {
     categories,
-    products,
     productsByCategory,
     productsLoading,
     productsError,
@@ -20,17 +17,13 @@ const Home = () => {
     categoriesError,
 
     cartCount,
-  cartTotalAmount,
-    isCartOpen,
-    isReceiptsOpen,
+    cartTotalAmount,
 
     selectedProduct,
     isModalOpen,
 
     openProductModal,
     closeProductModal,
-
-    closeReceipts,
   } = useHomeLogic()
 
   /* =========================
@@ -86,12 +79,6 @@ const Home = () => {
         isOpen={isModalOpen}
         onClose={closeProductModal}
       />
-
-      {isReceiptsOpen && (
-        <MyReceipts products={products} onClose={closeReceipts} />
-      )}
-
-      {isCartOpen && <Cart />}
     </div>
   )
 }

@@ -1,5 +1,14 @@
 import type { Middleware } from "@reduxjs/toolkit"
 import { STORAGE_KEYS } from "@/shared/constants/storage"
+import { storage } from "@/shared/lib/storage"
+
+const setLocalStorageSafely = (key: string, value: unknown) => {
+  storage.setJSON(key, value)
+}
+
+const removeLocalStorageSafely = (key: string) => {
+  storage.remove(key)
+}
 
 export const persistenceMiddleware: Middleware =
   (store) => (next) => (action) => {
@@ -7,32 +16,27 @@ export const persistenceMiddleware: Middleware =
 
     const state = store.getState()
 
-    try {
-      // 🛒 cart
-      localStorage.setItem(
-        STORAGE_KEYS.CART,
-        JSON.stringify(state.cart.items)
+    // 📄 receipts (order tracking)
+    setLocalStorageSafely(
+      STORAGE_KEYS.RECEIPTS,
+      state.receipts.receipts
+    )
+
+    // 👤 customer info used for fast checkout restore
+    if (state.receipts.customerData) {
+      setLocalStorageSafely(
+        STORAGE_KEYS.CUSTOMER_DATA,
+        state.receipts.customerData
       )
-
-      // 📄 receipts (order tracking)
-      localStorage.setItem(
-        STORAGE_KEYS.RECEIPTS,
-        JSON.stringify(state.receipts.receipts)
-      )
-
-      // 👤 customer info used for fast checkout restore
-      if (state.receipts.customerData) {
-        localStorage.setItem(
-          STORAGE_KEYS.CUSTOMER_DATA,
-          JSON.stringify(state.receipts.customerData)
-        )
-      } else {
-        localStorage.removeItem(STORAGE_KEYS.CUSTOMER_DATA)
-      }
-
-    } catch (e) {
-      console.error("Persistence error:", e)
+    } else {
+      removeLocalStorageSafely(STORAGE_KEYS.CUSTOMER_DATA)
     }
+
+    // 🛒 cart
+    setLocalStorageSafely(
+      STORAGE_KEYS.CART,
+      state.cart.items
+    )
 
     return result
   }

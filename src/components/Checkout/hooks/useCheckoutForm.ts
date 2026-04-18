@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import type { CheckoutFormData } from "@/types"
 import { STORAGE_KEYS } from "@/shared/constants/storage"
+import { storage } from "@/shared/lib/storage"
 
 const CHECKOUT_FORM_KEY = STORAGE_KEYS.CHECKOUT_FORM
 
@@ -17,7 +18,7 @@ export const useCheckoutForm = () => {
     useState<CheckoutFormData>(() => {
 
       try {
-        const saved = localStorage.getItem(CHECKOUT_FORM_KEY)
+        const saved = storage.getString(CHECKOUT_FORM_KEY)
 
         if (saved) {
           const parsed = JSON.parse(saved)
@@ -132,22 +133,15 @@ export const useCheckoutForm = () => {
   =============================== */
 
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        STORAGE_KEYS.CHECKOUT_FORM,
-        JSON.stringify({
-          first_name: formData.first_name,
-          address: formData.address,
-          phone: formData.phone,
-          customer_note: formData.customer_note,
-          apartment_office: formData.apartment_office,
-          floor: formData.floor,
-          needs_cutlery_and_napkins: formData.needs_cutlery_and_napkins,
-        })
-      )
-    } catch (e) {
-      console.error("Ошибка сохранения localStorage", e)
-    }
+    storage.setJSON(STORAGE_KEYS.CHECKOUT_FORM, {
+      first_name: formData.first_name,
+      address: formData.address,
+      phone: formData.phone,
+      customer_note: formData.customer_note,
+      apartment_office: formData.apartment_office,
+      floor: formData.floor,
+      needs_cutlery_and_napkins: formData.needs_cutlery_and_napkins,
+    })
   }, [formData])
 
   /* ===============================

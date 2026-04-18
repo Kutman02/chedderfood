@@ -1,6 +1,4 @@
-import { useSearchParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { openCart, closeCart } from "../../../app/slices/uiSlice";
+import { useLocation, useNavigate } from "react-router-dom";
 import { HiMiniShoppingCart } from "react-icons/hi2";
 
 interface FloatingCartButtonProps {
@@ -12,10 +10,8 @@ export const FloatingCartButton = ({
   cartCount,
   totalAmount,
 }: FloatingCartButtonProps) => {
-  const dispatch = useAppDispatch();
-  const isCartOpen = useAppSelector((s) => s.ui.isCartOpen);
-
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // защита от NaN
   const safeCount = Number(cartCount) || 0;
@@ -26,17 +22,12 @@ export const FloatingCartButton = ({
   if (safeCount === 0) return null;
 
   const toggleCart = () => {
-    const params = new URLSearchParams(searchParams);
-
-    if (isCartOpen) {
-      dispatch(closeCart());
-      params.delete("modal");
-    } else {
-      dispatch(openCart());
-      params.set("modal", "cart");
+    if (location.pathname === "/cart") {
+      navigate("/");
+      return;
     }
 
-    setSearchParams(params);
+    navigate("/cart");
   };
 
   return (
