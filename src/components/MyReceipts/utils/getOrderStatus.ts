@@ -1,7 +1,7 @@
 export const getOrderStatus = (status: string) => {
   switch (status) {
     case "on-hold":
-      return { label: "Ожидает оплаты", color: "text-yellow-600" }
+      return { label: "Ожидает подтверждения ресторана", color: "text-yellow-600" }
 
     case "processing":
       return { label: "Готовится", color: "text-blue-600" }

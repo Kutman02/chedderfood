@@ -4,6 +4,7 @@ import { useToastStore } from "@/stores/toastStore"
 
 import { addReceipt, setCustomerData } from "@/app/slices/receiptsSlice"
 import { clearCart } from "@/app/slices/cartSlice"
+import { STORAGE_KEYS } from "@/shared/constants/storage"
 
 import { useCreateOrderMutation } from "@/api"
 
@@ -25,6 +26,48 @@ export const useCreateOrder = () => {
   const addToast = useToastStore((state) => state.addToast)
 
   const [createOrder, { isLoading }] = useCreateOrderMutation()
+
+  const normalizeLineItems = (
+    items: Array<{ product_id: number; quantity: number }>
+  ): CreateOrderRequest["line_items"] => {
+    const map = new Map<number, number>()
+
+    for (const item of items) {
+      const productId = Number(item.product_id)
+      const quantity = Number(item.quantity)
+
+      if (!Number.isInteger(productId) || productId <= 0) continue
+      if (!Number.isInteger(quantity) || quantity <= 0) continue
+
+      map.set(productId, (map.get(productId) || 0) + quantity)
+    }
+
+    return Array.from(map.entries()).map(([product_id, quantity]) => ({
+      product_id,
+      quantity,
+    }))
+  }
+
+  const extractApiErrorMessage = (error: unknown): string => {
+    if (error && typeof error === "object" && "data" in error) {
+      const data = (error as { data?: unknown }).data
+
+      if (typeof data === "string") return data
+
+      if (data && typeof data === "object" && "message" in data) {
+        const message = (data as { message?: unknown }).message
+        if (typeof message === "string" && message.trim()) {
+          return message
+        }
+      }
+    }
+
+    if (error instanceof Error && error.message.trim()) {
+      return error.message
+    }
+
+    return "Ошибка при создании заказа. Пожалуйста, попробуйте позже."
+  }
 
   const create = async ({
     formData,
@@ -62,6 +105,15 @@ export const useCreateOrder = () => {
       value: formData.needs_cutlery_and_napkins ? "1" : "0",
     })
 
+    const normalizedLineItems = normalizeLineItems(cartItems)
+
+    if (normalizedLineItems.length === 0) {
+      const invalidItemsMessage =
+        "В корзине нет валидных товаров для заказа. Пожалуйста, обновите корзину."
+      addToast(invalidItemsMessage, "error", 5000)
+      throw { data: { message: invalidItemsMessage } }
+    }
+
     const orderData: CreateOrderRequest = {
       status: "on-hold",
 
@@ -78,7 +130,7 @@ export const useCreateOrder = () => {
       customer_note: formData.customer_note,
       needs_cutlery_and_napkins: formData.needs_cutlery_and_napkins,
 
-      line_items: cartItems,
+      line_items: normalizedLineItems,
 
       meta_data: metaData,
     }
@@ -113,6 +165,12 @@ export const useCreateOrder = () => {
 
       dispatch(addReceipt(order))
       dispatch(clearCart())
+
+      try {
+        localStorage.removeItem(STORAGE_KEYS.CART)
+      } catch {
+        // noop: cart is already cleared in redux, storage cleanup is best-effort
+      }
 
       dispatch(
         setCustomerData({
@@ -153,9 +211,11 @@ export const useCreateOrder = () => {
          ERROR NOTIFICATION
       ========================= */
       
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "Ошибка при создании заказа. Пожалуйста, попробуйте позже."
+      const errorMessage = extractApiErrorMessage(error)
+
+      if (errorMessage.toLowerCase().includes("no valid items found")) {
+        dispatch(clearCart())
+      }
       
       addToast(errorMessage, "error", 5000)
       throw error

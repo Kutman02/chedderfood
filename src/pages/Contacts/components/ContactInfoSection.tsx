@@ -1,17 +1,24 @@
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from "react-icons/fa";
+import type { ContactsInfoSection, ContactsMessengers } from "@/types";
 import { MessengerSection } from "./MessengerSection";
 
-export const ContactInfoSection = () => {
+interface ContactInfoSectionProps {
+  info: ContactsInfoSection;
+  messengers: ContactsMessengers;
+}
+
+export const ContactInfoSection = ({ info, messengers }: ContactInfoSectionProps) => {
+  const phoneHref = `tel:${info.phone.number.replace(/[^\d+]/g, "")}`;
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div>
         <h2 className="text-3xl font-black text-slate-800 mb-8">
-          Свяжитесь с нами
+          {info.section_title}
         </h2>
 
         <p className="text-lg text-slate-600 mb-8">
-          Есть вопросы или предложения? Мы всегда рады общению с нашими
-          клиентами. Выберите удобный для вас способ связи.
+          {info.section_description}
         </p>
       </div>
 
@@ -29,14 +36,14 @@ export const ContactInfoSection = () => {
               </h3>
 
               <a
-                href="tel:+996770511111"
+                href={phoneHref}
                 className="text-orange-600 hover:text-orange-700 font-medium text-lg"
               >
-                +996 770 51 11 11
+                {info.phone.number}
               </a>
 
               <p className="text-sm text-slate-600 mt-1">
-                Звонки принимаются ежедневно
+                {info.phone.note}
               </p>
             </div>
           </div>
@@ -55,14 +62,14 @@ export const ContactInfoSection = () => {
               </h3>
 
               <a
-                href="mailto:kutmank9@gmail.com"
+                href={`mailto:${info.email.address}`}
                 className="text-orange-600 hover:text-orange-700 font-medium break-all"
               >
-                kutmank9@gmail.com
+                {info.email.address}
               </a>
 
               <p className="text-sm text-slate-600 mt-1">
-                Ответим в течение 24 часов
+                {info.email.note}
               </p>
             </div>
           </div>
@@ -81,9 +88,9 @@ export const ContactInfoSection = () => {
               </h3>
 
               <p className="text-slate-700 font-medium">
-                Курманжан датка 12
+                {info.address.street}
                 <br />
-                Ош, Кыргызстан
+                {info.address.city}
               </p>
             </div>
           </div>
@@ -102,15 +109,15 @@ export const ContactInfoSection = () => {
               </h3>
 
               <div className="space-y-1 text-slate-700">
-                <p className="font-medium">Понедельник - Воскресенье</p>
-                <p className="text-slate-600">09:00 - 22:00</p>
+                <p className="font-medium">{info.working_hours.days}</p>
+                <p className="text-slate-600">{info.working_hours.hours}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <MessengerSection />
+      <MessengerSection messengers={messengers} />
     </div>
   );
 };

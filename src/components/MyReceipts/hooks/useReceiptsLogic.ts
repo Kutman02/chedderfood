@@ -12,8 +12,8 @@ export const useReceiptsLogic = () => {
     (s) => s.receipts.receipts
   )
 
-  const [selectedReceipt, setSelectedReceipt] =
-    useState<ReceiptData | null>(null)
+  const [expandedReceiptId, setExpandedReceiptId] =
+    useState<number | null>(null)
 
   const [deleteConfirm, setDeleteConfirm] =
     useState<{ isOpen: boolean; receiptId: number | null }>({
@@ -22,8 +22,9 @@ export const useReceiptsLogic = () => {
     })
 
   const handleDeleteReceipt = (id: number, status: string) => {
+    const normalizedStatus = String(status || "").trim().toLowerCase()
 
-    if (status !== "completed" && status !== "cancelled") return
+    if (normalizedStatus !== "completed" && normalizedStatus !== "cancelled") return
 
     setDeleteConfirm({
       isOpen: true,
@@ -51,11 +52,17 @@ export const useReceiptsLogic = () => {
     })
   }
 
+  const toggleReceiptDetails = (receipt: ReceiptData) => {
+    setExpandedReceiptId((prevId) =>
+      prevId === receipt.id ? null : receipt.id
+    )
+  }
+
   return {
     receipts,
-    selectedReceipt,
+    expandedReceiptId,
     deleteConfirm,
-    setSelectedReceipt,
+    toggleReceiptDetails,
     confirmDeleteReceipt,
     cancelDeleteReceipt,
     handleDeleteReceipt

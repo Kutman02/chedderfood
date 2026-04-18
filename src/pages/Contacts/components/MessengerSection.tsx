@@ -1,6 +1,14 @@
 import { FaWhatsapp, FaTelegram } from "react-icons/fa";
+import type { ContactsMessengers } from "@/types";
 
-export const MessengerSection = () => {
+interface MessengerSectionProps {
+  messengers: ContactsMessengers;
+}
+
+export const MessengerSection = ({ messengers }: MessengerSectionProps) => {
+  const whatsappNumber = messengers.whatsapp.replace(/\D/g, "");
+  const telegramUsername = messengers.telegram.replace(/^@/, "");
+
   return (
     <div className="bg-linear-to-br from-orange-50 to-slate-50 rounded-2xl p-6">
       <h3 className="text-xl font-bold text-slate-800 mb-4">
@@ -9,7 +17,7 @@ export const MessengerSection = () => {
 
       <div className="flex gap-4 flex-wrap">
         <a
-          href="https://wa.me/996703601025"
+          href={`https://wa.me/${whatsappNumber}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 bg-green-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg"
@@ -19,7 +27,7 @@ export const MessengerSection = () => {
         </a>
 
         <a
-          href="https://t.me/kutmenu"
+          href={`https://t.me/${telegramUsername}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 bg-blue-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg"

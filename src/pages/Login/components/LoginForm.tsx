@@ -20,7 +20,7 @@ export const LoginForm = () => {
         </h1>
 
         <p className="text-sm text-slate-500 font-medium mt-1">
-          Панель оператора
+          Панель Администратора ресторана
         </p>
       </div>
 

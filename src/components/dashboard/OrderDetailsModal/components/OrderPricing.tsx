@@ -11,18 +11,27 @@ export const OrderPricing = ({ order }: Props) => {
      CALCULATIONS
   =============================== */
 
-  const subtotal = Array.isArray(order.items)
-    ? order.items.reduce(
-        (sum, item) =>
-          sum + Number(item.price) * Number(item.quantity),
-        0
-      )
-    : 0
+  const normalizedItems = Array.isArray(order.items)
+    ? order.items
+    : Array.isArray(order.line_items)
+      ? order.line_items
+      : []
+
+  const subtotal = normalizedItems.reduce(
+    (sum, item) =>
+      sum + Number(item.total || Number(item.price) * Number(item.quantity)),
+    0
+  )
 
   const total = Number(order.total)
 
-  // 🔥 fallback (пока нет shipping_total с backend)
-  const shipping = Math.max(total - subtotal, 0)
+  // Используем shipping_total, если backend его отдает; иначе считаем как разницу.
+  const shippingRaw = (order as Order & { shipping_total?: string | number }).shipping_total
+  const shippingFromApi = Number(shippingRaw)
+
+  const shipping = Number.isFinite(shippingFromApi)
+    ? Math.max(shippingFromApi, 0)
+    : Math.max(total - subtotal, 0)
 
   // 🔥 если добавишь в normalize → order.currency
   const currency =

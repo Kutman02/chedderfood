@@ -82,6 +82,13 @@ export const receiptsSlice = createSlice({
       state.receipts = [receipt, ...state.receipts.filter(r => r.id !== receipt.id)].slice(0, 50);
     },
     deleteReceipt: (state, action: PayloadAction<number>) => {
+      const receiptToDelete = state.receipts.find((r) => r.id === action.payload)
+      const status = String(receiptToDelete?.status || "").trim().toLowerCase()
+
+      if (status !== "completed" && status !== "cancelled") {
+        return
+      }
+
       state.receipts = state.receipts.filter(r => r.id !== action.payload);
     },
     clearReceipts: (state) => {

@@ -85,3 +85,15 @@ export {
   useLazyGetSiteFooterQuery,
   useUpdateSiteFooterMutation,
 } from "./public/footer.api"
+
+export {
+  useGetAboutPageQuery,
+  useLazyGetAboutPageQuery,
+  useUpdateAboutPageMutation,
+} from "./public/about.api"
+
+export {
+  useGetContactsPageQuery,
+  useLazyGetContactsPageQuery,
+  useUpdateContactsPageMutation,
+} from "./public/contacts.api"

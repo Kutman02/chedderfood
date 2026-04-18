@@ -1,6 +1,5 @@
 import { useReceiptsLogic } from "./hooks"
 import { ConfirmDialog } from "../ConfirmDialog/ConfirmDialog"
-import { OrderReceipt } from "../OrderReceipt/OrderReceipt"
 import type { Product } from "@/types"
 import { ReceiptsHeader, ReceiptsList, EmptyReceipts } from "./components"
 
@@ -13,24 +12,13 @@ export const MyReceipts = ({ products, onClose }: MyReceiptsProps) => {
 
   const {
     receipts,
-    selectedReceipt,
+    expandedReceiptId,
     deleteConfirm,
-    setSelectedReceipt,
+    toggleReceiptDetails,
     confirmDeleteReceipt,
     cancelDeleteReceipt,
     handleDeleteReceipt
   } = useReceiptsLogic()
-
-  if (selectedReceipt) {
-    return (
-      <OrderReceipt
-        orderData={selectedReceipt}
-        products={products}
-        onClose={() => setSelectedReceipt(null)}
-        onNewOrder={() => setSelectedReceipt(null)}
-      />
-    )
-  }
 
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col h-screen">
@@ -44,8 +32,10 @@ export const MyReceipts = ({ products, onClose }: MyReceiptsProps) => {
         ) : (
           <ReceiptsList
             receipts={receipts}
+            products={products}
+            expandedReceiptId={expandedReceiptId}
             onDelete={handleDeleteReceipt}
-            onView={setSelectedReceipt}
+            onView={toggleReceiptDetails}
           />
         )}
 

@@ -1,14 +1,19 @@
 import { ReceiptItem } from "./ReceiptItem"
 import type { ReceiptData } from "@/types"
+import type { Product } from "@/types"
 
 interface ReceiptsListProps {
   receipts: ReceiptData[]
+  products: Product[]
+  expandedReceiptId: number | null
   onDelete: (id: number, status: string) => void
   onView: (receipt: ReceiptData) => void
 }
 
 export const ReceiptsList = ({
   receipts,
+  products,
+  expandedReceiptId,
   onDelete,
   onView
 }: ReceiptsListProps) => {
@@ -53,12 +58,18 @@ export const ReceiptsList = ({
         gap-5
       ">
         {receipts.map((receipt) => (
-          <ReceiptItem
+          <div
             key={receipt.id}
-            receipt={receipt}
-            onDelete={onDelete}
-            onView={onView}
-          />
+            className={expandedReceiptId === receipt.id ? "sm:col-span-2 lg:col-span-3 xl:col-span-4" : ""}
+          >
+            <ReceiptItem
+              receipt={receipt}
+              products={products}
+              isDetailsOpen={expandedReceiptId === receipt.id}
+              onDelete={onDelete}
+              onView={onView}
+            />
+          </div>
         ))}
       </div>
 
