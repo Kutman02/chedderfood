@@ -5,6 +5,7 @@ import { storage } from "@/shared/lib/storage"
 
 type ReceiptsState = {
   receipts: ReceiptData[];
+  deletedReceiptIds: number[];
   customerData: CustomerData | null;
 };
 
@@ -19,6 +20,7 @@ type ReceiptServerSyncPayload = {
 }
 
 const RECEIPTS_KEY = STORAGE_KEYS.RECEIPTS
+const RECEIPTS_DELETED_IDS_KEY = STORAGE_KEYS.RECEIPTS_DELETED_IDS
 const CUSTOMER_DATA_KEY = STORAGE_KEYS.CUSTOMER_DATA
 const CHECKOUT_FORM_KEY = STORAGE_KEYS.CHECKOUT_FORM
 const LEGACY_RECEIPTS_KEYS = ["receipts", "orders_receipts"]
@@ -31,6 +33,42 @@ const TERMINAL_RECEIPT_STATUSES = new Set([
   "refunded",
   "trash",
 ])
+
+const cleanupLegacyReceiptKeys = () => {
+  for (const key of LEGACY_RECEIPTS_KEYS) {
+    storage.remove(key)
+  }
+}
+
+const dedupeReceipts = (receipts: ReceiptData[]): ReceiptData[] => {
+  const map = new Map<number, ReceiptData>()
+
+  for (const receipt of receipts) {
+    map.set(receipt.id, receipt)
+  }
+
+  return Array.from(map.values())
+}
+
+const loadDeletedReceiptIds = (): number[] => {
+  try {
+    const raw = storage.getString(RECEIPTS_DELETED_IDS_KEY)
+    if (!raw) return []
+
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) return []
+
+    return Array.from(
+      new Set(
+        parsed
+          .map((value) => parseOrderId(value))
+          .filter((value) => Number.isFinite(value) && value > 0)
+      )
+    )
+  } catch {
+    return []
+  }
+}
 
 const normalizeReceiptStatus = (value: unknown): string => {
   const normalized = String(value || "on-hold").trim().toLowerCase()
@@ -97,7 +135,9 @@ const normalizeReceipt = (value: unknown): ReceiptData | null => {
   } as ReceiptData
 }
 
-const loadReceipts = (): ReceiptData[] => {
+const loadReceipts = (deletedReceiptIds: number[]): ReceiptData[] => {
+  const deletedSet = new Set(deletedReceiptIds)
+
   const extractSource = (parsed: unknown): unknown[] => {
     if (Array.isArray(parsed)) return parsed
 
@@ -129,7 +169,10 @@ const loadReceipts = (): ReceiptData[] => {
       const source = extractSource(parsed)
       return source
         .map(normalizeReceipt)
-        .filter((receipt): receipt is ReceiptData => receipt !== null)
+        .filter(
+          (receipt): receipt is ReceiptData =>
+            receipt !== null && !deletedSet.has(receipt.id)
+        )
     } catch {
       return []
     }
@@ -137,19 +180,19 @@ const loadReceipts = (): ReceiptData[] => {
 
   const currentReceipts = readAndNormalizeReceipts(RECEIPTS_KEY)
   if (currentReceipts !== null) {
-    return currentReceipts
+    cleanupLegacyReceiptKeys()
+    return dedupeReceipts(currentReceipts)
   }
 
-  for (const key of LEGACY_RECEIPTS_KEYS) {
-    const normalizedReceipts = readAndNormalizeReceipts(key)
-    if (!normalizedReceipts || !normalizedReceipts.length) {
-      continue
-    }
+  const migratedReceipts = dedupeReceipts(
+    LEGACY_RECEIPTS_KEYS.flatMap((key) => readAndNormalizeReceipts(key) ?? [])
+  )
 
-    storage.setJSON(RECEIPTS_KEY, normalizedReceipts)
-    storage.remove(key)
+  cleanupLegacyReceiptKeys()
 
-    return normalizedReceipts
+  if (migratedReceipts.length) {
+    storage.setJSON(RECEIPTS_KEY, migratedReceipts)
+    return migratedReceipts
   }
 
   return []
@@ -201,8 +244,11 @@ const loadCustomerData = (): CustomerData | null => {
   }
 }
 
+const initialDeletedReceiptIds = loadDeletedReceiptIds()
+
 const initialState: ReceiptsState = {
-  receipts: loadReceipts(),
+  receipts: loadReceipts(initialDeletedReceiptIds),
+  deletedReceiptIds: initialDeletedReceiptIds,
   customerData: loadCustomerData(),
 };
 
@@ -215,6 +261,10 @@ export const receiptsSlice = createSlice({
       const normalized = normalizeReceipt(receipt)
 
       if (!normalized) {
+        return
+      }
+
+      if (state.deletedReceiptIds.includes(normalized.id)) {
         return
       }
 
@@ -252,17 +302,42 @@ export const receiptsSlice = createSlice({
       }
     },
     deleteReceipt: (state, action: PayloadAction<number>) => {
-      const receiptToDelete = state.receipts.find((r) => r.id === action.payload)
-      const status = normalizeReceiptStatus(receiptToDelete?.status)
-
-      if (!TERMINAL_RECEIPT_STATUSES.has(status)) {
+      const normalizedId = Number(action.payload)
+      if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
         return
       }
 
-      state.receipts = state.receipts.filter(r => r.id !== action.payload);
+      const existingReceipt = state.receipts.find((receipt) => {
+        const receiptId = parseOrderId(
+          (receipt as { id?: unknown; number?: unknown }).id
+            ?? (receipt as { number?: unknown }).number
+        )
+
+        return receiptId === normalizedId
+      })
+
+      const normalizedStatus = normalizeReceiptStatus(existingReceipt?.status)
+
+      if (!TERMINAL_RECEIPT_STATUSES.has(normalizedStatus)) {
+        return
+      }
+
+      state.receipts = state.receipts.filter((receipt) => {
+        const receiptId = parseOrderId(
+          (receipt as { id?: unknown; number?: unknown }).id
+            ?? (receipt as { number?: unknown }).number
+        )
+
+        return receiptId !== normalizedId
+      })
+
+      if (!state.deletedReceiptIds.includes(normalizedId)) {
+        state.deletedReceiptIds = [...state.deletedReceiptIds, normalizedId].slice(-500)
+      }
     },
     clearReceipts: (state) => {
       state.receipts = [];
+      state.deletedReceiptIds = [];
     },
     setCustomerData: (state, action: PayloadAction<CustomerData>) => {
       state.customerData = action.payload;

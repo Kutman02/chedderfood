@@ -198,7 +198,7 @@ export const useCreateOrder = () => {
 
       onClose()
 
-      navigate(`/mycheks?order=${order.id}`, {
+      navigate(`/mycheks`, {
         replace: true,
       })
 

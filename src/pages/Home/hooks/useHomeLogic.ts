@@ -160,14 +160,7 @@ export const useHomeLogic = () => {
       return
 
     } else if (modal === "receipts" || modal === "mycheks") {
-      const orderId = searchParams.get("order")
-      const params = new URLSearchParams()
-
-      if (orderId) {
-        params.set("order", orderId)
-      }
-
-      navigate(`/mycheks${params.toString() ? `?${params.toString()}` : ""}`, {
+      navigate(`/mycheks`, {
         replace: true,
       })
       dispatch(closeCart())
