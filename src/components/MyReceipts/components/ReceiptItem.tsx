@@ -197,12 +197,12 @@ export const ReceiptItem = ({
       <button
         type="button"
         onClick={() => onView(receipt)}
-        className="flex min-h-12 w-full touch-manipulation select-none items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-3 text-sm font-extrabold text-slate-700 transition-all duration-200 ease-out hover:bg-slate-200 active:scale-[0.99] active:bg-slate-300"
+        className="group flex min-h-12 w-full touch-manipulation select-none items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 shadow-xs transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 active:translate-y-0 active:scale-[0.99]"
       >
-        <span>{isDetailsOpen ? "Скрыть детали заказа" : "Просмотреть детали заказа"}</span>
+        <span>{isDetailsOpen ? "Скрыть" : "Посмотреть"}</span>
         <FaChevronDown
           size={14}
-          className={`transition-transform duration-300 ease-out ${isDetailsOpen ? "rotate-180" : "rotate-0"}`}
+          className={`transition-all duration-300 ease-out ${isDetailsOpen ? "rotate-180" : "rotate-0"} group-hover:text-orange-600`}
         />
       </button>
 

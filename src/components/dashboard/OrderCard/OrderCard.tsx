@@ -69,12 +69,12 @@ export const OrderCard = ({
       <button
         type="button"
         onClick={() => onToggleDetails(order.id)}
-        className="mb-4 flex min-h-14 w-full touch-manipulation select-none items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-3 text-base font-extrabold text-slate-700 transition-all duration-200 ease-out hover:bg-slate-200 active:scale-[0.99] active:bg-slate-300 sm:min-h-12 sm:py-2 sm:text-sm"
+        className="group mb-4 flex min-h-14 w-full touch-manipulation select-none items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-black text-slate-700 shadow-xs transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 active:translate-y-0 active:scale-[0.99] sm:min-h-12 sm:py-2 sm:text-sm"
       >
-        <span>{isDetailsOpen ? "Скрыть детали заказа" : "Просмотреть детали заказа"}</span>
+        <span>{isDetailsOpen ? "Скрыть" : "Посмотреть"}</span>
         <FaChevronDown
           size={14}
-          className={`transition-transform duration-300 ease-out ${isDetailsOpen ? "rotate-180" : "rotate-0"}`}
+          className={`transition-all duration-300 ease-out ${isDetailsOpen ? "rotate-180" : "rotate-0"} group-hover:text-orange-600`}
         />
       </button>
 
@@ -87,37 +87,39 @@ export const OrderCard = ({
               order={order}
               products={products}
             />
+
+            {!showConfirmation && (
+              <div className="mt-4 border-t border-slate-200 pt-4">
+                <OrderActions
+                  order={order}
+                  activeTab={activeTab}
+                  onConfirmAction={onConfirmAction}
+                />
+              </div>
+            )}
+
+            {showConfirmation && (
+              <OrderConfirmation
+                action={confirmationAction}
+                orderNumber={orderNumber}
+
+                // 🔥 FIX
+                onCancel={() =>
+                  onConfirmAction(order.id, "")
+                }
+
+                onConfirm={() => {
+                  const status = getStatusFromAction()
+
+                  if (status) {
+                    onStatusUpdate(order.id, status)
+                  }
+                }}
+              />
+            )}
           </div>
         </div>
       </div>
-
-      {!showConfirmation && (
-        <OrderActions
-          order={order}
-          activeTab={activeTab}
-          onConfirmAction={onConfirmAction}
-        />
-      )}
-
-      {showConfirmation && (
-        <OrderConfirmation
-          action={confirmationAction}
-          orderNumber={orderNumber}
-
-          // 🔥 FIX
-          onCancel={() =>
-            onConfirmAction(order.id, "")
-          }
-
-          onConfirm={() => {
-            const status = getStatusFromAction()
-
-            if (status) {
-              onStatusUpdate(order.id, status)
-            }
-          }}
-        />
-      )}
 
     </div>
   )
