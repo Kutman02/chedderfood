@@ -2,7 +2,10 @@ import { useNavigate } from "react-router-dom"
 import { useAppDispatch } from "@/app/hooks"
 import { useToastStore } from "@/stores/toastStore"
 
-import { addReceipt, setCustomerData } from "@/app/slices/receiptsSlice"
+import {
+  addReceipt,
+  setCustomerData,
+} from "@/app/slices/receiptsSlice"
 import { clearCart } from "@/app/slices/cartSlice"
 
 import { useCreateOrderMutation } from "@/api"
@@ -198,7 +201,7 @@ export const useCreateOrder = () => {
 
       onClose()
 
-      navigate(`/mycheks`, {
+      navigate(`/mycheks?order=${order.id}`, {
         replace: true,
       })
 

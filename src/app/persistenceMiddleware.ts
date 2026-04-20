@@ -34,6 +34,15 @@ export const persistenceMiddleware: Middleware =
       removeLocalStorageSafely(STORAGE_KEYS.RECEIPTS_DELETED_IDS)
     }
 
+    if (typeof state.receipts.activeReceiptId === "number" && Number.isFinite(state.receipts.activeReceiptId) && state.receipts.activeReceiptId > 0) {
+      setLocalStorageSafely(
+        STORAGE_KEYS.ACTIVE_RECEIPT_ID,
+        String(state.receipts.activeReceiptId)
+      )
+    } else {
+      removeLocalStorageSafely(STORAGE_KEYS.ACTIVE_RECEIPT_ID)
+    }
+
     // 🧹 prevent stale legacy payloads from restoring deleted receipts on next boot
     for (const key of LEGACY_RECEIPTS_KEYS) {
       removeLocalStorageSafely(key)

@@ -6,6 +6,7 @@ import { storage } from "@/shared/lib/storage"
 type ReceiptsState = {
   receipts: ReceiptData[];
   deletedReceiptIds: number[];
+  activeReceiptId: number | null;
   customerData: CustomerData | null;
 };
 
@@ -21,6 +22,7 @@ type ReceiptServerSyncPayload = {
 
 const RECEIPTS_KEY = STORAGE_KEYS.RECEIPTS
 const RECEIPTS_DELETED_IDS_KEY = STORAGE_KEYS.RECEIPTS_DELETED_IDS
+const ACTIVE_RECEIPT_ID_KEY = STORAGE_KEYS.ACTIVE_RECEIPT_ID
 const CUSTOMER_DATA_KEY = STORAGE_KEYS.CUSTOMER_DATA
 const CHECKOUT_FORM_KEY = STORAGE_KEYS.CHECKOUT_FORM
 const LEGACY_RECEIPTS_KEYS = ["receipts", "orders_receipts"]
@@ -198,6 +200,23 @@ const loadReceipts = (deletedReceiptIds: number[]): ReceiptData[] => {
   return []
 }
 
+const loadActiveReceiptId = (): number | null => {
+  try {
+    const raw = storage.getString(ACTIVE_RECEIPT_ID_KEY)
+    if (!raw) return null
+
+    const normalizedId = parseOrderId(raw)
+
+    if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
+      return null
+    }
+
+    return normalizedId
+  } catch {
+    return null
+  }
+}
+
 const normalizeCustomerData = (
   parsed: Partial<CustomerData> & { apartment?: string }
 ): CustomerData => ({
@@ -245,10 +264,16 @@ const loadCustomerData = (): CustomerData | null => {
 }
 
 const initialDeletedReceiptIds = loadDeletedReceiptIds()
+const initialReceipts = loadReceipts(initialDeletedReceiptIds)
+const initialActiveReceiptId = loadActiveReceiptId()
 
 const initialState: ReceiptsState = {
-  receipts: loadReceipts(initialDeletedReceiptIds),
+  receipts: initialReceipts,
   deletedReceiptIds: initialDeletedReceiptIds,
+  activeReceiptId:
+    initialActiveReceiptId !== null && initialReceipts.some((receipt) => receipt.id === initialActiveReceiptId)
+      ? initialActiveReceiptId
+      : null,
   customerData: loadCustomerData(),
 };
 
@@ -269,6 +294,7 @@ export const receiptsSlice = createSlice({
       }
 
       state.receipts = [normalized, ...state.receipts.filter(r => r.id !== normalized.id)].slice(0, 50);
+      state.activeReceiptId = normalized.id
     },
     syncReceiptFromServer: (state, action: PayloadAction<ReceiptServerSyncPayload>) => {
       const id = Number(action.payload.id)
@@ -331,6 +357,10 @@ export const receiptsSlice = createSlice({
         return receiptId !== normalizedId
       })
 
+      if (state.activeReceiptId === normalizedId) {
+        state.activeReceiptId = null
+      }
+
       if (!state.deletedReceiptIds.includes(normalizedId)) {
         state.deletedReceiptIds = [...state.deletedReceiptIds, normalizedId].slice(-500)
       }
@@ -338,6 +368,24 @@ export const receiptsSlice = createSlice({
     clearReceipts: (state) => {
       state.receipts = [];
       state.deletedReceiptIds = [];
+      state.activeReceiptId = null;
+    },
+    setActiveReceiptId: (state, action: PayloadAction<number | null>) => {
+      const nextId = action.payload
+
+      if (nextId === null) {
+        state.activeReceiptId = null
+        return
+      }
+
+      const normalizedId = Number(nextId)
+
+      if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
+        state.activeReceiptId = null
+        return
+      }
+
+      state.activeReceiptId = normalizedId
     },
     setCustomerData: (state, action: PayloadAction<CustomerData>) => {
       state.customerData = action.payload;
@@ -353,6 +401,7 @@ export const {
   syncReceiptFromServer,
   deleteReceipt,
   clearReceipts,
+  setActiveReceiptId,
   setCustomerData,
   clearCustomerData,
 } = receiptsSlice.actions;

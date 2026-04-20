@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   CHECKOUT_FORM: "checkout_form",
   RECEIPTS: "kutmenu_receipts",
   RECEIPTS_DELETED_IDS: "kutmenu_receipts_deleted_ids",
+  ACTIVE_RECEIPT_ID: "kutmenu_active_receipt_id",
   CUSTOMER_DATA: "kutmenu_customer_data",
 }
 

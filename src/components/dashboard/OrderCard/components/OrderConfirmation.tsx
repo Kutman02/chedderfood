@@ -1,9 +1,10 @@
-import { FaExclamationTriangle } from "react-icons/fa"
+import { FaExclamationTriangle, FaSpinner } from "react-icons/fa"
 import type { OrderConfirmationProps } from "../types/orderCard.types"
 
 export const OrderConfirmation = ({
   action,
   orderNumber,
+  isProcessing = false,
   onConfirm,
   onCancel
 }: OrderConfirmationProps) => {
@@ -62,6 +63,7 @@ export const OrderConfirmation = ({
 
         <button
           onClick={onCancel}
+          disabled={isProcessing}
           className="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors active:scale-95"
         >
           Нет
@@ -69,9 +71,17 @@ export const OrderConfirmation = ({
 
         <button
           onClick={onConfirm}
-          className={`flex-1 px-4 py-3 ${getButtonColor()} text-white rounded-xl font-bold transition-colors active:scale-95`}
+          disabled={isProcessing}
+          className={`flex-1 px-4 py-3 ${getButtonColor()} text-white rounded-xl font-bold transition-colors active:scale-95 disabled:cursor-not-allowed disabled:opacity-70`}
         >
-          Да
+          {isProcessing ? (
+            <span className="inline-flex items-center gap-2">
+              <FaSpinner className="animate-spin" />
+              Обновляем...
+            </span>
+          ) : (
+            "Да"
+          )}
         </button>
 
       </div>

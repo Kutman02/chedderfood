@@ -1,4 +1,5 @@
 import { FaChevronDown } from "react-icons/fa"
+import { FaSpinner } from "react-icons/fa"
 
 import { OrderDetailsContent } from "@/components/dashboard/OrderDetailsModal/components"
 
@@ -44,10 +45,19 @@ export const OrderCard = ({
   return (
 
     <div
-      className={`w-full overflow-visible border-y bg-white px-4 py-4 shadow-md transition-all duration-300 sm:overflow-hidden sm:rounded-2xl sm:border-2 sm:p-5 ${activeTabData?.borderColor}
-      ${isProcessing ? "opacity-60 pointer-events-none" : ""}
+      className={`relative w-full overflow-visible border-y bg-white px-4 py-4 shadow-md transition-all duration-300 sm:overflow-hidden sm:rounded-2xl sm:border-2 sm:p-5 ${activeTabData?.borderColor}
+      ${isProcessing ? "opacity-75 pointer-events-none" : ""}
       ${isRemoving ? "animate-slide-out-up opacity-0" : ""}`}
     >
+
+      {isProcessing && (
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/65 backdrop-blur-[1px]">
+          <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+            <FaSpinner className="animate-spin text-orange-500" />
+            Загузка...
+          </div>
+        </div>
+      )}
 
       <OrderCardHeader
         order={order}
@@ -102,6 +112,7 @@ export const OrderCard = ({
               <OrderConfirmation
                 action={confirmationAction}
                 orderNumber={orderNumber}
+                isProcessing={isProcessing}
 
                 // 🔥 FIX
                 onCancel={() =>

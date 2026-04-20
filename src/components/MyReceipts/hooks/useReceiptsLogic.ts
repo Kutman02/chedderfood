@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
-import { deleteReceipt, syncReceiptFromServer } from "@/app/slices/receiptsSlice"
+import {
+  deleteReceipt,
+  setActiveReceiptId,
+  syncReceiptFromServer,
+} from "@/app/slices/receiptsSlice"
 import { useToastStore } from "@/stores/toastStore"
 import { useLazyGetPublicOrderStatusQuery } from "@/api"
 
@@ -18,6 +23,7 @@ const TERMINAL_RECEIPT_STATUSES = new Set([
 export const useReceiptsLogic = () => {
 
   const dispatch = useAppDispatch()
+  const [searchParams, setSearchParams] = useSearchParams()
   const addToast = useToastStore((state) => state.addToast)
   const [getPublicOrderStatus] = useLazyGetPublicOrderStatusQuery()
   const [isStatusSyncUnavailable, setIsStatusSyncUnavailable] = useState(false)
@@ -27,6 +33,12 @@ export const useReceiptsLogic = () => {
   const receipts = useAppSelector(
     (s) => s.receipts.receipts
   )
+
+  const activeReceiptId = useAppSelector(
+    (s) => s.receipts.activeReceiptId
+  )
+
+  const activeReceiptIdRef = useRef<number | null>(activeReceiptId)
 
   const activeSyncTargets = useMemo(() => {
     return receipts
@@ -53,11 +65,95 @@ export const useReceiptsLogic = () => {
     })
   }, [receipts])
 
-  const [expandedReceiptId, setExpandedReceiptId] =
-    useState<number | null>(null)
-
   const [deleteConfirmReceiptId, setDeleteConfirmReceiptId] =
     useState<number | null>(null)
+
+  const queryReceiptId = useMemo(() => {
+    const raw = searchParams.get("order")
+    if (!raw) return null
+
+    const normalizedId = Number(raw)
+    if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
+      return null
+    }
+
+    return normalizedId
+  }, [searchParams])
+
+  const expandedReceiptId = activeReceiptId
+
+  useEffect(() => {
+    activeReceiptIdRef.current = activeReceiptId
+  }, [activeReceiptId])
+
+  useEffect(() => {
+    if (queryReceiptId === null) {
+      return
+    }
+
+    const hasQueryReceipt = receipts.some(
+      (receipt) => Number(receipt.id) === queryReceiptId
+    )
+
+    if (!hasQueryReceipt || activeReceiptIdRef.current === queryReceiptId) {
+      return
+    }
+
+    dispatch(setActiveReceiptId(queryReceiptId))
+  }, [dispatch, queryReceiptId, receipts])
+
+  useEffect(() => {
+    if (queryReceiptId === null) {
+      return
+    }
+
+    const hasQueryReceipt = receipts.some(
+      (receipt) => Number(receipt.id) === queryReceiptId
+    )
+
+    if (hasQueryReceipt) {
+      return
+    }
+
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete("order")
+    setSearchParams(nextParams, { replace: true })
+  }, [queryReceiptId, receipts, searchParams, setSearchParams])
+
+  useEffect(() => {
+    if (activeReceiptId === null) {
+      return
+    }
+
+    const hasActiveReceipt = receipts.some(
+      (receipt) => Number(receipt.id) === activeReceiptId
+    )
+
+    if (hasActiveReceipt) {
+      return
+    }
+
+    dispatch(setActiveReceiptId(null))
+    setDeleteConfirmReceiptId((currentId) =>
+      currentId === activeReceiptId ? null : currentId
+    )
+  }, [activeReceiptId, dispatch, receipts])
+
+  useEffect(() => {
+    if (activeReceiptId === queryReceiptId) {
+      return
+    }
+
+    const nextParams = new URLSearchParams(searchParams)
+
+    if (activeReceiptId !== null) {
+      nextParams.set("order", String(activeReceiptId))
+    } else {
+      nextParams.delete("order")
+    }
+
+    setSearchParams(nextParams, { replace: true })
+  }, [activeReceiptId, queryReceiptId, searchParams, setSearchParams])
 
   useEffect(() => {
     if (!activeSyncTargets.length || isStatusSyncUnavailable) {
@@ -152,6 +248,11 @@ export const useReceiptsLogic = () => {
 
     dispatch(deleteReceipt(normalizedId))
     addToast(`Заказ #${normalizedId} удален`, "success", 2500)
+
+    if (activeReceiptId === normalizedId) {
+      dispatch(setActiveReceiptId(null))
+    }
+
     setDeleteConfirmReceiptId((currentId) =>
       currentId === normalizedId ? null : currentId
     )
@@ -162,8 +263,14 @@ export const useReceiptsLogic = () => {
   }
 
   const toggleReceiptDetails = (receipt: ReceiptData) => {
-    setExpandedReceiptId((prevId) =>
-      prevId === receipt.id ? null : receipt.id
+    dispatch(setActiveReceiptId(
+      activeReceiptId === receipt.id ? null : receipt.id
+    ))
+
+    setDeleteConfirmReceiptId((currentId) =>
+      currentId === receipt.id && activeReceiptId === receipt.id
+        ? null
+        : currentId
     )
   }
 

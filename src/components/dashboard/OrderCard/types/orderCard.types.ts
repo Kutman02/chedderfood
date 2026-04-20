@@ -88,6 +88,7 @@ export interface OrderActionsProps {
 export interface OrderConfirmationProps {
   action: string
   orderNumber: string | number
+  isProcessing?: boolean
   onConfirm: () => void
   onCancel: () => void
 }
