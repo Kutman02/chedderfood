@@ -1,5 +1,4 @@
 import { useReceiptsLogic } from "./hooks"
-import { ConfirmDialog } from "../ConfirmDialog/ConfirmDialog"
 import type { Product } from "@/types"
 import { ReceiptsHeader, ReceiptsList, EmptyReceipts } from "./components"
 
@@ -13,7 +12,7 @@ export const MyReceipts = ({ products, onClose }: MyReceiptsProps) => {
   const {
     receipts,
     expandedReceiptId,
-    deleteConfirm,
+    deleteConfirmReceiptId,
     toggleReceiptDetails,
     confirmDeleteReceipt,
     cancelDeleteReceipt,
@@ -34,22 +33,15 @@ export const MyReceipts = ({ products, onClose }: MyReceiptsProps) => {
             receipts={receipts}
             products={products}
             expandedReceiptId={expandedReceiptId}
+            deleteConfirmReceiptId={deleteConfirmReceiptId}
             onDelete={handleDeleteReceipt}
+            onConfirmDelete={confirmDeleteReceipt}
+            onCancelDelete={cancelDeleteReceipt}
             onView={toggleReceiptDetails}
           />
         )}
 
       </div>
-
-      <ConfirmDialog
-        isOpen={deleteConfirm.isOpen}
-        title="Удаление заказа"
-        message={`Вы действительно хотите удалить заказ #${deleteConfirm.receiptId}?`}
-        onConfirm={confirmDeleteReceipt}
-        onCancel={cancelDeleteReceipt}
-        confirmText="Да"
-        cancelText="Нет"
-      />
 
     </div>
   )

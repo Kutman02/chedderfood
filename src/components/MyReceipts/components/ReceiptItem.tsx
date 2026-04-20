@@ -12,7 +12,10 @@ interface ReceiptItemProps {
   receipt: Order
   products: Product[]
   isDetailsOpen: boolean
+  isDeleteConfirmOpen: boolean
   onDelete: (id: number, status: string) => void
+  onConfirmDelete: (id: number) => void
+  onCancelDelete: () => void
   onView: (receipt: Order) => void
 }
 
@@ -81,7 +84,10 @@ export const ReceiptItem = ({
   receipt,
   products,
   isDetailsOpen,
+  isDeleteConfirmOpen,
   onDelete,
+  onConfirmDelete,
+  onCancelDelete,
   onView
 }: ReceiptItemProps) => {
 
@@ -222,22 +228,55 @@ export const ReceiptItem = ({
       <div className="flex gap-2 pt-2">
 
         {canDelete ? (
-          <button
-            onClick={() => onDelete(receipt.id, statusValue)}
-            className="
-              w-full
-              border border-slate-200
-              text-sm
-              py-2
-              rounded-lg
-              text-slate-600
-              hover:bg-red-50
-              hover:text-red-600
-              transition
-            "
-          >
-            Удалить
-          </button>
+          <div className="w-full space-y-3">
+            <button
+              type="button"
+              onClick={() => onDelete(receipt.id, statusValue)}
+              className="
+                w-full
+                border border-slate-200
+                text-sm
+                py-2
+                rounded-lg
+                text-slate-600
+                hover:bg-red-50
+                hover:text-red-600
+                transition
+              "
+            >
+              Удалить
+            </button>
+
+            <div
+              className={`grid transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${isDeleteConfirmOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+            >
+              <div className="overflow-hidden">
+                <div className="rounded-2xl border border-red-100 bg-red-50/80 px-4 py-4 text-slate-900">
+                  <p className="text-sm font-semibold text-slate-800">
+                    Вы действительно хотите удалить заказ #{receipt.number ?? receipt.id}?
+                  </p>
+
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={onCancelDelete}
+                      className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                    >
+                      Нет
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onConfirmDelete(receipt.id)}
+                      className="flex-1 rounded-xl border border-red-200 bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+                    >
+                      Да
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           <button
             type="button"

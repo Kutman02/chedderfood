@@ -6,7 +6,10 @@ interface ReceiptsListProps {
   receipts: ReceiptData[]
   products: Product[]
   expandedReceiptId: number | null
+  deleteConfirmReceiptId: number | null
   onDelete: (id: number, status: string) => void
+  onConfirmDelete: (id: number) => void
+  onCancelDelete: () => void
   onView: (receipt: ReceiptData) => void
 }
 
@@ -14,7 +17,10 @@ export const ReceiptsList = ({
   receipts,
   products,
   expandedReceiptId,
+  deleteConfirmReceiptId,
   onDelete,
+  onConfirmDelete,
+  onCancelDelete,
   onView
 }: ReceiptsListProps) => {
 
@@ -66,7 +72,10 @@ export const ReceiptsList = ({
               receipt={receipt}
               products={products}
               isDetailsOpen={expandedReceiptId === receipt.id}
+              isDeleteConfirmOpen={deleteConfirmReceiptId === receipt.id}
               onDelete={onDelete}
+              onConfirmDelete={onConfirmDelete}
+              onCancelDelete={onCancelDelete}
               onView={onView}
             />
           </div>

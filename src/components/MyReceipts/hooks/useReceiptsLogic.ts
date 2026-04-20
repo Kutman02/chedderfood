@@ -56,11 +56,8 @@ export const useReceiptsLogic = () => {
   const [expandedReceiptId, setExpandedReceiptId] =
     useState<number | null>(null)
 
-  const [deleteConfirm, setDeleteConfirm] =
-    useState<{ isOpen: boolean; receiptId: number | null }>({
-      isOpen: false,
-      receiptId: null
-    })
+  const [deleteConfirmReceiptId, setDeleteConfirmReceiptId] =
+    useState<number | null>(null)
 
   useEffect(() => {
     if (!activeSyncTargets.length || isStatusSyncUnavailable) {
@@ -140,31 +137,28 @@ export const useReceiptsLogic = () => {
       return
     }
 
-    setDeleteConfirm({
-      isOpen: true,
-      receiptId: normalizedId
-    })
+    setDeleteConfirmReceiptId((currentId) =>
+      currentId === normalizedId ? null : normalizedId
+    )
   }
 
-  const confirmDeleteReceipt = () => {
+  const confirmDeleteReceipt = (receiptId: number) => {
+    const normalizedId = Number(receiptId)
 
-    if (deleteConfirm.receiptId !== null) {
-      dispatch(deleteReceipt(deleteConfirm.receiptId))
-      addToast(`Заказ #${deleteConfirm.receiptId} удален`, "success", 2500)
+    if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
+      addToast("Невозможно удалить заказ: некорректный ID", "error", 3500)
+      return
     }
 
-    setDeleteConfirm({
-      isOpen: false,
-      receiptId: null
-    })
+    dispatch(deleteReceipt(normalizedId))
+    addToast(`Заказ #${normalizedId} удален`, "success", 2500)
+    setDeleteConfirmReceiptId((currentId) =>
+      currentId === normalizedId ? null : currentId
+    )
   }
 
   const cancelDeleteReceipt = () => {
-
-    setDeleteConfirm({
-      isOpen: false,
-      receiptId: null
-    })
+    setDeleteConfirmReceiptId(null)
   }
 
   const toggleReceiptDetails = (receipt: ReceiptData) => {
@@ -176,7 +170,7 @@ export const useReceiptsLogic = () => {
   return {
     receipts,
     expandedReceiptId,
-    deleteConfirm,
+    deleteConfirmReceiptId,
     toggleReceiptDetails,
     confirmDeleteReceipt,
     cancelDeleteReceipt,
