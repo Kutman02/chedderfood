@@ -27,13 +27,9 @@ const CUSTOMER_DATA_KEY = STORAGE_KEYS.CUSTOMER_DATA
 const CHECKOUT_FORM_KEY = STORAGE_KEYS.CHECKOUT_FORM
 const LEGACY_RECEIPTS_KEYS = ["receipts", "orders_receipts"]
 const LEGACY_CUSTOMER_DATA_KEYS = ["customer_data", "customerData"]
-const TERMINAL_RECEIPT_STATUSES = new Set([
+const DELETABLE_RECEIPT_STATUSES = new Set([
   "completed",
   "cancelled",
-  "canceled",
-  "failed",
-  "refunded",
-  "trash",
 ])
 
 const cleanupLegacyReceiptKeys = () => {
@@ -342,9 +338,13 @@ export const receiptsSlice = createSlice({
         return receiptId === normalizedId
       })
 
-      const normalizedStatus = normalizeReceiptStatus(existingReceipt?.status)
+      if (!existingReceipt) {
+        return
+      }
 
-      if (!TERMINAL_RECEIPT_STATUSES.has(normalizedStatus)) {
+      const normalizedStatus = normalizeReceiptStatus(existingReceipt.status)
+
+      if (!DELETABLE_RECEIPT_STATUSES.has(normalizedStatus)) {
         return
       }
 

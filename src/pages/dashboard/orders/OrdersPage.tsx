@@ -1,15 +1,34 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { OrderTabs } from "../components/OrderTabs"
 import { OrdersSection } from "../components/OrdersSection"
 import { OrderSkeleton } from "@/components/Skeleton/components"
 
-import { useDashboardUI } from "../hooks/useDashboardUI"
 import { useOrders } from "../hooks/useOrders"
-import { useOutletContext } from "react-router-dom"
+import { useOutletContext, useSearchParams } from "react-router-dom"
 import { useGetRestaurantHoursStatusQuery } from "@/api"
 
-import type { Product } from "@/types"
+import type { OrderStatus, Product } from "@/types"
+
+const ORDER_STATUS_TABS: OrderStatus[] = [
+  "on-hold",
+  "processing",
+  "ready",
+  "completed",
+  "cancelled",
+]
+
+const DEFAULT_ORDER_STATUS: OrderStatus = "on-hold"
+
+const parseOrderStatusFromQuery = (value: string | null): OrderStatus | null => {
+  if (!value) return null
+
+  const normalized = value.trim().toLowerCase() as OrderStatus
+
+  return ORDER_STATUS_TABS.includes(normalized)
+    ? normalized
+    : null
+}
 
 type OutletContext = {
   products: Product[]
@@ -22,12 +41,14 @@ type OutletContext = {
 
 const OrdersPage = () => {
 
+  const [searchParams, setSearchParams] = useSearchParams()
   const [page, setPage] = useState(1)
   const [dateMode, setDateMode] = useState<"today" | "all" | "day" | "range">("today")
   const [selectedDate, setSelectedDate] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [expandedDetailsOrderId, setExpandedDetailsOrderId] = useState<number | null>(null)
+  const previousOnHoldCountRef = useRef<number | null>(null)
 
   const { products, searchQuery, setSearchMeta } = useOutletContext<OutletContext>()
 
@@ -54,7 +75,45 @@ const OrdersPage = () => {
     }).format(sourceDate)
   }, [backendTimezone, restaurantHoursResponse?.data?.now_local])
 
-  const { activeTab, setActiveTab } = useDashboardUI()
+  const activeTab = useMemo<OrderStatus>(() => {
+    const fromQuery = parseOrderStatusFromQuery(searchParams.get("status"))
+    return fromQuery ?? DEFAULT_ORDER_STATUS
+  }, [searchParams])
+
+  const setActiveTab = useCallback((nextStatus: OrderStatus) => {
+    const normalizedStatus = parseOrderStatusFromQuery(nextStatus) ?? DEFAULT_ORDER_STATUS
+    const nextParams = new URLSearchParams(searchParams)
+
+    if (normalizedStatus === DEFAULT_ORDER_STATUS) {
+      nextParams.delete("status")
+    } else {
+      nextParams.set("status", normalizedStatus)
+    }
+
+    setSearchParams(nextParams, { replace: true })
+  }, [searchParams, setSearchParams])
+
+  useEffect(() => {
+    const rawStatus = searchParams.get("status")
+    if (!rawStatus) {
+      return
+    }
+
+    const normalizedStatus = parseOrderStatusFromQuery(rawStatus)
+    const nextParams = new URLSearchParams(searchParams)
+
+    if (!normalizedStatus) {
+      nextParams.delete("status")
+      setSearchParams(nextParams, { replace: true })
+      return
+    }
+
+    if (normalizedStatus !== rawStatus) {
+      nextParams.set("status", normalizedStatus)
+      setSearchParams(nextParams, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
+
   const supportsDateFilters =
     activeTab === "completed" || activeTab === "cancelled"
 
@@ -114,6 +173,24 @@ const OrdersPage = () => {
   useEffect(() => {
     setExpandedDetailsOrderId(null)
   }, [activeTab, searchQuery, page, dateFilter])
+
+  useEffect(() => {
+    const currentOnHoldCount = countsRaw["on-hold"] || 0
+
+    if (previousOnHoldCountRef.current === null) {
+      previousOnHoldCountRef.current = currentOnHoldCount
+      return
+    }
+
+    if (
+      currentOnHoldCount > previousOnHoldCountRef.current &&
+      activeTab !== "on-hold"
+    ) {
+      setActiveTab("on-hold")
+    }
+
+    previousOnHoldCountRef.current = currentOnHoldCount
+  }, [activeTab, countsRaw, setActiveTab])
 
   useEffect(() => {
     setSearchMeta("orders", {

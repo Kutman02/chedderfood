@@ -63,6 +63,7 @@ export const HamburgerMenu = ({
 
     storage.removeMany([
       STORAGE_KEYS.RECEIPTS,
+      STORAGE_KEYS.RECEIPTS_DELETED_IDS,
       STORAGE_KEYS.ACTIVE_RECEIPT_ID,
       STORAGE_KEYS.CART,
       STORAGE_KEYS.CHECKOUT_FORM,

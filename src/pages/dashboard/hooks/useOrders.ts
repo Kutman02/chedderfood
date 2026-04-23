@@ -12,6 +12,25 @@ import type { OrderStatus } from "@/types"
 const supportsDateFiltersByStatus = (status: string) =>
   status === "completed" || status === "cancelled"
 
+const normalizeOrderStatus = (value: unknown): OrderStatus => {
+  const normalized = String(value || "on-hold").trim().toLowerCase()
+
+  if (normalized === "pending") return "on-hold"
+  if (normalized === "canceled") return "cancelled"
+
+  if (
+    normalized === "on-hold" ||
+    normalized === "processing" ||
+    normalized === "ready" ||
+    normalized === "completed" ||
+    normalized === "cancelled"
+  ) {
+    return normalized
+  }
+
+  return "on-hold"
+}
+
 /* =========================
    ORDERS HOOK
    Управление заказами в админ панели
@@ -170,7 +189,14 @@ export const useOrders = (
   ========================= */
 
   const filteredOrders = useMemo(() => {
-    const filtered = filterOrders(orders, searchQuery)
+    const statusScopedOrders =
+      activeTab === "all"
+        ? orders
+        : orders.filter(
+            (order) => normalizeOrderStatus(order.status) === activeTab
+          )
+
+    const filtered = filterOrders(statusScopedOrders, searchQuery)
 
     if (!supportsDateFilters) {
       return [...filtered].sort((left, right) => {
@@ -181,7 +207,7 @@ export const useOrders = (
     }
 
     return filtered
-  }, [orders, searchQuery, supportsDateFilters])
+  }, [activeTab, orders, searchQuery, supportsDateFilters])
 
   /* =========================
      COUNTS (🔥 ОДИН ИСТОЧНИК)

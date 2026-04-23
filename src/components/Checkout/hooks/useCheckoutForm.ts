@@ -5,6 +5,16 @@ import { storage } from "@/shared/lib/storage"
 
 const CHECKOUT_FORM_KEY = STORAGE_KEYS.CHECKOUT_FORM
 
+const EMPTY_CHECKOUT_FORM_DATA: CheckoutFormData = {
+  first_name: "",
+  address: "",
+  phone: "",
+  customer_note: "",
+  apartment_office: "",
+  floor: "",
+  needs_cutlery_and_napkins: false,
+}
+
 /* ===============================
    HOOK
 =============================== */
@@ -15,45 +25,7 @@ export const useCheckoutForm = () => {
     useState<"delivery" | "pickup">("delivery")
 
   const [formData, setFormData] =
-    useState<CheckoutFormData>(() => {
-
-      try {
-        const saved = storage.getString(CHECKOUT_FORM_KEY)
-
-        if (saved) {
-          const parsed = JSON.parse(saved)
-
-          return {
-            first_name: parsed.first_name ?? "",
-            address: parsed.address ?? "",
-            phone: parsed.phone ?? "",
-            customer_note: parsed.customer_note ?? "",
-            apartment_office:
-              parsed.apartment_office ??
-              parsed.apartment ??
-              "",
-            floor: parsed.floor ?? "",
-            needs_cutlery_and_napkins:
-              parsed.needs_cutlery_and_napkins ??
-              ((parsed.needs_cutlery ?? false) ||
-                (parsed.needs_napkins ?? false)),
-          }
-        }
-
-      } catch (e) {
-        console.error("Ошибка чтения localStorage", e)
-      }
-
-      return {
-        first_name: "",
-        address: "",
-        phone: "",
-        customer_note: "",
-        apartment_office: "",
-        floor: "",
-        needs_cutlery_and_napkins: false,
-      }
-    })
+    useState<CheckoutFormData>(EMPTY_CHECKOUT_FORM_DATA)
 
   const [errors, setErrors] =
     useState<Partial<CheckoutFormData>>({})
@@ -86,6 +58,57 @@ export const useCheckoutForm = () => {
 
       const next = { ...prev }
       delete next[name as keyof CheckoutFormData]
+      return next
+    })
+  }
+
+  const applyFormData = (patch: Partial<CheckoutFormData>) => {
+    const entries = Object.entries(patch) as Array<
+      [keyof CheckoutFormData, CheckoutFormData[keyof CheckoutFormData]]
+    >
+
+    if (!entries.length) return
+
+    const normalizedPatch: Partial<CheckoutFormData> = {}
+    const mutablePatch = normalizedPatch as Record<
+      keyof CheckoutFormData,
+      CheckoutFormData[keyof CheckoutFormData]
+    >
+
+    for (const [key, value] of entries) {
+      if (value === undefined || value === null) continue
+
+      mutablePatch[key] =
+        typeof value === "string"
+          ? value.slice(0, 255)
+          : value
+    }
+
+    if (!Object.keys(normalizedPatch).length) return
+
+    setFormData((prev) => ({
+      ...prev,
+      ...normalizedPatch,
+    }))
+
+    setErrors((prev) => {
+      if (!Object.keys(prev).length) return prev
+
+      const next = { ...prev }
+
+      for (const [key, value] of entries) {
+        if (!(key in next)) continue
+
+        if (typeof value === "string") {
+          if (value.trim()) {
+            delete next[key]
+          }
+          continue
+        }
+
+        delete next[key]
+      }
+
       return next
     })
   }
@@ -133,7 +156,7 @@ export const useCheckoutForm = () => {
   =============================== */
 
   useEffect(() => {
-    storage.setJSON(STORAGE_KEYS.CHECKOUT_FORM, {
+    storage.setJSON(CHECKOUT_FORM_KEY, {
       first_name: formData.first_name,
       address: formData.address,
       phone: formData.phone,
@@ -156,6 +179,7 @@ export const useCheckoutForm = () => {
     setOrderType,
 
     handleInputChange,
+    applyFormData,
     validateForm,
   }
 }

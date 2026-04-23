@@ -20,6 +20,17 @@ const TERMINAL_RECEIPT_STATUSES = new Set([
   "trash",
 ])
 
+const DELETABLE_RECEIPT_STATUSES = new Set([
+  "completed",
+  "cancelled",
+])
+
+const normalizeStatusForDelete = (status: string) => {
+  const normalized = status.trim().toLowerCase()
+  if (normalized === "canceled") return "cancelled"
+  return normalized
+}
+
 export const useReceiptsLogic = () => {
 
   const dispatch = useAppDispatch()
@@ -221,15 +232,19 @@ export const useReceiptsLogic = () => {
 
   const handleDeleteReceipt = (id: number, status: string) => {
     const normalizedId = Number(id)
-    const normalizedStatus = String(status || "").trim().toLowerCase()
+    const normalizedStatus = normalizeStatusForDelete(String(status || ""))
 
     if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
       addToast("Невозможно удалить заказ: некорректный ID", "error", 3500)
       return
     }
 
-    if (!TERMINAL_RECEIPT_STATUSES.has(normalizedStatus)) {
-      addToast("Можно удалить только завершенный или отмененный заказ", "info", 3500)
+    if (!DELETABLE_RECEIPT_STATUSES.has(normalizedStatus)) {
+      addToast(
+        "Удаление доступно только для завершённых и отменённых заказов",
+        "info",
+        3500
+      )
       return
     }
 
@@ -243,6 +258,21 @@ export const useReceiptsLogic = () => {
 
     if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
       addToast("Невозможно удалить заказ: некорректный ID", "error", 3500)
+      return
+    }
+
+    const receipt = receipts.find((item) => Number(item.id) === normalizedId)
+
+    const receiptStatus = normalizeStatusForDelete(
+      String(receipt?.status || "")
+    )
+
+    if (!DELETABLE_RECEIPT_STATUSES.has(receiptStatus)) {
+      addToast(
+        "Удаление доступно только для завершённых и отменённых заказов",
+        "info",
+        3500
+      )
       return
     }
 

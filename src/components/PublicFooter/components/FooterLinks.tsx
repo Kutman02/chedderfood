@@ -7,9 +7,12 @@ interface FooterLinksProps {
 }
 
 const getIconForUrl = (url: string) => {
-  if (url === "/" || url.includes("home")) return FaHome
-  if (url.includes("about")) return FaInfoCircle
-  if (url.includes("contact")) return FaAddressBook
+  const normalizedUrl = url.toLowerCase()
+
+  if (normalizedUrl === "/" || normalizedUrl.includes("home")) return FaHome
+  if (normalizedUrl.includes("about")) return FaInfoCircle
+  if (normalizedUrl.includes("contact")) return FaAddressBook
+
   return FaHome
 }
 
@@ -24,7 +27,7 @@ export const FooterLinks = ({ links }: FooterLinksProps) => {
       <ul className="space-y-3">
         {links.map((link, index) => {
           const Icon = getIconForUrl(link.url)
-          const isExternal = link.url.startsWith("http")
+          const isExternal = /^https?:\/\//i.test(link.url.trim())
 
           if (isExternal) {
             return (

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
 
+import { useAppSelector } from "@/app/hooks"
+
 import { CIS_COUNTRIES } from "../constants/countries"
 
 import { useCartSummary } from "./useCartSummary"
@@ -9,6 +11,24 @@ import { useGetRestaurantHoursStatusQuery } from "@/api"
 
 interface UseCheckoutProps {
   onClose: () => void
+}
+
+const toLocalPhoneNumber = (
+  rawPhone: string,
+  dialCode: string,
+  maxDigits: number
+) => {
+  const phoneDigits = rawPhone.replace(/\D/g, "")
+  if (!phoneDigits) return ""
+
+  const dialDigits = dialCode.replace(/\D/g, "")
+
+  const localPart =
+    dialDigits && phoneDigits.startsWith(dialDigits)
+      ? phoneDigits.slice(dialDigits.length)
+      : phoneDigits
+
+  return localPart.slice(0, maxDigits)
 }
 
 export const useCheckout = ({ onClose }: UseCheckoutProps) => {
@@ -25,8 +45,11 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     orderType,
     setOrderType,
     handleInputChange,
+    applyFormData,
     validateForm,
   } = useCheckoutForm()
+
+  const customerData = useAppSelector((s) => s.receipts.customerData)
 
   const { create, isLoading } = useCreateOrder()
 
@@ -100,7 +123,13 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
   =============================== */
 
   const [selectedCountry, setSelectedCountry] = useState(CIS_COUNTRIES[0])
-  const [phoneNumber, setPhoneNumber] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState(() =>
+    toLocalPhoneNumber(
+      formData.phone,
+      CIS_COUNTRIES[0].code,
+      CIS_COUNTRIES[0].digits
+    )
+  )
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
 
   const fullPhone = phoneNumber
@@ -117,6 +146,12 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
       document.body.style.overflow = "auto"
     }
   }, [])
+
+  useEffect(() => {
+    if (formData.phone === fullPhone) return
+
+    applyFormData({ phone: fullPhone })
+  }, [applyFormData, formData.phone, fullPhone])
 
   /* ===============================
      PHONE HANDLERS
@@ -137,6 +172,31 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
   const toggleCountryDropdown = () => {
     setIsCountryDropdownOpen((prev) => !prev)
+  }
+
+  const handleAutoFill = () => {
+    if (!customerData) return
+
+    applyFormData({
+      first_name: customerData.first_name || formData.first_name,
+      address:
+        orderType === "delivery"
+          ? customerData.address || formData.address
+          : formData.address,
+      apartment_office:
+        customerData.apartment_office ?? formData.apartment_office,
+      floor: customerData.floor ?? formData.floor,
+    })
+
+    if (customerData.phone?.trim()) {
+      setPhoneNumber(
+        toLocalPhoneNumber(
+          customerData.phone,
+          selectedCountry.code,
+          selectedCountry.digits
+        )
+      )
+    }
   }
 
   /* ===============================
@@ -223,6 +283,7 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     orderType,
     selectedCountry,
     phoneNumber,
+    fullPhone,
     isCountryDropdownOpen,
 
     cartItems,
@@ -242,6 +303,7 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
     handleCountrySelect,
     toggleCountryDropdown,
+    handleAutoFill,
     setOrderType,
 
     handleSubmit,

@@ -8,6 +8,12 @@ import { OrderDetailsContent } from "@/components/dashboard/OrderDetailsModal/co
 import { getOrderStatus } from "../utils/getOrderStatus"
 import { OrderProgress } from "./OrderProgress"
 
+const DELETABLE_RECEIPT_STATUSES = new Set([
+  "completed",
+  "cancelled",
+  "canceled",
+])
+
 interface ReceiptItemProps {
   receipt: Order
   products: Product[]
@@ -58,25 +64,43 @@ const parseDateTimestamp = (value: unknown): number | null => {
   return null
 }
 
-const getOrderBorder = (status: string) => {
+const getOrderAccent = (status: string) => {
   switch (status) {
     case "on-hold":
-      return "border-2 border-yellow-400 animate-pulse"
+      return {
+        title: "text-yellow-700 animate-pulse",
+        badge: "ring-2 ring-yellow-300 animate-pulse",
+      }
 
     case "processing":
-      return "border-2 border-blue-400 animate-pulse"
+      return {
+        title: "text-blue-700 animate-pulse",
+        badge: "ring-2 ring-blue-300 animate-pulse",
+      }
 
     case "ready":
-      return "border-2 border-green-400 shadow-[0_0_10px_rgba(34,197,94,0.4)]"
+      return {
+        title: "text-green-700",
+        badge: "ring-2 ring-green-300",
+      }
 
     case "completed":
-      return "border-2 border-yellow-900"
+      return {
+        title: "text-yellow-900",
+        badge: "ring-2 ring-yellow-900/30",
+      }
 
     case "cancelled":
-      return "border-2 border-red-400"
+      return {
+        title: "text-red-700",
+        badge: "ring-2 ring-red-300",
+      }
 
     default:
-      return "border border-slate-200"
+      return {
+        title: "text-slate-800",
+        badge: "",
+      }
   }
 }
 
@@ -92,17 +116,14 @@ export const ReceiptItem = ({
 }: ReceiptItemProps) => {
 
   const statusValue = String(receipt.status || "on-hold").trim().toLowerCase()
+  const accent = getOrderAccent(statusValue)
 
   const status = getOrderStatus(statusValue)
 
-  const canDelete = [
-    "completed",
-    "cancelled",
-    "canceled",
-    "failed",
-    "refunded",
-    "trash",
-  ].includes(statusValue)
+  const canDelete =
+    Number.isFinite(Number(receipt.id)) &&
+    Number(receipt.id) > 0 &&
+    DELETABLE_RECEIPT_STATUSES.has(statusValue)
 
   const normalizedItems = Array.isArray(receipt.items)
     ? receipt.items
@@ -145,12 +166,12 @@ export const ReceiptItem = ({
         flex-col
         justify-between
         gap-4
-        ${getOrderBorder(statusValue)}
+        border border-slate-200
       `}
     >
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-semibold text-lg text-slate-800">
+          <h3 className={`font-semibold text-lg ${accent.title}`}>
             Заказ: #{receipt.number ?? receipt.id}
           </h3>
 
@@ -170,6 +191,7 @@ export const ReceiptItem = ({
             py-1
             rounded-full
             ${status.color}
+            ${accent.badge}
           `}
         >
           {status.label}
@@ -291,7 +313,7 @@ export const ReceiptItem = ({
               bg-slate-50
               cursor-not-allowed
             "
-            title="Удаление доступно только для завершенных или отмененных заказов"
+            title="Удаление доступно только для завершённых и отменённых заказов"
           >
             Удаление недоступно
           </button>

@@ -52,6 +52,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
       <ConfirmOrderModal
         open={checkout.showConfirmModal}
         formData={checkout.formData}
+        phone={checkout.fullPhone}
         orderType={checkout.orderType}
         pickupAddress={checkout.pickupAddress}
         totalAmount={checkout.totalAmount}
@@ -151,7 +152,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                       onOrderTypeChange={checkout.setOrderType}
                       pickupAddress={checkout.pickupAddress}
                       pickupMapUrl={checkout.pickupMapUrl}
-                      onAutoFill={() => {}}
+                      onAutoFill={checkout.handleAutoFill}
                       embedded
                     />
                   </section>

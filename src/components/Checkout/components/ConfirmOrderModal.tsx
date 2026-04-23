@@ -7,6 +7,7 @@ interface ConfirmOrderModalProps {
   open: boolean;
 
   formData: CheckoutFormData;
+  phone: string;
 
   orderType: "delivery" | "pickup";
   pickupAddress: string;
@@ -25,6 +26,7 @@ interface ConfirmOrderModalProps {
 export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
   open,
   formData,
+  phone,
   orderType,
   pickupAddress,
   totalAmount,
@@ -38,10 +40,10 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
 
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
 
         {/* Header */}
-        <div className="border-b border-slate-200 p-4">
+        <div className="border-b border-slate-200 p-4 shrink-0">
           <div className="flex items-center gap-3">
 
             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
@@ -56,7 +58,7 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
         </div>
 
         {/* Body */}
-        <div className="p-6">
+        <div className="p-6 min-h-0 flex-1 overflow-y-auto">
 
           {errorMessage && (
             <div className="mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg">
@@ -134,7 +136,7 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
                 </div>
 
                 <div className="font-medium text-slate-800">
-                  {formData.phone}
+                  {phone || formData.phone || "Не указан"}
                 </div>
               </div>
             </div>
@@ -146,7 +148,7 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
 
                 <div>
                   <div className="text-sm text-slate-500">
-                    Коментарий к заказу
+                    Комментарий к заказу
                   </div>
 
                   <div className="font-medium text-slate-800">
@@ -182,7 +184,10 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
 
           </div>
 
+        </div>
+
           {/* Buttons */}
+        <div className="shrink-0 border-t border-slate-200 p-4">
           <div className="flex gap-3">
 
             <button
@@ -191,6 +196,7 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
               className="flex-1 bg-slate-100 text-slate-700 py-3 rounded-lg font-bold hover:bg-slate-200 transition"
             >
               Отменить
+
             </button>
 
             <button

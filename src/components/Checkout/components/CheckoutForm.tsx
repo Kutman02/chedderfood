@@ -70,6 +70,15 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
             onChange={onOrderTypeChange}
           />
 
+          {/* Fill previous customer data */}
+          <button
+            type="button" // ✅ FIX (очень важно)
+            onClick={onAutoFill}
+            className="px-3 py-1.5 md:px-4 md:py-2 bg-orange-100 text-orange-700 rounded-lg font-medium hover:bg-orange-200 transition-colors text-xs md:text-sm active:scale-95"
+          >
+            Заполнить предыдущие данные
+          </button>
+
           {/* Имя */}
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
@@ -100,7 +109,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
                 <FaMapMarkerAlt size={14} />
-                Адрес доставки *
+                Адрес доставки, улица, дом, квартира *
               </label>
 
               <input
@@ -108,7 +117,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 name="address"
                 value={formData.address}
                 onChange={onInputChange}
-                placeholder="Улица, дом, квартира"
+                placeholder="Например: ул. Ленина, д. 10, кв. 5"
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
                   errors.address ? "border-red-500" : "border-slate-300"
                 }`}
@@ -121,23 +130,35 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-                <input
-                  type="text"
-                  name="apartment_office"
-                  value={formData.apartment_office}
-                  onChange={onInputChange}
-                  placeholder="Подъезд, офис и т.п."
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Подъезд, квартира или офис
+                  </label>
 
-                <input
-                  type="text"
-                  name="floor"
-                  value={formData.floor}
-                  onChange={onInputChange}
-                  placeholder="Этаж"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
+                  <input
+                    type="text"
+                    name="apartment_office"
+                    value={formData.apartment_office}
+                    onChange={onInputChange}
+                    placeholder="Например: Подъезд 2, кв. 5 или Офис 301"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Этаж
+                  </label>
+
+                  <input
+                    type="text"
+                    name="floor"
+                    value={formData.floor}
+                    onChange={onInputChange}
+                    placeholder="Например: 3 этаж"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                </div>
               </div>
             </div>
           ) : (
@@ -167,15 +188,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
             </div>
           )}
 
-          {/* Autofill button */}
-          <button
-            type="button" // ✅ FIX (очень важно)
-            onClick={onAutoFill}
-            className="px-3 py-1.5 md:px-4 md:py-2 bg-orange-100 text-orange-700 rounded-lg font-medium hover:bg-orange-200 transition-colors text-xs md:text-sm active:scale-95"
-          >
-            Автозаполнение
-          </button>
-
           {/* Телефон */}
           <PhoneInput
             selectedCountry={selectedCountry}
@@ -199,7 +211,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
               rows={3}
               value={formData.customer_note}
               onChange={onInputChange}
-              placeholder="Комментарий к заказу"
+              placeholder="Например: Пожалуйста, позвоните за 10 минут до доставки"
               className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
             />
           </div>

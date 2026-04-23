@@ -24,6 +24,27 @@ export interface GetOrdersParams {
   fields?: string
 }
 
+const isOrdersDebugEnabled =
+  import.meta.env.DEV ||
+  String(import.meta.env.VITE_DEBUG_ORDERS_REQUESTS || "").toLowerCase() === "true"
+
+const buildOrdersDebugUrl = (params?: GetOrdersParams): string => {
+  const searchParams = new URLSearchParams()
+
+  const entries = Object.entries(params || {})
+    .filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== "")
+    .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
+
+  for (const [key, value] of entries) {
+    searchParams.set(key, String(value))
+  }
+
+  const query = searchParams.toString()
+  return query
+    ? `/custom/v1/orders?${query}`
+    : "/custom/v1/orders"
+}
+
 type RawOrderMeta = {
   key?: string
   value?: unknown
@@ -364,11 +385,17 @@ export const adminOrdersApi = baseApi.injectEndpoints({
       OrdersResponse,
       GetOrdersParams | void
     >({
-      query: (params) => ({
-        url: "/custom/v1/orders",
-        method: "GET",
-        params: params || {},
-      }),
+      query: (params) => {
+        if (isOrdersDebugEnabled) {
+          console.debug("[orders][request] GET", buildOrdersDebugUrl(params || undefined))
+        }
+
+        return {
+          url: "/custom/v1/orders",
+          method: "GET",
+          params: params || {},
+        }
+      },
 
       transformResponse: (response: OrdersResponse) =>
         normalizeOrdersResponse(response),
