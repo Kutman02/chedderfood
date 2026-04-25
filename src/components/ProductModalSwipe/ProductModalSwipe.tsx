@@ -157,7 +157,9 @@ export const ProductModalSwipe = ({
     }
 
     if (contentDraggingRef.current && atTop && deltaY > 0) {
-      e.preventDefault()
+      if (e.cancelable) {
+        e.preventDefault()
+      }
       e.stopPropagation()
 
       const modal = modalRef.current
@@ -221,7 +223,7 @@ export const ProductModalSwipe = ({
       >
         <div
           ref={modalRef}
-          className={`relative bg-white rounded-t-3xl rounded-b-none sm:rounded-2xl shadow-2xl w-full max-w-5xl h-[100vh] max-h-[100vh] sm:h-auto sm:max-h-[94vh] md:h-[82vh] md:max-h-190 flex flex-col transform-gpu will-change-transform transition-[transform,opacity] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+          className={`relative bg-white rounded-none sm:rounded-2xl shadow-2xl w-full max-w-5xl h-[100vh] max-h-[100vh] sm:h-auto sm:max-h-[94vh] md:h-[82vh] md:max-h-190 flex flex-col transform-gpu will-change-transform transition-[transform,opacity] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full sm:translate-y-2"
           }`}
         >

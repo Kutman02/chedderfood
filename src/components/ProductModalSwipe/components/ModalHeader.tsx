@@ -12,9 +12,9 @@ export const ModalHeader = ({ onClose }: ModalHeaderProps) => {
       <button
         onClick={onClose}
         aria-label="Закрыть"
-        className="mt-3 ml-3 h-10 w-10 flex items-center justify-center text-slate-700 hover:text-black transition-colors rounded-full shrink-0 pointer-events-auto bg-white/90 backdrop-blur shadow-md"
+        className="mt-3 ml-3 h-13 w-13 flex items-center justify-center text-slate-700 hover:text-black transition-colors rounded-full shrink-0 pointer-events-auto bg-white/90 backdrop-blur shadow-md"
       >
-        <IoIosArrowDown size={20} />
+        <IoIosArrowDown size={40} />
       </button>
     </div>
   )
