@@ -41,15 +41,12 @@ const OrderTabs = ({
                 : "bg-slate-100 hover:bg-slate-200"}
             `}
           >
-
             {tab.label}
-
             {shouldShowTabCount(tab.key) && (
               <span className="ml-2 text-xs opacity-80">
                 ({counts[tab.key] || 0})
               </span>
             )}
-
           </button>
         )
 

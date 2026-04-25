@@ -104,6 +104,7 @@ export const useOrders = (
   const {
     data: result,
     isLoading: ordersLoading,
+    isFetching: ordersFetching,
     error: ordersError
   } = useGetAdminOrdersQuery({
     status: activeTab === "all" ? undefined : (activeTab as OrderStatus),
@@ -341,6 +342,7 @@ export const useOrders = (
     shouldPaginate,
 
     ordersLoading,
+    ordersFetching,
     ordersError,
 
     totalPages,

@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { OrderTabs } from "../components/OrderTabs"
-import { OrdersSection } from "../components/OrdersSection"
 import { OrderSkeleton } from "@/components/Skeleton/components"
 
 import { useOrders } from "../hooks/useOrders"
@@ -17,6 +16,49 @@ const ORDER_STATUS_TABS: OrderStatus[] = [
   "completed",
   "cancelled",
 ]
+
+const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  "on-hold": "Новые",
+  processing: "Готовятся",
+  ready: "Готовые",
+  completed: "Завершён",
+  cancelled: "Отменённые",
+}
+
+const FILTER_SKELETON_WIDTHS = [
+  96,
+  136,
+  112,
+  120,
+]
+
+const TAB_SKELETON_DELAY_MS = 250
+const TAB_SKELETON_MIN_WIDTH = 80
+const TAB_SKELETON_MAX_WIDTH = 180
+const TAB_SKELETON_CHAR_WIDTH = 8
+const TAB_SKELETON_PADDING = 32
+const ORDERS_SECTION_PRELOAD_DELAY_MS = 350
+
+const getTabSkeletonWidth = (status: OrderStatus) => {
+  const label = ORDER_STATUS_LABELS[status] || ""
+  const width = Math.min(
+    TAB_SKELETON_MAX_WIDTH,
+    Math.max(
+      TAB_SKELETON_MIN_WIDTH,
+      label.length * TAB_SKELETON_CHAR_WIDTH + TAB_SKELETON_PADDING
+    )
+  )
+
+  return `${width}px`
+}
+
+const loadOrdersSection = () => import("../components/OrdersSection")
+
+const OrdersSection = lazy(() =>
+  loadOrdersSection().then((module) => ({
+    default: module.OrdersSection,
+  }))
+)
 
 const DEFAULT_ORDER_STATUS: OrderStatus = "on-hold"
 
@@ -48,7 +90,12 @@ const OrdersPage = () => {
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [expandedDetailsOrderId, setExpandedDetailsOrderId] = useState<number | null>(null)
+  const [showTabSkeleton, setShowTabSkeleton] = useState(false)
+  const [tabChangeLoading, setTabChangeLoading] = useState(false)
   const previousOnHoldCountRef = useRef<number | null>(null)
+  const initialLoadRef = useRef(true)
+  const previousTabRef = useRef<OrderStatus | null>(null)
+  const tabSkeletonTimerRef = useRef<number | null>(null)
 
   const { products, searchQuery, setSearchMeta } = useOutletContext<OutletContext>()
 
@@ -57,6 +104,29 @@ const OrdersPage = () => {
     refetchOnFocus: true,
     refetchOnReconnect: true,
   })
+
+  useEffect(() => {
+    const idleCallbacks = window as typeof window & {
+      requestIdleCallback?: (callback: () => void) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+
+    if (idleCallbacks.requestIdleCallback) {
+      const idleId = idleCallbacks.requestIdleCallback(() => {
+        loadOrdersSection()
+      })
+
+      return () => idleCallbacks.cancelIdleCallback?.(idleId)
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      loadOrdersSection()
+    }, ORDERS_SECTION_PRELOAD_DELAY_MS)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [])
 
   const backendTimezone = restaurantHoursResponse?.data?.timezone || "Asia/Bishkek"
 
@@ -92,6 +162,11 @@ const OrdersPage = () => {
 
     setSearchParams(nextParams, { replace: true })
   }, [searchParams, setSearchParams])
+
+  const handleTabClick = useCallback((nextStatus: OrderStatus) => {
+    if (nextStatus === activeTab) return
+    setActiveTab(nextStatus)
+  }, [activeTab, setActiveTab])
 
   useEffect(() => {
     const rawStatus = searchParams.get("status")
@@ -163,6 +238,54 @@ const OrdersPage = () => {
     handleConfirmStatusUpdate
   } = useOrders(activeTab, searchQuery, page, dateFilter)
 
+  useEffect(() => {
+    if (previousTabRef.current === null) {
+      previousTabRef.current = activeTab
+      return
+    }
+
+    if (previousTabRef.current !== activeTab) {
+      previousTabRef.current = activeTab
+      setShowTabSkeleton(false)
+      setTabChangeLoading(true)
+    }
+  }, [activeTab])
+
+  useEffect(() => {
+    if (!tabChangeLoading) return
+    if (!ordersLoading) return
+
+    if (tabSkeletonTimerRef.current) {
+      clearTimeout(tabSkeletonTimerRef.current)
+    }
+
+    tabSkeletonTimerRef.current = window.setTimeout(() => {
+      setShowTabSkeleton(true)
+    }, TAB_SKELETON_DELAY_MS)
+
+    return () => {
+      if (tabSkeletonTimerRef.current) {
+        clearTimeout(tabSkeletonTimerRef.current)
+        tabSkeletonTimerRef.current = null
+      }
+    }
+  }, [ordersLoading, tabChangeLoading])
+
+  useEffect(() => {
+    if (!tabChangeLoading) return
+
+    if (!ordersLoading) {
+      setTabChangeLoading(false)
+      setShowTabSkeleton(false)
+    }
+  }, [ordersLoading, tabChangeLoading])
+
+  useEffect(() => {
+    if (!ordersLoading && initialLoadRef.current) {
+      initialLoadRef.current = false
+    }
+  }, [ordersLoading])
+
   /**
    * ✅ сброс страницы
    */
@@ -199,6 +322,25 @@ const OrdersPage = () => {
       loading: ordersLoading,
     })
   }, [activeTabTotal, foundTotal, ordersLoading, setSearchMeta])
+
+  const isListLoading = ordersLoading || showTabSkeleton
+  const listFallback = <OrderSkeleton count={5} />
+  const showHeaderSkeleton =
+    initialLoadRef.current && ordersLoading && querySupportsDateFilters
+  const filterSkeleton = (
+    <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
+      <div className="mb-3 h-3 w-64 animate-pulse rounded bg-slate-100" />
+      <div className="flex flex-wrap items-center gap-2">
+        {FILTER_SKELETON_WIDTHS.map((width, index) => (
+          <div
+            key={`filters-skeleton-${index}`}
+            style={{ width: `${width}px` }}
+            className="h-9 animate-pulse rounded-lg bg-slate-100"
+          />
+        ))}
+      </div>
+    </div>
+  )
 
   const handleToggleDetails = (orderId: number) => {
     setExpandedDetailsOrderId((currentOrderId) =>
@@ -274,10 +416,6 @@ const OrdersPage = () => {
 
   }, [countsRaw["on-hold"], activeTab])
 
-  if (ordersLoading) {
-    return <OrderSkeleton count={5} />
-  }
-
   if (ordersError) {
     return (
       <div className="text-center py-20">
@@ -291,11 +429,25 @@ const OrdersPage = () => {
     <>
       <OrderTabs
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabClick}
         counts={counts}
       />
 
-      {querySupportsDateFilters && (
+      {showTabSkeleton && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {ORDER_STATUS_TABS.map((status) => (
+            <div
+              key={`order-tabs-skeleton-${status}`}
+              style={{ width: getTabSkeletonWidth(status) }}
+              className="h-8 animate-pulse rounded-lg bg-slate-100"
+            />
+          ))}
+        </div>
+      )}
+
+      {showHeaderSkeleton ? (
+        filterSkeleton
+      ) : querySupportsDateFilters ? (
         <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
           <p className="mb-3 text-xs font-medium text-slate-500">
             Часовой пояс сервера: <span className="font-semibold text-slate-700">{backendTimezone}</span>
@@ -387,27 +539,30 @@ const OrdersPage = () => {
             </div>
           )}
         </div>
-      )}
+      ) : null}
 
-      {/* ✅ empty state */}
-      {orders.length === 0 ? (
-        <div className="text-center mt-10 text-gray-500">
-          Нет заказов
-        </div>
-      ) : (
-        <OrdersSection
-          orders={orders}
-          products={products}
-          activeTab={activeTab}
-          processingIds={processingIds}
-          removingOrderIds={removingOrderIds}
-          expandedConfirmation={expandedConfirmation}
-          expandedDetailsOrderId={expandedDetailsOrderId}
-          onConfirmAction={handleConfirmAction}
-          onStatusUpdate={handleConfirmStatusUpdate}
-          onToggleDetails={handleToggleDetails}
-        />
-      )}
+      <Suspense fallback={listFallback}>
+        {isListLoading ? (
+          listFallback
+        ) : orders.length === 0 ? (
+          <div className="text-center mt-10 text-gray-500">
+            Нет заказов
+          </div>
+        ) : (
+          <OrdersSection
+            orders={orders}
+            products={products}
+            activeTab={activeTab}
+            processingIds={processingIds}
+            removingOrderIds={removingOrderIds}
+            expandedConfirmation={expandedConfirmation}
+            expandedDetailsOrderId={expandedDetailsOrderId}
+            onConfirmAction={handleConfirmAction}
+            onStatusUpdate={handleConfirmStatusUpdate}
+            onToggleDetails={handleToggleDetails}
+          />
+        )}
+      </Suspense>
 
       {/* 🔥 НОВАЯ PAGINATION */}
       {shouldPaginate && totalPages > 1 && (
