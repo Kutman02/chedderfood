@@ -23,6 +23,26 @@ html {
   display: none;  /* Chrome, Safari and Opera */
 }
 
+/* Modal backdrop blur with low-end device opt-out */
+.modal-backdrop {
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (max-width: 420px), (max-resolution: 1.5dppx), (-webkit-max-device-pixel-ratio: 1.5) {
+  .modal-backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 /* Mobile optimizations */
 @media (max-width: 768px) {
   input[type="text"],
