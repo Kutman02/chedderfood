@@ -148,6 +148,14 @@ export const OrderInfo: FC<OrderInfoProps> = ({
           <p className="font-semibold text-orange-600">
             {shippingInfo.method}
           </p>
+
+          <p className="text-xs text-slate-500 mt-1">
+            {isPickup
+              ? "Стоимость доставки не применяется"
+              : shippingInfo.cost > 0
+                ? `Доставка: ${shippingInfo.cost.toFixed(0)} сом`
+                : "Доставка: бесплатно"}
+          </p>
         </div>
 
         <div>

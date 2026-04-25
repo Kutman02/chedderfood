@@ -12,6 +12,9 @@ interface ConfirmOrderModalProps {
   orderType: "delivery" | "pickup";
   pickupAddress: string;
 
+  shippingLabel: string;
+  subtotal: number;
+  shippingCost: number;
   totalAmount: number;
 
   errorMessage?: string;
@@ -29,6 +32,9 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
   phone,
   orderType,
   pickupAddress,
+  shippingLabel,
+  subtotal,
+  shippingCost,
   totalAmount,
   errorMessage,
   isSubmitting,
@@ -172,13 +178,45 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
             {/* Total */}
             <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
 
-              <span className="text-lg font-bold text-slate-800">
-                Итого:
-              </span>
+              <div className="w-full space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-slate-600">
+                    Товары:
+                  </span>
 
-              <span className="text-2xl font-black text-orange-600">
-                {totalAmount.toFixed(0)} сом
-              </span>
+                  <span className="text-sm font-bold text-slate-900">
+                    {subtotal.toFixed(0)} сом
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-semibold text-slate-600">
+                    {orderType === "pickup"
+                      ? "Самовывоз"
+                      : `Доставка (${shippingLabel})`}:
+                  </span>
+
+                  {shippingCost > 0 ? (
+                    <span className="text-sm font-bold text-slate-900">
+                      {shippingCost.toFixed(0)} сом
+                    </span>
+                  ) : (
+                    <span className="text-sm font-bold text-emerald-600">
+                      Бесплатно
+                    </span>
+                  )}
+                </div>
+
+                <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
+                  <span className="text-lg font-bold text-slate-800">
+                    Итого:
+                  </span>
+
+                  <span className="text-2xl font-black text-orange-600">
+                    {totalAmount.toFixed(0)} сом
+                  </span>
+                </div>
+              </div>
 
             </div>
 

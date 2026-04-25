@@ -28,8 +28,15 @@ interface CheckoutStepProps {
   onOrderTypeChange: (type: "delivery" | "pickup") => void;
   pickupAddress: string;
   pickupMapUrl: string;
+  shippingMethods: any[];
+  selectedShippingRateId: string;
+  shippingError: string;
+  isShippingMethodsLoading: boolean;
+  onShippingMethodSelect: (rateId: string) => void;
 
   // submit
+  subtotal: number;
+  shippingCost: number;
   totalAmount: number;
   cartItemsCount: number;
   isSubmitting: boolean;
@@ -60,7 +67,14 @@ export const CheckoutStep: React.FC<CheckoutStepProps> = ({
   onOrderTypeChange,
   pickupAddress,
   pickupMapUrl,
+  shippingMethods,
+  selectedShippingRateId,
+  shippingError,
+  isShippingMethodsLoading,
+  onShippingMethodSelect,
 
+  subtotal,
+  shippingCost,
   totalAmount,
   cartItemsCount,
   isSubmitting,
@@ -93,10 +107,18 @@ export const CheckoutStep: React.FC<CheckoutStepProps> = ({
         onOrderTypeChange={onOrderTypeChange}
         pickupAddress={pickupAddress}
         pickupMapUrl={pickupMapUrl}
+        shippingMethods={shippingMethods}
+        selectedShippingRateId={selectedShippingRateId}
+        shippingError={shippingError}
+        isShippingMethodsLoading={isShippingMethodsLoading}
+        onShippingMethodSelect={onShippingMethodSelect}
         onAutoFill={onAutoFill} // ✅ ВОТ ЭТО ТЫ ЗАБЫЛ
       />
 
       <CheckoutFooter
+        orderType={orderType}
+        subtotal={subtotal}
+        shippingCost={shippingCost}
         totalAmount={totalAmount}
         cartItemsCount={cartItemsCount}
         isSubmitting={isSubmitting}

@@ -87,35 +87,54 @@ export const useOrderReceipt = (
       ? order.line_items
       : []
 
+  const subtotal = normalizedItems.reduce(
+    (sum, item) =>
+      sum + Number(item.total || Number(item.price) * Number(item.quantity)),
+    0
+  )
+
+  const totalFromOrder = Number(order.total)
+  const total = Number.isFinite(totalFromOrder)
+    ? totalFromOrder
+    : subtotal
+
+  const primaryShippingLine = Array.isArray(order.shipping_lines)
+    ? order.shipping_lines[0]
+    : undefined
+
+  const shippingTotalFromOrder = Number(order.shipping_total)
+  const shippingTotalFromLine = Number(
+    primaryShippingLine?.total ??
+      primaryShippingLine?.cost ??
+      0
+  )
+
+  const shippingCost = orderType === "pickup"
+    ? 0
+    : Number.isFinite(shippingTotalFromOrder)
+      ? Math.max(shippingTotalFromOrder, 0)
+      : Number.isFinite(shippingTotalFromLine)
+        ? Math.max(shippingTotalFromLine, 0)
+        : Math.max(total - subtotal, 0)
+
   /* ===============================
      SHIPPING
   =============================== */
 
   const shippingInfo = {
-    method: orderType === "pickup" ? "Самовывоз" : "Доставка",
+    method:
+      orderType === "pickup"
+        ? "Самовывоз"
+        : primaryShippingLine?.label || "Доставка",
 
     address:
       orderType === "pickup"
         ? order.pickup_address || order.address || "Не указан"
         : order.address || "Не указан",
 
-    cost: 0,
-    status: "В обработке",
+    cost: shippingCost,
+    status: shippingCost > 0 ? "Платная доставка" : "Бесплатная доставка",
   }
-
-  const shippingCost = 0
-
-  /* ===============================
-     TOTALS
-  =============================== */
-
-  const subtotal = normalizedItems.reduce(
-    (sum, item) =>
-      sum + Number(item.price) * Number(item.quantity),
-    0
-  )
-
-  const total = Number(order.total)
 
   /* ===============================
      ITEMS (СТАБИЛЬНЫЙ)

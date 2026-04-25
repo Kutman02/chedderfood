@@ -23,15 +23,32 @@ export const OrderPricing = ({ order }: Props) => {
     0
   )
 
-  const total = Number(order.total)
+  const parsedTotal = Number(order.total)
+  const total = Number.isFinite(parsedTotal)
+    ? parsedTotal
+    : subtotal
 
-  // Используем shipping_total, если backend его отдает; иначе считаем как разницу.
-  const shippingRaw = (order as Order & { shipping_total?: string | number }).shipping_total
-  const shippingFromApi = Number(shippingRaw)
+  const shippingLine = Array.isArray(order.shipping_lines)
+    ? order.shipping_lines[0]
+    : undefined
 
-  const shipping = Number.isFinite(shippingFromApi)
-    ? Math.max(shippingFromApi, 0)
-    : Math.max(total - subtotal, 0)
+  const shippingFromApi = Number(order.shipping_total)
+  const shippingFromLine = Number(
+    shippingLine?.total ?? shippingLine?.cost
+  )
+
+  const shipping = order.order_type === "pickup"
+    ? 0
+    : Number.isFinite(shippingFromApi)
+      ? Math.max(shippingFromApi, 0)
+      : Number.isFinite(shippingFromLine)
+        ? Math.max(shippingFromLine, 0)
+        : Math.max(total - subtotal, 0)
+
+  const shippingLabel =
+    order.order_type === "pickup"
+      ? "Самовывоз"
+      : shippingLine?.label || "Доставка"
 
   // 🔥 если добавишь в normalize → order.currency
   const currency =
@@ -67,22 +84,24 @@ export const OrderPricing = ({ order }: Props) => {
         </div>
 
         {/* Доставка */}
-        {shipping > 0 && (
+        <div className="flex items-center justify-between">
 
-          <div className="flex items-center justify-between">
+          <span className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+            <FaTruck size={12} />
+            {shippingLabel}
+          </span>
 
-            <span className="flex items-center gap-2 text-sm font-semibold text-slate-600">
-              <FaTruck size={12} />
-              Доставка
-            </span>
-
+          {shipping > 0 ? (
             <span className="font-bold text-slate-900">
               {shipping.toFixed(0)} {currency}
             </span>
+          ) : (
+            <span className="font-bold text-emerald-600">
+              Бесплатно
+            </span>
+          )}
 
-          </div>
-
-        )}
+        </div>
 
         {/* Итог */}
         <div className="flex items-center justify-between border-t border-emerald-100 pt-3">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 
 import { useAppSelector } from "@/app/hooks"
 
@@ -7,7 +7,11 @@ import { CIS_COUNTRIES } from "../constants/countries"
 import { useCartSummary } from "./useCartSummary"
 import { useCheckoutForm } from "./useCheckoutForm"
 import { useCreateOrder } from "./useCreateOrder"
-import { useGetRestaurantHoursStatusQuery } from "@/api"
+import {
+  useGetRestaurantHoursStatusQuery,
+  useGetShippingMethodsMutation,
+} from "@/api"
+import type { ShippingRate } from "@/types"
 
 interface UseCheckoutProps {
   onClose: () => void
@@ -52,6 +56,8 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
   const customerData = useAppSelector((s) => s.receipts.customerData)
 
   const { create, isLoading } = useCreateOrder()
+  const [getShippingMethods, { isLoading: isShippingMethodsLoading }] =
+    useGetShippingMethodsMutation()
 
   const {
     data: restaurantHoursResponse,
@@ -117,6 +123,9 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
+  const [shippingMethods, setShippingMethods] = useState<ShippingRate[]>([])
+  const [selectedShippingRateId, setSelectedShippingRateId] = useState("")
+  const [shippingError, setShippingError] = useState("")
 
   /* ===============================
      PHONE STATE
@@ -136,6 +145,54 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
     ? `${selectedCountry.code}${phoneNumber}`
     : ""
 
+  const selectedShippingRate = useMemo(
+    () =>
+      shippingMethods.find((method) => method.rate_id === selectedShippingRateId) || null,
+    [shippingMethods, selectedShippingRateId]
+  )
+
+  const shippingCost = orderType === "delivery"
+    ? Math.max(
+        Number(
+          selectedShippingRate?.total ??
+            selectedShippingRate?.cost ??
+            0
+        ) || 0,
+        0
+      )
+    : 0
+
+  const totalWithShipping = totalAmount + shippingCost
+
+  const extractApiErrorMessage = (
+    error: unknown,
+    fallbackMessage: string
+  ): string => {
+    if (error && typeof error === "object" && "data" in error) {
+      const data = (error as { data?: unknown }).data
+
+      if (typeof data === "string" && data.trim()) {
+        return data
+      }
+
+      if (data && typeof data === "object" && "message" in data) {
+        const message = (data as { message?: unknown }).message
+        if (typeof message === "string" && message.trim()) {
+          return message
+        }
+      }
+    }
+
+    if (error && typeof error === "object" && "message" in error) {
+      const message = (error as { message?: unknown }).message
+      if (typeof message === "string" && message.trim()) {
+        return message
+      }
+    }
+
+    return fallbackMessage
+  }
+
   /* ===============================
      SCROLL LOCK
   =============================== */
@@ -152,6 +209,93 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
     applyFormData({ phone: fullPhone })
   }, [applyFormData, formData.phone, fullPhone])
+
+  useEffect(() => {
+    let isCancelled = false
+
+    const loadShippingMethods = async () => {
+      if (orderType === "pickup") {
+        setShippingMethods([])
+        setSelectedShippingRateId("")
+        setShippingError("")
+        return
+      }
+
+      if (!cartItems.length) {
+        setShippingMethods([])
+        setSelectedShippingRateId("")
+        setShippingError("")
+        return
+      }
+
+      setShippingError("")
+
+      try {
+        const response = await getShippingMethods({
+          order_type: "delivery",
+          billing: {
+            address_1: formData.address?.trim() || undefined,
+            apartment_office: formData.apartment_office?.trim() || undefined,
+          },
+          line_items: cartItems,
+        }).unwrap()
+
+        if (isCancelled) return
+
+        const requiresShipping = response.data?.requires_shipping !== false
+        const methods = Array.isArray(response.data?.methods)
+          ? response.data.methods
+          : []
+
+        const availableMethods = requiresShipping ? methods : []
+        setShippingMethods(availableMethods)
+
+        if (!requiresShipping) {
+          setSelectedShippingRateId("")
+          return
+        }
+
+        const ids = new Set(availableMethods.map((method) => method.rate_id))
+        const defaultRateId =
+          (response.data.default_rate_id && ids.has(response.data.default_rate_id)
+            ? response.data.default_rate_id
+            : availableMethods[0]?.rate_id) || ""
+
+        setSelectedShippingRateId((prev) =>
+          ids.has(prev) ? prev : defaultRateId
+        )
+
+        if (!availableMethods.length) {
+          setShippingError(
+            "Для текущего адреса и корзины нет доступных способов доставки."
+          )
+        }
+      } catch (error) {
+        if (isCancelled) return
+
+        setShippingMethods([])
+        setSelectedShippingRateId("")
+        setShippingError(
+          extractApiErrorMessage(
+            error,
+            "Не удалось получить способы доставки. Проверьте адрес и попробуйте снова."
+          )
+        )
+      }
+    }
+
+    loadShippingMethods()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [
+    orderType,
+    cartItems,
+    formData.address,
+    formData.apartment_office,
+    getShippingMethods,
+  ])
 
   /* ===============================
      PHONE HANDLERS
@@ -172,6 +316,11 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
   const toggleCountryDropdown = () => {
     setIsCountryDropdownOpen((prev) => !prev)
+  }
+
+  const handleShippingMethodSelect = (rateId: string) => {
+    setSelectedShippingRateId(rateId)
+    setShippingError("")
   }
 
   const handleAutoFill = () => {
@@ -218,6 +367,26 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
       return
     }
 
+    if (orderType === "delivery") {
+      if (isShippingMethodsLoading) {
+        setErrorMessage("Подождите, загружаем способы доставки...")
+        return
+      }
+
+      if (!shippingMethods.length) {
+        setErrorMessage(
+          shippingError ||
+            "Нет доступных способов доставки для текущего заказа."
+        )
+        return
+      }
+
+      if (!selectedShippingRate) {
+        setErrorMessage("Выберите способ доставки")
+        return
+      }
+    }
+
     setShowConfirmModal(true)
   }
 
@@ -239,6 +408,14 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
         },
         cartItems,
         orderType,
+        shippingMethod: selectedShippingRate
+          ? {
+              rate_id: selectedShippingRate.rate_id,
+              method_id: selectedShippingRate.method_id,
+              instance_id: selectedShippingRate.instance_id,
+            }
+          : undefined,
+        selectedShippingRate: selectedShippingRate || undefined,
         pickupAddress,
         pickupMapUrl,
         onClose,
@@ -288,6 +465,13 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
     cartItems,
     totalAmount,
+    totalWithShipping,
+    shippingCost,
+    shippingMethods,
+    selectedShippingRate,
+    selectedShippingRateId,
+    shippingError,
+    isShippingMethodsLoading,
 
     showConfirmModal,
     isSubmitting: isLoading, // 🔥 единый источник
@@ -303,6 +487,7 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
     handleCountrySelect,
     toggleCountryDropdown,
+    handleShippingMethodSelect,
     handleAutoFill,
     setOrderType,
 

@@ -2,6 +2,9 @@ import React from "react";
 import { FaShoppingBag } from "react-icons/fa";
 
 interface CheckoutFooterProps {
+  orderType: "delivery" | "pickup";
+  subtotal: number;
+  shippingCost: number;
   totalAmount: number;
   cartItemsCount: number;
   isSubmitting: boolean;
@@ -12,6 +15,9 @@ interface CheckoutFooterProps {
 }
 
 export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
+  orderType,
+  subtotal,
+  shippingCost,
   totalAmount,
   cartItemsCount,
   isSubmitting,
@@ -30,15 +36,42 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
     <div className="shrink-0 border-t border-slate-200 px-4 py-4 md:p-6 bg-white shadow-lg relative z-20">
       <div className="max-w-2xl mx-auto">
 
-        {/* Total */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-lg md:text-xl font-bold text-slate-800">
-            Итого:
-          </span>
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm md:text-base font-semibold text-slate-600">
+              Товары:
+            </span>
 
-          <span className="text-2xl md:text-3xl font-black text-orange-600">
-            {totalAmount.toFixed(0)} сом
-          </span>
+            <span className="text-base font-bold text-slate-900">
+              {subtotal.toFixed(0)} сом
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-sm md:text-base font-semibold text-slate-600">
+              {orderType === "pickup" ? "Самовывоз:" : "Доставка:"}
+            </span>
+
+            {shippingCost > 0 ? (
+              <span className="text-base font-bold text-slate-900">
+                {shippingCost.toFixed(0)} сом
+              </span>
+            ) : (
+              <span className="text-base font-bold text-emerald-600">
+                Бесплатно
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between border-t border-slate-200 pt-2">
+            <span className="text-lg md:text-xl font-bold text-slate-800">
+              Итого:
+            </span>
+
+            <span className="text-2xl md:text-3xl font-black text-orange-600">
+              {totalAmount.toFixed(0)} сом
+            </span>
+          </div>
         </div>
 
         {!checkoutAllowed && checkoutBlockMessage && (

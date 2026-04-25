@@ -3,6 +3,7 @@ import type {
   Order,
   OrdersResponse,
   OrderStatus,
+  ShippingRate,
   UpdateOrderStatusResponse,
 } from "@/types"
 
@@ -232,9 +233,89 @@ const normalizeStatus = (status: string): OrderStatus => {
   return "on-hold"
 }
 
+const toShippingNumber = (value: unknown): number | null => {
+  const numeric = Number(value)
+  return Number.isFinite(numeric) ? numeric : null
+}
+
+const normalizeShippingRate = (value: unknown): ShippingRate | null => {
+  if (!value || typeof value !== "object") return null
+
+  const source = value as Record<string, unknown>
+  const rateId = String(source.rate_id || "").trim()
+
+  if (!rateId) return null
+
+  const methodIdRaw = String(source.method_id || "").trim()
+  const parsedMethodId = rateId.split(":")[0] || ""
+  const methodId = methodIdRaw || parsedMethodId
+
+  const instanceIdRaw = toShippingNumber(source.instance_id)
+  const parsedInstanceId = Number(rateId.split(":")[1])
+  const instanceId = Number.isFinite(instanceIdRaw)
+    ? Number(instanceIdRaw)
+    : Number.isFinite(parsedInstanceId)
+      ? parsedInstanceId
+      : 0
+
+  const cost = toShippingNumber(source.cost) ?? 0
+  const total = toShippingNumber(source.total) ?? cost
+  const taxTotal = toShippingNumber(source.tax_total)
+  const label = String(source.label || "").trim() || methodId || "Доставка"
+  const currency = String(source.currency || "KGS").trim() || "KGS"
+  const isFreeRaw = source.is_free
+  const isFree =
+    typeof isFreeRaw === "boolean"
+      ? isFreeRaw
+      : String(isFreeRaw || "").trim() === "1" || total <= 0
+
+  return {
+    rate_id: rateId,
+    method_id: methodId,
+    instance_id: instanceId,
+    label,
+    cost,
+    tax_total: taxTotal ?? undefined,
+    total,
+    currency,
+    is_free: isFree,
+  }
+}
+
+const normalizeShippingLines = (value: unknown): ShippingRate[] => {
+  if (!Array.isArray(value)) return []
+
+  return value
+    .map(normalizeShippingRate)
+    .filter((line): line is ShippingRate => line !== null)
+}
+
+const normalizeShippingTotal = (
+  rawShippingTotal: unknown,
+  shippingLines: ShippingRate[]
+): string | undefined => {
+  const shippingFromTotal = toShippingNumber(rawShippingTotal)
+
+  if (shippingFromTotal !== null) {
+    return Math.max(shippingFromTotal, 0).toFixed(2)
+  }
+
+  const shippingFromLine = toShippingNumber(
+    shippingLines[0]?.total ?? shippingLines[0]?.cost
+  )
+
+  if (shippingFromLine !== null) {
+    return Math.max(shippingFromLine, 0).toFixed(2)
+  }
+
+  return undefined
+}
+
 const normalizeOrder = (order: RawOrder): Order => {
   const metaData = Array.isArray(order.meta_data) ? order.meta_data : undefined
   const billing = order.billing
+  const shippingLines = normalizeShippingLines(order.shipping_lines)
+  const shippingTotal = normalizeShippingTotal(order.shipping_total, shippingLines)
 
   const orderTypeMeta =
     readMetaString(metaData, "order_type") ||
@@ -305,6 +386,8 @@ const normalizeOrder = (order: RawOrder): Order => {
     floor: order.floor || readMetaString(metaData, "floor"),
 
     order_type: normalizedOrderType,
+    shipping_total: shippingTotal,
+    shipping_lines: shippingLines,
     pickup_address: pickupAddress,
     pickup_map_url: pickupMapUrl,
     needs_cutlery_and_napkins:

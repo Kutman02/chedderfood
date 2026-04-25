@@ -66,6 +66,7 @@ export {
 
 /* PUBLIC - ORDERS */
 export {
+  useGetShippingMethodsMutation,
   useLazyGetPublicOrderStatusQuery,
   useCreateOrderMutation,
 } from "./public/orders.api"

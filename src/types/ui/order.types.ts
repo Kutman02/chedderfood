@@ -1,3 +1,5 @@
+import type { ShippingRate, ShippingMethodSelection } from "../api/order.types"
+
 export interface CreateOrderInput {
   formData: {
     first_name: string
@@ -15,6 +17,8 @@ export interface CreateOrderInput {
   }[]
 
   orderType: "pickup" | "delivery"
+  shippingMethod?: ShippingMethodSelection
+  selectedShippingRate?: ShippingRate
   pickupAddress?: string
   pickupMapUrl?: string
   onClose: () => void

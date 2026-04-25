@@ -13,6 +13,7 @@ const PUBLIC_ENDPOINTS = new Set([
   "getAboutPage",
   "getContactsPage",
   "createOrder",
+  "getShippingMethods",
 ])
 
 export const baseApi = createApi({

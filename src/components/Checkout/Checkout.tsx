@@ -55,7 +55,14 @@ export const Checkout: React.FC<CheckoutProps> = ({
         phone={checkout.fullPhone}
         orderType={checkout.orderType}
         pickupAddress={checkout.pickupAddress}
-        totalAmount={checkout.totalAmount}
+        shippingLabel={
+          checkout.orderType === "pickup"
+            ? "Самовывоз"
+            : checkout.selectedShippingRate?.label || "Способ доставки не выбран"
+        }
+        subtotal={checkout.totalAmount}
+        shippingCost={checkout.shippingCost}
+        totalAmount={checkout.totalWithShipping}
         errorMessage={checkout.errorMessage}
         isSubmitting={checkout.isSubmitting}
         onConfirm={checkout.handleConfirmOrder}
@@ -152,6 +159,11 @@ export const Checkout: React.FC<CheckoutProps> = ({
                       onOrderTypeChange={checkout.setOrderType}
                       pickupAddress={checkout.pickupAddress}
                       pickupMapUrl={checkout.pickupMapUrl}
+                      shippingMethods={checkout.shippingMethods}
+                      selectedShippingRateId={checkout.selectedShippingRateId}
+                      shippingError={checkout.shippingError}
+                      isShippingMethodsLoading={checkout.isShippingMethodsLoading}
+                      onShippingMethodSelect={checkout.handleShippingMethodSelect}
                       onAutoFill={checkout.handleAutoFill}
                       embedded
                     />
@@ -160,7 +172,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
               </div>
 
               <CheckoutFooter
-                totalAmount={checkout.totalAmount}
+                orderType={checkout.orderType}
+                subtotal={checkout.totalAmount}
+                shippingCost={checkout.shippingCost}
+                totalAmount={checkout.totalWithShipping}
                 cartItemsCount={cartData.items.length}
                 isSubmitting={checkout.isSubmitting}
                 checkoutAllowed={checkout.checkoutAllowed}

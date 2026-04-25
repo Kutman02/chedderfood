@@ -75,6 +75,8 @@ export const useCreateOrder = () => {
     formData,
     cartItems,
     orderType,
+    shippingMethod,
+    selectedShippingRate,
     pickupAddress,
     pickupMapUrl,
     onClose,
@@ -116,8 +118,16 @@ export const useCreateOrder = () => {
       throw { data: { message: invalidItemsMessage } }
     }
 
+    if (orderType === "delivery" && !shippingMethod) {
+      const shippingMethodMessage =
+        "Выберите способ доставки перед оформлением заказа."
+      addToast(shippingMethodMessage, "error", 5000)
+      throw { data: { message: shippingMethodMessage } }
+    }
+
     const orderData: CreateOrderRequest = {
       status: "on-hold",
+      order_type: orderType,
 
       billing: {
         first_name: formData.first_name,
@@ -137,13 +147,38 @@ export const useCreateOrder = () => {
       meta_data: metaData,
     }
 
+    if (orderType === "delivery" && shippingMethod) {
+      orderData.shipping_method = {
+        rate_id: shippingMethod.rate_id,
+        method_id: shippingMethod.method_id,
+        instance_id: shippingMethod.instance_id,
+      }
+    }
+
     try {
+
+      const selectedShippingTotal = orderType === "delivery"
+        ? Math.max(
+            Number(
+              selectedShippingRate?.total ??
+              selectedShippingRate?.cost ??
+              0
+            ) || 0,
+            0
+          )
+        : 0
 
       const response = await createOrder(orderData).unwrap()
       const fallbackOrder: Order = {
         id: response.id,
         status: response.status,
         total: String(response.total),
+        shipping_total: selectedShippingTotal.toFixed(2),
+        shipping_lines:
+          orderType === "delivery" && selectedShippingRate
+            ? [selectedShippingRate]
+            : [],
+
         currency: "KGS",
         date_created: new Date().toISOString(),
         customer_name: formData.first_name,
