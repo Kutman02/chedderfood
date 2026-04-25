@@ -23,6 +23,8 @@ export const OrderDetailsHeader = ({
      TIME
   =============================== */
 
+  const orderNumber = order.number ?? order.id
+
   const orderTime = order.date_created
     ? new Date(order.date_created).toLocaleTimeString([], {
         hour: "2-digit",
@@ -63,7 +65,7 @@ export const OrderDetailsHeader = ({
       <div>
 
         <h2 className="text-xl md:text-2xl font-black text-slate-900">
-          Заказ # {order.id}
+          Заказ # {orderNumber}
         </h2>
 
         <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">

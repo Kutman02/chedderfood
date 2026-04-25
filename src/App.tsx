@@ -110,6 +110,7 @@ function App() {
           >
             <Route index element={<Navigate to="orders" />} />
             <Route path="orders" element={<OrdersPage />} />
+            <Route path="orders/:orderId" element={<OrdersPage />} />
             <Route path="products" element={<ProductsPage />} />
             <Route path="customers" element={<CustomersPage />} />
             <Route path="categories" element={<CategoriesPage />} />

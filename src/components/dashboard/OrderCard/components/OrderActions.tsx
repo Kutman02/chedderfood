@@ -2,6 +2,14 @@ import { FaTimes, FaCheckCircle } from "react-icons/fa"
 import type { Order } from "@/types"
 import { IoFastFood } from "react-icons/io5";
 
+export const getStatusFromAction = (action: string) => {
+  if (action === "принять") return "processing"
+  if (action === "готов") return "ready"
+  if (action === "завершить") return "completed"
+  if (action === "отменить") return "cancelled"
+  return ""
+}
+
 
 export const OrderActions = ({
   order,

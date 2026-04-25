@@ -6,7 +6,8 @@ export const OrderConfirmation = ({
   orderNumber,
   isProcessing = false,
   onConfirm,
-  onCancel
+  onCancel,
+  compact = false
 }: OrderConfirmationProps) => {
 
   const getMessage = () => {
@@ -35,9 +36,13 @@ export const OrderConfirmation = ({
     return "bg-blue-600 hover:bg-blue-700"
   }
 
+  const containerClassName = compact
+    ? "animate-in slide-in-from-top-2 duration-300"
+    : "mt-4 pt-4 border-t-2 border-slate-200 animate-in slide-in-from-top-2 duration-300"
+
   return (
 
-    <div className="mt-4 pt-4 border-t-2 border-slate-200 animate-in slide-in-from-top-2 duration-300">
+    <div className={containerClassName}>
 
       <div className="bg-amber-50 rounded-xl p-4 mb-4 border border-amber-200">
 

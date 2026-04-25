@@ -1,4 +1,4 @@
-import type { Order, Product } from "@/types"
+import type { Order } from "@/types"
 
 /* =========================
    TAB CONFIG (локально или вынеси)
@@ -20,23 +20,12 @@ export type TabConfig = {
 
 export interface OrderCardProps {
   order: Order
-  products: Product[]
-  activeTab: string
   activeTabData?: TabConfig
 
   isProcessing: boolean
   isRemoving: boolean
 
-  onStatusUpdate: (id: number, status: string) => void
-
-  isDetailsOpen: boolean
-  onToggleDetails: (orderId: number) => void
-
-  // 🔥 ЧИСТЫЙ API
-  onConfirmAction: (orderId: number, action: string) => void
-
-  showConfirmation?: boolean
-  confirmationAction?: string
+  onViewDetails: (orderId: number) => void
 }
 
 
@@ -91,4 +80,5 @@ export interface OrderConfirmationProps {
   isProcessing?: boolean
   onConfirm: () => void
   onCancel: () => void
+  compact?: boolean
 }

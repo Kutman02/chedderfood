@@ -2,10 +2,11 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 
 import { OrderTabs } from "../components/OrderTabs"
 import { OrderSkeleton } from "@/components/Skeleton/components"
+import { OrderDetailsFullscreen } from "@/components/dashboard/OrderDetailsFullscreen/OrderDetailsFullscreen"
 
 import { useOrders } from "../hooks/useOrders"
-import { useOutletContext, useSearchParams } from "react-router-dom"
-import { useGetRestaurantHoursStatusQuery } from "@/api"
+import { useLocation, useNavigate, useOutletContext, useParams, useSearchParams } from "react-router-dom"
+import { useGetAdminOrdersQuery, useGetRestaurantHoursStatusQuery } from "@/api"
 
 import type { OrderStatus, Product } from "@/types"
 
@@ -38,6 +39,8 @@ const TAB_SKELETON_MAX_WIDTH = 180
 const TAB_SKELETON_CHAR_WIDTH = 8
 const TAB_SKELETON_PADDING = 32
 const ORDERS_SECTION_PRELOAD_DELAY_MS = 350
+
+const ORDER_DETAILS_FIELDS = "id,status,reason,changed_at,changed_by_user_id,total,customer_name,phone,address,apartment_office,floor,order_type,customer_note,needs_cutlery_and_napkins,pickup_address,pickup_map_url,pickup_2gis_url,line_items,status_history,meta_data,date_created,date_created_unix,date_created_human"
 
 const getTabSkeletonWidth = (status: OrderStatus) => {
   const label = ORDER_STATUS_LABELS[status] || ""
@@ -72,6 +75,25 @@ const parseOrderStatusFromQuery = (value: string | null): OrderStatus | null => 
     : null
 }
 
+const normalizeOrderStatus = (value: unknown): OrderStatus => {
+  const normalized = String(value || "on-hold").trim().toLowerCase()
+
+  if (normalized === "pending") return "on-hold"
+  if (normalized === "canceled") return "cancelled"
+
+  if (
+    normalized === "on-hold" ||
+    normalized === "processing" ||
+    normalized === "ready" ||
+    normalized === "completed" ||
+    normalized === "cancelled"
+  ) {
+    return normalized
+  }
+
+  return "on-hold"
+}
+
 type OutletContext = {
   products: Product[]
   searchQuery: string
@@ -84,18 +106,31 @@ type OutletContext = {
 const OrdersPage = () => {
 
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { orderId } = useParams()
   const [page, setPage] = useState(1)
   const [dateMode, setDateMode] = useState<"today" | "all" | "day" | "range">("today")
   const [selectedDate, setSelectedDate] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
-  const [expandedDetailsOrderId, setExpandedDetailsOrderId] = useState<number | null>(null)
   const [showTabSkeleton, setShowTabSkeleton] = useState(false)
   const [tabChangeLoading, setTabChangeLoading] = useState(false)
   const previousOnHoldCountRef = useRef<number | null>(null)
   const initialLoadRef = useRef(true)
   const previousTabRef = useRef<OrderStatus | null>(null)
   const tabSkeletonTimerRef = useRef<number | null>(null)
+
+  const routeOrderId = useMemo(() => {
+    if (!orderId) return null
+    const parsed = Number(orderId)
+
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return null
+    }
+
+    return parsed
+  }, [orderId])
 
   const { products, searchQuery, setSearchMeta } = useOutletContext<OutletContext>()
 
@@ -165,8 +200,11 @@ const OrdersPage = () => {
 
   const handleTabClick = useCallback((nextStatus: OrderStatus) => {
     if (nextStatus === activeTab) return
+    if (routeOrderId !== null) {
+      navigate(`/dashboard/orders${location.search}`, { replace: true })
+    }
     setActiveTab(nextStatus)
-  }, [activeTab, setActiveTab])
+  }, [activeTab, location.search, navigate, routeOrderId, setActiveTab])
 
   useEffect(() => {
     const rawStatus = searchParams.get("status")
@@ -294,10 +332,6 @@ const OrdersPage = () => {
   }, [activeTab, dateFilter, searchQuery])
 
   useEffect(() => {
-    setExpandedDetailsOrderId(null)
-  }, [activeTab, searchQuery, page, dateFilter])
-
-  useEffect(() => {
     const currentOnHoldCount = countsRaw["on-hold"] || 0
 
     if (previousOnHoldCountRef.current === null) {
@@ -323,10 +357,45 @@ const OrdersPage = () => {
     })
   }, [activeTabTotal, foundTotal, ordersLoading, setSearchMeta])
 
-  const isListLoading = ordersLoading || showTabSkeleton
+  const hasOrderInList = useMemo(
+    () => routeOrderId !== null && orders.some(order => order.id === routeOrderId),
+    [orders, routeOrderId]
+  )
+
+  const orderLookupParams = routeOrderId !== null
+    ? {
+        page: 1,
+        per_page: 1,
+        search: String(routeOrderId),
+        scope: "all" as const,
+        fields: ORDER_DETAILS_FIELDS,
+      }
+    : undefined
+
+  const { data: orderLookupResponse, isFetching: orderLookupFetching } =
+    useGetAdminOrdersQuery(orderLookupParams, {
+      skip: routeOrderId === null || hasOrderInList,
+    })
+
+  const lookupOrder = orderLookupResponse?.data?.[0] ?? null
+
+  const selectedOrder = useMemo(() => {
+    if (routeOrderId === null) return null
+    return orders.find(order => order.id === routeOrderId) ?? lookupOrder
+  }, [lookupOrder, orders, routeOrderId])
+
+  const detailsTab = useMemo(() => {
+    if (!selectedOrder) return activeTab
+    return normalizeOrderStatus(selectedOrder.status)
+  }, [activeTab, selectedOrder])
+
+  const isDetailsOpen = routeOrderId !== null
+  const isDetailsLoading =
+    isDetailsOpen && !selectedOrder && (ordersLoading || orderLookupFetching)
+  const isListLoading = (ordersLoading || showTabSkeleton) && !isDetailsOpen
   const listFallback = <OrderSkeleton count={5} />
   const showHeaderSkeleton =
-    initialLoadRef.current && ordersLoading && querySupportsDateFilters
+    initialLoadRef.current && ordersLoading && querySupportsDateFilters && !isDetailsOpen
   const filterSkeleton = (
     <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
       <div className="mb-3 h-3 w-64 animate-pulse rounded bg-slate-100" />
@@ -342,11 +411,27 @@ const OrdersPage = () => {
     </div>
   )
 
-  const handleToggleDetails = (orderId: number) => {
-    setExpandedDetailsOrderId((currentOrderId) =>
-      currentOrderId === orderId ? null : orderId
-    )
-  }
+  const baseOrdersPath = useMemo(
+    () => `/dashboard/orders${location.search}`,
+    [location.search]
+  )
+
+  const handleViewDetails = useCallback((nextOrderId: number) => {
+    if (routeOrderId === nextOrderId) {
+      navigate(baseOrdersPath, { replace: true })
+      return
+    }
+
+    navigate(`/dashboard/orders/${nextOrderId}${location.search}`)
+  }, [baseOrdersPath, location.search, navigate, routeOrderId])
+
+  const handleCloseDetails = useCallback(() => {
+    if (routeOrderId !== null) {
+      handleConfirmAction(routeOrderId, "")
+    }
+
+    navigate(baseOrdersPath, { replace: true })
+  }, [baseOrdersPath, handleConfirmAction, navigate, routeOrderId])
 
   /**
    * 🔔 звук нового заказа (только on-hold)
@@ -447,7 +532,7 @@ const OrdersPage = () => {
 
       {showHeaderSkeleton ? (
         filterSkeleton
-      ) : querySupportsDateFilters ? (
+      ) : querySupportsDateFilters && !isDetailsOpen ? (
         <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
           <p className="mb-3 text-xs font-medium text-slate-500">
             Часовой пояс сервера: <span className="font-semibold text-slate-700">{backendTimezone}</span>
@@ -544,6 +629,40 @@ const OrdersPage = () => {
       <Suspense fallback={listFallback}>
         {isListLoading ? (
           listFallback
+        ) : isDetailsOpen ? (
+          selectedOrder ? (
+            <OrderDetailsFullscreen
+              key={selectedOrder.id}
+              order={selectedOrder}
+              products={products}
+              activeTab={detailsTab}
+              isProcessing={processingIds.has(selectedOrder.id)}
+              showConfirmation={expandedConfirmation.orderId === selectedOrder.id}
+              confirmationAction={
+                expandedConfirmation.orderId === selectedOrder.id
+                  ? expandedConfirmation.action || ""
+                  : ""
+              }
+              onConfirmAction={handleConfirmAction}
+              onStatusUpdate={handleConfirmStatusUpdate}
+              onClose={handleCloseDetails}
+            />
+          ) : isDetailsLoading ? (
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-8 text-center text-slate-600">
+              Загрузка заказа...
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-8 text-center text-slate-600">
+              <p className="font-semibold">Заказ не найден</p>
+              <button
+                type="button"
+                onClick={handleCloseDetails}
+                className="mt-4 rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+              >
+                Назад к заказам
+              </button>
+            </div>
+          )
         ) : orders.length === 0 ? (
           <div className="text-center mt-10 text-gray-500">
             Нет заказов
@@ -551,21 +670,16 @@ const OrdersPage = () => {
         ) : (
           <OrdersSection
             orders={orders}
-            products={products}
             activeTab={activeTab}
             processingIds={processingIds}
             removingOrderIds={removingOrderIds}
-            expandedConfirmation={expandedConfirmation}
-            expandedDetailsOrderId={expandedDetailsOrderId}
-            onConfirmAction={handleConfirmAction}
-            onStatusUpdate={handleConfirmStatusUpdate}
-            onToggleDetails={handleToggleDetails}
+            onViewDetails={handleViewDetails}
           />
         )}
       </Suspense>
 
       {/* 🔥 НОВАЯ PAGINATION */}
-      {shouldPaginate && totalPages > 1 && (
+      {!isDetailsOpen && shouldPaginate && totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-6">
 
           {/* Previous */}
