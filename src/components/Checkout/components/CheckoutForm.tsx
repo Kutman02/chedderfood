@@ -241,10 +241,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                           <p className="text-sm font-semibold text-slate-800 truncate">
                             {method.label}
                           </p>
-
-                          <p className="text-xs text-slate-500 truncate">
-                            {method.method_id}:{method.instance_id}
-                          </p>
                         </div>
                       </div>
 
