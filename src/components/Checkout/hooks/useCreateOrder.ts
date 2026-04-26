@@ -150,8 +150,12 @@ export const useCreateOrder = () => {
     if (orderType === "delivery" && shippingMethod) {
       orderData.shipping_method = {
         rate_id: shippingMethod.rate_id,
-        method_id: shippingMethod.method_id,
-        instance_id: shippingMethod.instance_id,
+        ...(shippingMethod.method_id
+          ? { method_id: shippingMethod.method_id }
+          : {}),
+        ...(typeof shippingMethod.instance_id === "number"
+          ? { instance_id: shippingMethod.instance_id }
+          : {}),
       }
     }
 

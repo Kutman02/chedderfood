@@ -233,10 +233,6 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
       try {
         const response = await getShippingMethods({
           order_type: "delivery",
-          billing: {
-            address_1: formData.address?.trim() || undefined,
-            apartment_office: formData.apartment_office?.trim() || undefined,
-          },
           line_items: cartItems,
         }).unwrap()
 
@@ -267,7 +263,7 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
 
         if (!availableMethods.length) {
           setShippingError(
-            "Для текущего адреса и корзины нет доступных способов доставки."
+            "Для текущей корзины нет доступных способов доставки."
           )
         }
       } catch (error) {
@@ -278,7 +274,7 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
         setShippingError(
           extractApiErrorMessage(
             error,
-            "Не удалось получить способы доставки. Проверьте адрес и попробуйте снова."
+            "Не удалось получить способы доставки. Попробуйте снова."
           )
         )
       }
@@ -292,8 +288,6 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
   }, [
     orderType,
     cartItems,
-    formData.address,
-    formData.apartment_office,
     getShippingMethods,
   ])
 
@@ -411,8 +405,6 @@ export const useCheckout = ({ onClose }: UseCheckoutProps) => {
         shippingMethod: selectedShippingRate
           ? {
               rate_id: selectedShippingRate.rate_id,
-              method_id: selectedShippingRate.method_id,
-              instance_id: selectedShippingRate.instance_id,
             }
           : undefined,
         selectedShippingRate: selectedShippingRate || undefined,

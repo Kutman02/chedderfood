@@ -39,14 +39,15 @@ export interface ShippingRate {
 
 export interface ShippingMethodSelection {
   rate_id: string
-  method_id: string
-  instance_id: number
+  method_id?: string
+  instance_id?: number
 }
 
 export interface ShippingMethodsRequest {
   order_type?: OrderType
   billing?: {
     address_1?: string
+    address_2?: string
     apartment_office?: string
     city?: string
     postcode?: string
@@ -157,6 +158,8 @@ export interface CreateOrderRequest {
     floor?: string
     city?: string
     postcode?: string
+    country?: string
+    state?: string
   }
 
   customer_note?: string

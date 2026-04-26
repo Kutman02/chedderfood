@@ -40,7 +40,7 @@ const TAB_SKELETON_CHAR_WIDTH = 8
 const TAB_SKELETON_PADDING = 32
 const ORDERS_SECTION_PRELOAD_DELAY_MS = 350
 
-const ORDER_DETAILS_FIELDS = "id,status,reason,changed_at,changed_by_user_id,total,customer_name,phone,address,apartment_office,floor,order_type,customer_note,needs_cutlery_and_napkins,pickup_address,pickup_map_url,pickup_2gis_url,line_items,status_history,meta_data,date_created,date_created_unix,date_created_human"
+const ORDER_DETAILS_FIELDS = "id,status,reason,changed_at,changed_by_user_id,total,shipping_total,shipping_lines,customer_name,phone,address,apartment_office,floor,order_type,customer_note,needs_cutlery_and_napkins,pickup_address,pickup_map_url,pickup_2gis_url,line_items,status_history,meta_data,date_created,date_created_unix,date_created_human"
 
 const getTabSkeletonWidth = (status: OrderStatus) => {
   const label = ORDER_STATUS_LABELS[status] || ""
