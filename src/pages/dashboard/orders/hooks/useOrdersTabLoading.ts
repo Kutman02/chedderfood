@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react"
 import type { OrderStatus } from "@/types"
-import { TAB_SKELETON_DELAY_MS } from "../orders.constants"
 
 type UseOrdersTabLoadingArgs = {
   activeTab: OrderStatus
@@ -20,7 +19,6 @@ export const useOrdersTabLoading = ({
 
   const initialLoadRef = useRef(true)
   const previousTabRef = useRef<OrderStatus | null>(null)
-  const tabSkeletonTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (previousTabRef.current === null) {
@@ -37,21 +35,7 @@ export const useOrdersTabLoading = ({
 
   useEffect(() => {
     if (!tabChangeLoading || !ordersLoading) return
-
-    if (tabSkeletonTimerRef.current) {
-      clearTimeout(tabSkeletonTimerRef.current)
-    }
-
-    tabSkeletonTimerRef.current = window.setTimeout(() => {
-      setShowTabSkeleton(true)
-    }, TAB_SKELETON_DELAY_MS)
-
-    return () => {
-      if (tabSkeletonTimerRef.current) {
-        clearTimeout(tabSkeletonTimerRef.current)
-        tabSkeletonTimerRef.current = null
-      }
-    }
+    setShowTabSkeleton(true)
   }, [ordersLoading, tabChangeLoading])
 
   useEffect(() => {
