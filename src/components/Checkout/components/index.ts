@@ -1,4 +1,7 @@
 export * from "./CheckoutHeader"
 export * from "./CheckoutForm"
 export * from "./CheckoutFooter"
+export * from "./CheckoutPanelHeader"
+export * from "./CheckoutContent"
 export * from "./ConfirmOrderModal"
+export * from "./ShippingMethodsField"

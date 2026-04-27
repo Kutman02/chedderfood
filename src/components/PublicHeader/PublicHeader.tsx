@@ -1,128 +1,36 @@
-import { useState, useEffect, useMemo, useRef } from "react"
-import { useGetPublicCategoriesQuery } from "@/api"
-import { useLocation, useNavigate } from "react-router-dom"
-import type { Category } from "@/types"
-
-import { useAppSelector } from "@/app/hooks"
+import { useRef } from "react"
 import { useScrollLockStore } from "@/stores/scrollLockStore"
 
 import { HeaderTop } from "./components/HeaderTop"
 import { CategorySkeleton } from "../Skeleton/components"
+import { usePublicHeaderCategoryScroll } from "./hooks/usePublicHeaderCategoryScroll"
+import { usePublicHeaderData } from "./hooks/usePublicHeaderData"
+import { usePublicHeaderNavigation } from "./hooks/usePublicHeaderNavigation"
 
 export const PublicHeader = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
   const headerRef = useRef<HTMLElement | null>(null)
-
-  const receipts = useAppSelector((s) => s.receipts.receipts)
-
-  const { data: categories, isLoading, isError } =
-    useGetPublicCategoriesQuery()
 
   const isScrollLocked = useScrollLockStore((s) => s.isLocked)
 
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
+  const {
+    hasActiveOrders,
+    filteredCategories,
+    isLoading,
+    isError,
+  } = usePublicHeaderData()
 
-  /* ===============================
-     ACTIVE ORDERS
-  =============================== */
+  const {
+    handleOpenReceipts,
+    handleCartToggle,
+  } = usePublicHeaderNavigation()
 
-  const hasActiveOrders = useMemo(() => {
-    return receipts.some(
-      (receipt) =>
-        receipt.status !== "completed" && receipt.status !== "cancelled"
-    )
-  }, [receipts])
-
-  /* ===============================
-     FILTERED CATEGORIES (FIX)
-  =============================== */
-
-  const filteredCategories = useMemo(() => {
-    if (!Array.isArray(categories)) return []
-
-    return categories.filter(
-      (c: Category) => c.id !== undefined && c.id !== null && c.name !== "Без категории"
-    )
-  }, [categories])
-
-  /* ===============================
-     MODALS
-  =============================== */
-
-  const handleOpenReceipts = () => {
-    if (location.pathname === "/mycheks") {
-      navigate("/")
-      return
-    }
-
-    navigate("/mycheks")
-  }
-
-  const handleCartToggle = () => {
-    if (location.pathname === "/cart") {
-      navigate("/")
-      return
-    }
-
-    navigate("/cart")
-  }
-
-  /* ===============================
-     SCROLL SYNC
-  =============================== */
-
-  useEffect(() => {
-    if (isScrollLocked) return
-
-    const handleScroll = () => {
-      const sections = document.querySelectorAll('[id^="category-"]')
-
-      let activeCategory: number | null = null
-
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect()
-
-        if (rect.top <= 120 && rect.bottom > 120) {
-          const id = section.id.replace("category-", "")
-          activeCategory = Number(id)
-        }
-      })
-
-      if (activeCategory !== selectedCategory) {
-        setSelectedCategory(activeCategory)
-      }
-    }
-
-    window.addEventListener("scroll", handleScroll, { passive: true })
-
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [selectedCategory, isScrollLocked])
-
-  /* ===============================
-     SCROLL TO CATEGORY
-  =============================== */
-
-  const handleCategoryClick = (categoryId: number) => {
-    setSelectedCategory(categoryId)
-
-    const section = document.getElementById(`category-${categoryId}`)
-    if (!section) return
-
-    const headerHeight =
-      headerRef.current?.getBoundingClientRect().height ?? 0
-
-    const y =
-      section.getBoundingClientRect().top +
-      window.scrollY -
-      headerHeight -
-      8
-
-    window.scrollTo({
-      top: y,
-      behavior: "smooth",
-    })
-  }
+  const {
+    selectedCategory,
+    handleCategoryClick,
+  } = usePublicHeaderCategoryScroll({
+    headerRef,
+    isScrollLocked,
+  })
 
   /* ===============================
      RENDER
@@ -154,7 +62,7 @@ export const PublicHeader = () => {
                 Ошибка загрузки категорий
               </div>
             ) : (
-              filteredCategories.map((category: Category) => (
+              filteredCategories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryClick(category.id)}

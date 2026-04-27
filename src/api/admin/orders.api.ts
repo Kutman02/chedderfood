@@ -90,8 +90,7 @@ export const adminOrdersApi = baseApi.injectEndpoints({
         }
       },
 
-      transformResponse: (response: OrdersResponse) =>
-        normalizeOrdersResponse(response),
+      transformResponse: normalizeOrdersResponse,
 
       providesTags: (result) =>
         result

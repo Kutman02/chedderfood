@@ -1,10 +1,12 @@
 import { baseApi } from "../base/baseApi"
+import {
+  normalizeCategoriesResponse,
+  normalizeCategoryMutationResponse,
+} from "./categories.transformers"
 import type {
   Category,
-  CategoriesResponse,
   CreateCategoryRequest,
   UpdateCategoryRequest,
-  CategoryMutationResponse,
   CategoryDeleteResponse,
 } from "@/types"
 
@@ -31,7 +33,7 @@ export const adminCategoriesApi = baseApi.injectEndpoints({
         method: "GET",
       }),
 
-      transformResponse: (response: CategoriesResponse) => response.data ?? [],
+      transformResponse: normalizeCategoriesResponse,
 
       providesTags: ["Categories"],
     }),
@@ -47,7 +49,7 @@ export const adminCategoriesApi = baseApi.injectEndpoints({
         body: data,
       }),
 
-      transformResponse: (response: CategoryMutationResponse) => response.data,
+      transformResponse: normalizeCategoryMutationResponse,
 
       invalidatesTags: [
         { type: "Categories" as const, id: "LIST" },
@@ -68,7 +70,7 @@ export const adminCategoriesApi = baseApi.injectEndpoints({
         body: data,
       }),
 
-      transformResponse: (response: CategoryMutationResponse) => response.data,
+      transformResponse: normalizeCategoryMutationResponse,
 
       invalidatesTags: (_result, _error, { id }) => [
         { type: "Categories" as const, id },

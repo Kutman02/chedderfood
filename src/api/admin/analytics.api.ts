@@ -1,4 +1,5 @@
 import { baseApi } from "../base/baseApi"
+import { normalizeDashboardAnalyticsResponse } from "./analytics.transformers"
 import type { DashboardAnalyticsResponse } from "@/types"
 
 export interface GetDashboardAnalyticsParams {
@@ -29,7 +30,7 @@ export const adminAnalyticsApi = baseApi.injectEndpoints({
         params: params || {},
       }),
 
-      transformResponse: (response: DashboardAnalyticsResponse) => response.data,
+      transformResponse: normalizeDashboardAnalyticsResponse,
     }),
   }),
 })

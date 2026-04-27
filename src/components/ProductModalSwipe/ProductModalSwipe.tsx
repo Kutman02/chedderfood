@@ -1,7 +1,10 @@
-import { useRef, useEffect, useLayoutEffect, useState } from "react"
+import { useLayoutEffect, useRef } from "react"
 import type { Product } from "@/types"
 
 import { useScrollLockStore } from "@/stores/scrollLockStore"
+import { useProductModalContentPullToClose } from "./hooks/useProductModalContentPullToClose"
+import { useProductModalEscapeClose } from "./hooks/useProductModalEscapeClose"
+import { useProductModalPresentation } from "./hooks/useProductModalPresentation"
 
 import { ModalHeader } from "./components/ModalHeader"
 import { ProductImageGallery } from "./components/ProductImageGallery"
@@ -26,15 +29,32 @@ export const ProductModalSwipe = ({
   onClose,
 }: ProductModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null)
-  const contentTouchStartYRef = useRef(0)
-  const contentPullDistanceRef = useRef(0)
-  const contentDraggingRef = useRef(false)
-  const contentTouchPulledRef = useRef(false)
-  const contentClosingRef = useRef(false)
-  const [isVisible, setIsVisible] = useState(false)
-  const [isRendered, setIsRendered] = useState(false)
-  const [renderedProduct, setRenderedProduct] = useState<Product | null>(null)
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  const {
+    handleContentTouchStart,
+    handleContentTouchMove,
+    handleContentTouchEnd,
+    resetContentPullState,
+  } = useProductModalContentPullToClose({
+    modalRef,
+    onClose,
+    closeDurationMs: SWIPE_CLOSE_MS,
+    closeDistance: CONTENT_PULL_CLOSE_DISTANCE,
+    maxDistance: CONTENT_PULL_MAX_DISTANCE,
+  })
+
+  const {
+    isVisible,
+    isRendered,
+    renderedProduct,
+    prefersReducedMotion,
+  } = useProductModalPresentation({
+    isOpen,
+    product,
+    modalRef,
+    panelAnimationMs: PANEL_ANIMATION_MS,
+    onResetPullState: resetContentPullState,
+  })
 
   const lockScroll = useScrollLockStore((s) => s.lock)
   const unlockScroll = useScrollLockStore((s) => s.unlock)
@@ -50,157 +70,11 @@ export const ProductModalSwipe = ({
     }
   }, [isRendered, lockScroll, unlockScroll])
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return
-
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const updatePreference = () => setPrefersReducedMotion(media.matches)
-
-    updatePreference()
-
-    if (typeof media.addEventListener === "function") {
-      media.addEventListener("change", updatePreference)
-      return () => media.removeEventListener("change", updatePreference)
-    }
-
-    media.addListener(updatePreference)
-    return () => media.removeListener(updatePreference)
-  }, [])
-
-  // плавное появление и закрытие
-  useEffect(() => {
-    if (isOpen && product) {
-      setRenderedProduct(product)
-      setIsRendered(true)
-      contentClosingRef.current = false
-      contentDraggingRef.current = false
-      contentPullDistanceRef.current = 0
-      contentTouchPulledRef.current = false
-
-      if (prefersReducedMotion) {
-        setIsVisible(true)
-        return
-      }
-
-      const raf = requestAnimationFrame(() => {
-        const modal = modalRef.current
-        if (modal) {
-          modal.style.transition = ""
-          modal.style.transform = ""
-          modal.style.opacity = ""
-        }
-        setIsVisible(true)
-      })
-
-      return () => {
-        cancelAnimationFrame(raf)
-      }
-    }
-
-    if (!isOpen) {
-      setIsVisible(false)
-      contentClosingRef.current = false
-      contentDraggingRef.current = false
-      contentPullDistanceRef.current = 0
-      contentTouchPulledRef.current = false
-
-      if (prefersReducedMotion) {
-        setIsRendered(false)
-        setRenderedProduct(null)
-        return
-      }
-
-      const closeTimer = setTimeout(() => {
-        setIsRendered(false)
-        setRenderedProduct(null)
-      }, PANEL_ANIMATION_MS)
-
-      return () => {
-        clearTimeout(closeTimer)
-      }
-    }
-  }, [isOpen, product, prefersReducedMotion])
-
-  // закрытие по ESC
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose()
-      }
-    }
-
-    document.addEventListener("keydown", handleEscape)
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape)
-    }
-  }, [onClose])
+  useProductModalEscapeClose(onClose)
 
   if (!isRendered || !renderedProduct) return null
 
   const activeProduct = renderedProduct
-
-  const handleContentTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    contentTouchStartYRef.current = e.touches[0].clientY
-    contentTouchPulledRef.current = false
-    contentPullDistanceRef.current = 0
-    contentDraggingRef.current = false
-  }
-
-  const handleContentTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    const deltaY = e.touches[0].clientY - contentTouchStartYRef.current
-    const atTop = e.currentTarget.scrollTop <= 2
-
-    if (!contentTouchPulledRef.current && atTop && deltaY > 8) {
-      contentTouchPulledRef.current = true
-      contentDraggingRef.current = true
-    }
-
-    if (contentDraggingRef.current && atTop && deltaY > 0) {
-      if (e.cancelable) {
-        e.preventDefault()
-      }
-      e.stopPropagation()
-
-      const modal = modalRef.current
-      if (!modal) return
-
-      const offset = Math.min(deltaY, CONTENT_PULL_MAX_DISTANCE)
-      contentPullDistanceRef.current = offset
-
-      modal.style.transition = "none"
-      modal.style.transform = `translateY(${offset}px)`
-      modal.style.opacity = `${Math.max(0.7, 1 - offset / 700)}`
-    }
-  }
-
-  const handleContentTouchEnd = () => {
-    const modal = modalRef.current
-    const pulledDistance = contentPullDistanceRef.current
-
-    if (contentDraggingRef.current && modal) {
-      const shouldClose = pulledDistance >= CONTENT_PULL_CLOSE_DISTANCE
-
-      modal.style.transition = `transform ${SWIPE_CLOSE_MS}ms cubic-bezier(0.22,1,0.36,1), opacity ${SWIPE_CLOSE_MS}ms ease-out`
-
-      if (shouldClose) {
-        modal.style.transform = "translateY(100%)"
-        modal.style.opacity = "0"
-
-        if (!contentClosingRef.current) {
-          contentClosingRef.current = true
-          onClose()
-        }
-      } else {
-        modal.style.transform = "translateY(0)"
-        modal.style.opacity = "1"
-      }
-    }
-
-    contentTouchPulledRef.current = false
-    contentDraggingRef.current = false
-    contentPullDistanceRef.current = 0
-  }
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -210,7 +84,7 @@ export const ProductModalSwipe = ({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/25 p-0 sm:p-4 transition-opacity duration-[280ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+      className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/25 p-0 sm:p-4 transition-opacity duration-280 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
       onClick={handleBackdropClick}
@@ -223,7 +97,7 @@ export const ProductModalSwipe = ({
       >
         <div
           ref={modalRef}
-          className={`relative bg-white rounded-none sm:rounded-2xl shadow-2xl w-full max-w-5xl h-[100vh] max-h-[100vh] sm:h-auto sm:max-h-[94vh] md:h-[82vh] md:max-h-190 flex flex-col transform-gpu will-change-transform transition-[transform,opacity] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+          className={`relative bg-white rounded-none sm:rounded-2xl shadow-2xl w-full max-w-5xl h-screen max-h-screen sm:h-auto sm:max-h-[94vh] md:h-[82vh] md:max-h-190 flex flex-col transform-gpu will-change-transform transition-[transform,opacity] duration-320 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full sm:translate-y-2"
           }`}
         >

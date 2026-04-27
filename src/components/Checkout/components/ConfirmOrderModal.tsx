@@ -1,7 +1,11 @@
 import React from "react";
-import { FaCheckCircle, FaUser, FaMapMarkerAlt, FaPhone, FaNotesMedical } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
 
 import type { CheckoutFormData } from "@/types";
+import { useConfirmOrderModalView } from "../hooks/useConfirmOrderModalView";
+import { ConfirmOrderDetails } from "./ConfirmOrderDetails";
+import { ConfirmOrderTotals } from "./ConfirmOrderTotals";
+import { ConfirmOrderActions } from "./ConfirmOrderActions";
 
 interface ConfirmOrderModalProps {
   open: boolean;
@@ -41,6 +45,26 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const {
+    addressLabel,
+    addressValue,
+    phoneValue,
+    shippingRowLabel,
+    subtotalLabel,
+    shippingLabelValue,
+    shippingIsFree,
+    totalLabel,
+  } = useConfirmOrderModalView({
+    formData,
+    phone,
+    orderType,
+    pickupAddress,
+    shippingLabel,
+    subtotal,
+    shippingCost,
+    totalAmount,
+  });
+
   if (!open) return null;
 
   return (
@@ -76,185 +100,29 @@ export const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
             Пожалуйста проверьте данные заказа:
           </p>
 
-          <div className="space-y-4 mb-6">
+          <ConfirmOrderDetails
+            formData={formData}
+            orderType={orderType}
+            addressLabel={addressLabel}
+            addressValue={addressValue}
+            phoneValue={phoneValue}
+          />
 
-            {/* Name */}
-            <div className="flex items-start gap-3">
-              <FaUser className="text-slate-400 mt-1" size={14} />
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Имя
-                </div>
-
-                <div className="font-medium text-slate-800">
-                  {formData.first_name}
-                </div>
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="flex items-start gap-3">
-              <FaMapMarkerAlt className="text-slate-400 mt-1" size={14} />
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Адрес ({orderType === "pickup" ? "Самовывоз" : "Доставка"})
-                </div>
-
-                <div className="font-medium text-slate-800">
-                  {orderType === "pickup"
-                    ? (pickupAddress || "Адрес ресторана не указан")
-                    : (formData.address || "Не указан")}
-                </div>
-              </div>
-            </div>
-
-            {orderType === "delivery" && formData.apartment_office && (
-              <div className="flex items-start gap-3">
-                <FaMapMarkerAlt className="text-slate-400 mt-1" size={14} />
-
-                <div>
-                  <div className="text-sm text-slate-500">Квартира/офис</div>
-                  <div className="font-medium text-slate-800">{formData.apartment_office}</div>
-                </div>
-              </div>
-            )}
-
-            {orderType === "delivery" && formData.floor && (
-              <div className="flex items-start gap-3">
-                <FaMapMarkerAlt className="text-slate-400 mt-1" size={14} />
-
-                <div>
-                  <div className="text-sm text-slate-500">Этаж</div>
-                  <div className="font-medium text-slate-800">{formData.floor}</div>
-                </div>
-              </div>
-            )}
-
-            {/* Phone */}
-            <div className="flex items-start gap-3">
-              <FaPhone className="text-slate-400 mt-1" size={14} />
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Телефон
-                </div>
-
-                <div className="font-medium text-slate-800">
-                  {phone || formData.phone || "Не указан"}
-                </div>
-              </div>
-            </div>
-
-            {/* Note */}
-            {formData.customer_note && (
-              <div className="flex items-start gap-3">
-                <FaNotesMedical className="text-slate-400 mt-1" size={14} />
-
-                <div>
-                  <div className="text-sm text-slate-500">
-                    Комментарий к заказу
-                  </div>
-
-                  <div className="font-medium text-slate-800">
-                    {formData.customer_note}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-start gap-3">
-              <FaNotesMedical className="text-slate-400 mt-1" size={14} />
-
-              <div>
-                <div className="text-sm text-slate-500">Дополнительно</div>
-                <div className="font-medium text-slate-800">
-                  Салфетки и приборы: {formData.needs_cutlery_and_napkins ? "Да" : "Нет"}
-                </div>
-              </div>
-            </div>
-
-            {/* Total */}
-            <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
-
-              <div className="w-full space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-slate-600">
-                    Товары:
-                  </span>
-
-                  <span className="text-sm font-bold text-slate-900">
-                    {subtotal.toFixed(0)} сом
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-semibold text-slate-600">
-                    {orderType === "pickup"
-                      ? "Самовывоз"
-                      : `Доставка (${shippingLabel})`}:
-                  </span>
-
-                  {shippingCost > 0 ? (
-                    <span className="text-sm font-bold text-slate-900">
-                      {shippingCost.toFixed(0)} сом
-                    </span>
-                  ) : (
-                    <span className="text-sm font-bold text-emerald-600">
-                      Бесплатно
-                    </span>
-                  )}
-                </div>
-
-                <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
-                  <span className="text-lg font-bold text-slate-800">
-                    Итого:
-                  </span>
-
-                  <span className="text-2xl font-black text-orange-600">
-                    {totalAmount.toFixed(0)} сом
-                  </span>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
+          <ConfirmOrderTotals
+            shippingRowLabel={shippingRowLabel}
+            subtotalLabel={subtotalLabel}
+            shippingLabelValue={shippingLabelValue}
+            shippingIsFree={shippingIsFree}
+            totalLabel={totalLabel}
+          />
 
         </div>
 
-          {/* Buttons */}
-        <div className="shrink-0 border-t border-slate-200 p-4">
-          <div className="flex gap-3">
-
-            <button
-              onClick={onCancel}
-              disabled={isSubmitting}
-              className="flex-1 bg-slate-100 text-slate-700 py-3 rounded-lg font-bold hover:bg-slate-200 transition"
-            >
-              Отменить
-
-            </button>
-
-            <button
-              onClick={onConfirm}
-              disabled={isSubmitting}
-              className="flex-1 bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition flex items-center justify-center gap-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Создание...
-                </>
-              ) : (
-                "Подтвердить"
-              )}
-            </button>
-
-          </div>
-
-        </div>
+        <ConfirmOrderActions
+          isSubmitting={isSubmitting}
+          onConfirm={onConfirm}
+          onCancel={onCancel}
+        />
 
       </div>
 

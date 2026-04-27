@@ -1,9 +1,12 @@
 import { baseApi } from "../base/baseApi"
+import {
+  normalizeProductCategoriesResponse,
+  normalizeProductMutationResponse,
+} from "./products.transformers"
 import type {
   Product,
   ProductsResponse,
   Category,
-  CategoriesResponse,
   ProductStatus,
   StockStatus,
 } from "@/types"
@@ -42,12 +45,6 @@ export interface CreateProductRequest {
   category_ids?: number[]
   tag_ids?: number[]
   image_ids?: number[]
-}
-
-export interface ProductMutationResponse {
-  success: boolean
-  data: Product
-  message: string
 }
 
 /* =========================
@@ -148,7 +145,7 @@ export const adminProductsApi = baseApi.injectEndpoints({
         body: data,
       }),
 
-      transformResponse: (response: ProductMutationResponse) => response.data,
+      transformResponse: normalizeProductMutationResponse,
 
       invalidatesTags: [
         { type: "Products" as const, id: "LIST" },
@@ -169,7 +166,7 @@ export const adminProductsApi = baseApi.injectEndpoints({
         body: data,
       }),
 
-      transformResponse: (response: ProductMutationResponse) => response.data,
+      transformResponse: normalizeProductMutationResponse,
 
       invalidatesTags: (_result, _error, { id }) => [
         { type: "Products" as const, id },
@@ -207,7 +204,7 @@ export const adminProductsApi = baseApi.injectEndpoints({
         method: "GET",
       }),
 
-      transformResponse: (response: CategoriesResponse) => response.data ?? [],
+      transformResponse: normalizeProductCategoriesResponse,
 
       providesTags: [
         { type: "Categories" as const, id: "LIST" },

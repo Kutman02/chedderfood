@@ -66,8 +66,7 @@ export const publicOrdersApi = baseApi.injectEndpoints({
         body,
       }),
 
-      transformResponse: (response: unknown) =>
-        normalizeShippingMethodsResponse(response),
+      transformResponse: normalizeShippingMethodsResponse,
     }),
 
     /* =========================
@@ -157,8 +156,6 @@ export const publicOrdersApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-
-      transformResponse: (response: CreateOrderResponse) => response,
 
       async onQueryStarted(
         _arg,

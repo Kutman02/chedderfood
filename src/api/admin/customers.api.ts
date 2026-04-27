@@ -1,5 +1,6 @@
 import { baseApi } from "../base/baseApi"
-import type { Customer, CustomerDetails, CustomersResponse } from "@/types"
+import { normalizeCustomersResponse } from "./customers.transformers"
+import type { Customer, CustomerDetails } from "@/types"
 
 /* =========================
    ADMIN CUSTOMERS API
@@ -36,7 +37,7 @@ export const adminCustomersApi = baseApi.injectEndpoints({
         params: params || {},
       }),
 
-      transformResponse: (response: CustomersResponse) => response.data ?? [],
+      transformResponse: normalizeCustomersResponse,
 
       providesTags: [
         { type: "Customers" as const, id: "LIST" },

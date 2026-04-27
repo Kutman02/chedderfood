@@ -107,3 +107,13 @@ export const getShippingCost = (
     0
   )
 }
+
+export const formatShippingPrice = (method: ShippingRate) => {
+  const amount = Number(method.total ?? method.cost ?? 0)
+
+  if (!Number.isFinite(amount) || amount <= 0 || method.is_free) {
+    return "Бесплатно"
+  }
+
+  return `${amount.toFixed(0)} сом`
+}

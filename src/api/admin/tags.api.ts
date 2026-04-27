@@ -1,10 +1,12 @@
 import { baseApi } from "../base/baseApi"
+import {
+  normalizeTagMutationResponse,
+  normalizeTagsResponse,
+} from "./tags.transformers"
 import type {
   Tag,
-  TagsResponse,
   CreateTagRequest,
   UpdateTagRequest,
-  TagMutationResponse,
   TagDeleteResponse,
 } from "@/types"
 
@@ -15,7 +17,7 @@ export const adminTagsApi = baseApi.injectEndpoints({
         url: "/custom/v1/tags",
         method: "GET",
       }),
-      transformResponse: (response: TagsResponse) => response.data ?? [],
+      transformResponse: normalizeTagsResponse,
       providesTags: (result) =>
         result
           ? [
@@ -31,7 +33,7 @@ export const adminTagsApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      transformResponse: (response: TagMutationResponse) => response.data,
+      transformResponse: normalizeTagMutationResponse,
       invalidatesTags: [{ type: "Tags" as const, id: "LIST" }],
     }),
 
@@ -41,7 +43,7 @@ export const adminTagsApi = baseApi.injectEndpoints({
         method: "PUT",
         body: data,
       }),
-      transformResponse: (response: TagMutationResponse) => response.data,
+      transformResponse: normalizeTagMutationResponse,
       invalidatesTags: (_result, _error, { id }) => [
         { type: "Tags" as const, id },
         { type: "Tags" as const, id: "LIST" },

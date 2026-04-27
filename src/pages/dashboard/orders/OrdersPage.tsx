@@ -1,23 +1,20 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from "react"
 import { useNavigate, useOutletContext } from "react-router-dom"
 import { OrderSkeleton } from "@/components/Skeleton/components"
 import { OrderDetailsFullscreen } from "@/components/dashboard/OrderDetailsFullscreen/OrderDetailsFullscreen"
-import { useGetAdminOrdersQuery, useGetRestaurantHoursStatusQuery } from "@/api"
+import { useGetRestaurantHoursStatusQuery } from "@/api"
 import { OrderTabs } from "../components/OrderTabs"
 import { useOrders } from "../hooks/useOrders"
 import { OrderTabsSkeleton } from "./components/OrderTabsSkeleton"
 import { OrdersDateFilters } from "./components/OrdersDateFilters"
 import { OrdersPagination } from "./components/OrdersPagination"
-import { ORDER_DETAILS_FIELDS, TAB_SKELETON_DELAY_MS } from "./orders.constants"
 import { useOrderStatusRouting } from "./hooks/useOrderStatusRouting"
 import { useOrdersAttentionSignals } from "./hooks/useOrdersAttentionSignals"
+import { useOrderDetailsState } from "./hooks/useOrderDetailsState"
+import { useOrdersFiltersState } from "./hooks/useOrdersFiltersState"
 import { useOrdersSectionPreload } from "./hooks/useOrdersSectionPreload"
-import type { OrdersDateMode, OrdersOutletContext } from "./orders.types"
-import {
-  buildDateFilter,
-  normalizeOrderStatus,
-  supportsDateFilters as supportsDateFiltersByStatus,
-} from "./orders.utils"
+import { useOrdersTabLoading } from "./hooks/useOrdersTabLoading"
+import type { OrdersOutletContext } from "./orders.types"
 
 const loadOrdersSection = () => import("../components/OrdersSection")
 
@@ -47,17 +44,24 @@ const OrdersPage = () => {
 
   useOrdersSectionPreload(preloadOrdersSection)
 
-  const [page, setPage] = useState(1)
-  const [dateMode, setDateMode] = useState<OrdersDateMode>("today")
-  const [selectedDate, setSelectedDate] = useState("")
-  const [dateFrom, setDateFrom] = useState("")
-  const [dateTo, setDateTo] = useState("")
-  const [showTabSkeleton, setShowTabSkeleton] = useState(false)
-  const [tabChangeLoading, setTabChangeLoading] = useState(false)
   const previousOnHoldCountRef = useRef<number | null>(null)
-  const initialLoadRef = useRef(true)
-  const previousTabRef = useRef<typeof activeTab | null>(null)
-  const tabSkeletonTimerRef = useRef<number | null>(null)
+
+  const {
+    page,
+    setPage,
+    dateMode,
+    setDateMode,
+    selectedDate,
+    setSelectedDate,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
+    dateFilter,
+  } = useOrdersFiltersState({
+    activeTab,
+    searchQuery,
+  })
 
   const { data: restaurantHoursResponse } = useGetRestaurantHoursStatusQuery(
     undefined,
@@ -85,20 +89,6 @@ const OrdersPage = () => {
     }).format(sourceDate)
   }, [backendTimezone, restaurantHoursResponse?.data?.now_local])
 
-  const supportsDateFilters = supportsDateFiltersByStatus(activeTab)
-
-  const dateFilter = useMemo(
-    () =>
-      buildDateFilter(
-        supportsDateFilters,
-        dateMode,
-        selectedDate,
-        dateFrom,
-        dateTo
-      ),
-    [dateFrom, dateMode, dateTo, selectedDate, supportsDateFilters]
-  )
-
   const {
     orders,
     supportsDateFilters: querySupportsDateFilters,
@@ -118,56 +108,27 @@ const OrdersPage = () => {
     handleConfirmStatusUpdate,
   } = useOrders(activeTab, searchQuery, page, dateFilter)
 
-  useEffect(() => {
-    if (previousTabRef.current === null) {
-      previousTabRef.current = activeTab
-      return
-    }
+  const {
+    selectedOrder,
+    detailsTab,
+    isDetailsOpen,
+    isDetailsLoading,
+  } = useOrderDetailsState({
+    routeOrderId,
+    orders,
+    activeTab,
+    ordersLoading,
+  })
 
-    if (previousTabRef.current !== activeTab) {
-      previousTabRef.current = activeTab
-      setShowTabSkeleton(false)
-      setTabChangeLoading(true)
-    }
-  }, [activeTab])
-
-  useEffect(() => {
-    if (!tabChangeLoading || !ordersLoading) return
-
-    if (tabSkeletonTimerRef.current) {
-      clearTimeout(tabSkeletonTimerRef.current)
-    }
-
-    tabSkeletonTimerRef.current = window.setTimeout(() => {
-      setShowTabSkeleton(true)
-    }, TAB_SKELETON_DELAY_MS)
-
-    return () => {
-      if (tabSkeletonTimerRef.current) {
-        clearTimeout(tabSkeletonTimerRef.current)
-        tabSkeletonTimerRef.current = null
-      }
-    }
-  }, [ordersLoading, tabChangeLoading])
-
-  useEffect(() => {
-    if (!tabChangeLoading) return
-
-    if (!ordersLoading) {
-      setTabChangeLoading(false)
-      setShowTabSkeleton(false)
-    }
-  }, [ordersLoading, tabChangeLoading])
-
-  useEffect(() => {
-    if (!ordersLoading && initialLoadRef.current) {
-      initialLoadRef.current = false
-    }
-  }, [ordersLoading])
-
-  useEffect(() => {
-    setPage(1)
-  }, [activeTab, dateFilter, searchQuery])
+  const {
+    showTabSkeleton,
+    showHeaderSkeleton,
+  } = useOrdersTabLoading({
+    activeTab,
+    ordersLoading,
+    querySupportsDateFilters,
+    isDetailsOpen,
+  })
 
   useEffect(() => {
     const currentOnHoldCount = countsRaw["on-hold"] || 0
@@ -195,49 +156,8 @@ const OrdersPage = () => {
     })
   }, [activeTabTotal, foundTotal, ordersLoading, setSearchMeta])
 
-  const hasOrderInList = useMemo(
-    () => routeOrderId !== null && orders.some((order) => order.id === routeOrderId),
-    [orders, routeOrderId]
-  )
-
-  const orderLookupParams = routeOrderId !== null
-    ? {
-        page: 1,
-        per_page: 1,
-        search: String(routeOrderId),
-        scope: "all" as const,
-        fields: ORDER_DETAILS_FIELDS,
-      }
-    : undefined
-
-  const { data: orderLookupResponse, isFetching: orderLookupFetching } =
-    useGetAdminOrdersQuery(orderLookupParams, {
-      skip: routeOrderId === null || hasOrderInList,
-    })
-
-  const lookupOrder = orderLookupResponse?.data?.[0] ?? null
-
-  const selectedOrder = useMemo(() => {
-    if (routeOrderId === null) return null
-    return orders.find((order) => order.id === routeOrderId) ?? lookupOrder
-  }, [lookupOrder, orders, routeOrderId])
-
-  const detailsTab = useMemo(() => {
-    if (!selectedOrder) return activeTab
-    return normalizeOrderStatus(selectedOrder.status)
-  }, [activeTab, selectedOrder])
-
-  const isDetailsOpen = routeOrderId !== null
-  const isDetailsLoading =
-    isDetailsOpen && !selectedOrder && (ordersLoading || orderLookupFetching)
   const isListLoading = (ordersLoading || showTabSkeleton) && !isDetailsOpen
   const listFallback = <OrderSkeleton count={5} />
-
-  const showHeaderSkeleton =
-    initialLoadRef.current &&
-    ordersLoading &&
-    querySupportsDateFilters &&
-    !isDetailsOpen
 
   const onHoldCount = countsRaw["on-hold"] || 0
 

@@ -4,11 +4,13 @@ import { FaBox } from "react-icons/fa"
 interface WeightFieldProps {
   weight: string
   setWeight: (value: string) => void
+  showHint?: boolean
 }
 
 export const WeightField: React.FC<WeightFieldProps> = ({
   weight,
-  setWeight
+  setWeight,
+  showHint = true,
 }) => {
 
   return (
@@ -30,9 +32,11 @@ export const WeightField: React.FC<WeightFieldProps> = ({
         className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-orange-500 outline-none"
       />
 
-      <p className="text-xs text-slate-500 mt-1">
-        Укажите вес товара в граммах (необязательно)
-      </p>
+      {showHint && (
+        <p className="text-xs text-slate-500 mt-1">
+          Укажите вес товара в граммах (необязательно)
+        </p>
+      )}
 
     </div>
 

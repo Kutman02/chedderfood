@@ -1,15 +1,17 @@
-import React, { useState } from "react"
-import { FaTag, FaFileAlt, FaDollarSign, FaBox } from "react-icons/fa"
+import React from "react"
+import { FaFileAlt } from "react-icons/fa"
 import type { Tag } from "@/types"
 import { ProductTagSelector } from "@/components/dashboard/ProductTagSelector"
-
-interface Category {
-  id: number
-  name: string
-}
+import { useProductFormCombo } from "../hooks/useProductFormCombo"
+import type { ProductCategory } from "../types/addProduct.types"
+import { ComboItemsEditor } from "./ComboItemsEditor"
+import { PriceFields } from "./PriceFields"
+import { ProductCategoryField } from "./ProductCategoryField"
+import { ProductSubmitButton } from "./ProductSubmitButton"
+import { WeightField } from "./WeightField"
 
 interface ProductFormProps {
-  categories?: Category[]
+  categories?: ProductCategory[]
   tags?: Tag[]
 
   name: string
@@ -65,49 +67,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   images,
   onSubmit
 }) => {
-
-  const [isCombo, setIsCombo] = useState(false)
-  const [comboItems, setComboItems] = useState<string[]>([""])
-
-  const addComboItem = () => {
-    setComboItems(prev => [...prev, ""])
-  }
-
-  const updateComboItem = (index: number, value: string) => {
-    setComboItems(prev =>
-      prev.map((item, i) => (i === index ? value : item))
-    )
-  }
-
-  const removeComboItem = (index: number) => {
-    setComboItems(prev => prev.filter((_, i) => i !== index))
-  }
+  const {
+    isCombo,
+    setIsCombo,
+    comboItems,
+    addComboItem,
+    updateComboItem,
+    removeComboItem,
+    buildDescriptionWithCombo,
+  } = useProductFormCombo()
 
   const handleSubmit = () => {
-
-    let finalDescription = description
-
-    if (isCombo) {
-
-      const items = comboItems
-        .map(i => i.trim())
-        .filter(Boolean)
-
-      if (items.length > 0) {
-
-        finalDescription = [
-          description.trim(),
-          "",
-          "Состав комбо:",
-          ...items.map(item => `• ${item}`)
-        ].join("\n")
-
-      }
-
-    }
-
+    const finalDescription = buildDescriptionWithCombo(description)
     onSubmit(finalDescription)
-
   }
 
   return (
@@ -116,31 +88,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
       <div className="space-y-4 md:space-y-5 max-w-md mx-auto">
 
-        {/* CATEGORY */}
-        <div>
-
-          <label className="text-sm font-black text-slate-700 mb-2 flex items-center gap-2">
-            <FaTag /> Категория *
-          </label>
-
-          <select
-            value={selectedCategory || ""}
-            aria-label="Выберите категорию товара"
-            onChange={(e) => setSelectedCategory(parseInt(e.target.value))}
-            className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-orange-500 outline-none font-semibold bg-white"
-          >
-
-            <option value="">Выберите категорию</option>
-
-            {categories?.map(cat => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-
-          </select>
-
-        </div>
+        <ProductCategoryField
+          categories={categories}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
 
         <ProductTagSelector
           label="Верхняя метка"
@@ -215,143 +167,34 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
         </div>
 
-
-        {/* COMBO SWITCH */}
-        <div className="flex items-center gap-3">
-
-          <input
-          aria-label="Отметьте, если товар является комбо"
-            type="checkbox"
-            checked={isCombo}
-            onChange={() => setIsCombo(!isCombo)}
-            className="w-5 h-5"
-          />
-
-          <span className="font-semibold text-slate-700">
-            Это комбо
-          </span>
-
-        </div>
+        <ComboItemsEditor
+          isCombo={isCombo}
+          onToggleCombo={() => setIsCombo(!isCombo)}
+          comboItems={comboItems}
+          onComboItemChange={updateComboItem}
+          onComboItemRemove={removeComboItem}
+          onComboItemAdd={addComboItem}
+        />
 
 
-        {/* COMBO ITEMS */}
-        {isCombo && (
-
-          <div>
-
-            <label className="text-sm font-black text-slate-700 mb-2">
-              Состав комбо
-            </label>
-
-            <div className="space-y-2">
-
-              {comboItems.map((item, index) => (
-
-                <div key={index} className="flex gap-2">
-
-                  <input
-                    value={item}
-                    onChange={(e) =>
-                      updateComboItem(index, e.target.value)
-                    }
-                    placeholder="Например: Бургер"
-                    className="flex-1 p-3 rounded-lg border-2 border-slate-200 focus:border-orange-500 outline-none"
-                  />
-
-                  {comboItems.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeComboItem(index)}
-                      className="px-3 bg-red-500 text-white rounded-lg"
-                    >
-                      ✕
-                    </button>
-                  )}
-
-                </div>
-
-              ))}
-
-              <button
-                type="button"
-                onClick={addComboItem}
-                className="text-orange-600 font-semibold pt-1"
-              >
-                + Добавить пункт
-              </button>
-
-            </div>
-
-          </div>
-
-        )}
+        <PriceFields
+          regularPrice={regularPrice}
+          setRegularPrice={setRegularPrice}
+          salePrice={salePrice}
+          setSalePrice={setSalePrice}
+        />
 
 
-        {/* PRICES */}
-        <div className="grid grid-cols-2 gap-4">
-
-          <div>
-
-            <label className="text-sm font-black text-slate-700 mb-2 flex items-center gap-2">
-              <FaDollarSign /> Цена (сом) *
-            </label>
-
-            <input
-              type="number"
-              value={regularPrice}
-              onChange={(e) => setRegularPrice(e.target.value)}
-              placeholder="0"
-              min="0"
-              step="0.01"
-              className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-orange-500 outline-none"
-            />
-
-          </div>
-
-          <div>
-
-            <label className="text-sm font-black text-slate-700 mb-2">
-              Цена со скидкой
-            </label>
-
-            <input
-              type="number"
-              value={salePrice}
-              onChange={(e) => setSalePrice(e.target.value)}
-              placeholder="0"
-              min="0"
-              step="0.01"
-              className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-orange-500 outline-none"
-            />
-
-          </div>
-
-        </div>
+        <WeightField
+          weight={weight}
+          setWeight={setWeight}
+          showHint={false}
+        />
 
 
-        {/* WEIGHT */}
-        <div>
-
-          <label className="text-sm font-black text-slate-700 mb-2 flex items-center gap-2">
-            <FaBox /> Вес (граммы)
-          </label>
-
-          <input
-            type="number"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            placeholder="0"
-            min="0"
-            step="1"
-            className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-orange-500 outline-none"
-          />
-
-        </div>
-
-
-        {/* SUBMIT */}
-        <button
-          onClick={handleSubmit}
+        <ProductSubmitButton
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
           disabled={
             isSubmitting ||
             !name ||
@@ -359,10 +202,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             images.length === 0 ||
             !regularPrice
           }
-          className="w-full bg-linear-to-r from-orange-500 to-orange-600 text-white py-4 md:py-3 rounded-xl font-black text-base md:text-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mt-4 md:mt-6 active:scale-95"
-        >
-          {isSubmitting ? "Публикация..." : "Опубликовать"}
-        </button>
+        />
 
       </div>
 

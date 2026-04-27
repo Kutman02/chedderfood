@@ -1,9 +1,9 @@
 import { baseApi } from "../base/baseApi"
+import { normalizeProfileResponse } from "./auth.transformers"
 import type {
   User,
   AuthResponse,
   LoginRequest,
-  ProfileResponse,
   ProfileUpdateRequest,
 } from "@/types"
 import { authStorage } from "@/shared/lib/storage"
@@ -50,7 +50,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
 
-      transformResponse: (response: ProfileResponse) => response.user,
+      transformResponse: normalizeProfileResponse,
 
       providesTags: ["Profile"],
     }),
@@ -65,7 +65,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
 
-      transformResponse: (response: ProfileResponse) => response.user,
+      transformResponse: normalizeProfileResponse,
 
       providesTags: ["Profile"],
     }),
@@ -94,7 +94,7 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
       }),
 
-      transformResponse: (response: ProfileResponse) => response.user,
+      transformResponse: normalizeProfileResponse,
 
       invalidatesTags: ["Profile"],
     }),

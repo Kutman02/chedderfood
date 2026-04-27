@@ -1,5 +1,6 @@
 import { baseApi } from "../base/baseApi"
-import type { Category, CategoriesResponse } from "@/types"
+import { normalizePublicCategoriesResponse } from "./categories.transformers"
+import type { Category } from "@/types"
 
 /* =========================
    PUBLIC CATEGORIES API
@@ -20,7 +21,7 @@ export const publicCategoriesApi = baseApi.injectEndpoints({
         method: "GET",
       }),
 
-      transformResponse: (response: CategoriesResponse) => response.data ?? [],
+      transformResponse: normalizePublicCategoriesResponse,
 
       providesTags: [
         { type: "Categories" as const, id: "LIST" },
