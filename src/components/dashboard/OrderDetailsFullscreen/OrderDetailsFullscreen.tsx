@@ -400,17 +400,17 @@ export const OrderDetailsFullscreen = ({
         onTouchStart={handleSheetTouchStart}
         onTouchMove={handleSheetTouchMove}
         onTouchEnd={handleSheetTouchEnd}
-        className={`relative flex h-full w-full max-w-none flex-col overflow-hidden bg-white/92 backdrop-blur-xl transition-[transform,opacity] duration-320 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`relative flex h-full w-full max-w-none flex-col overflow-hidden bg-transparent backdrop-blur-xl transition-[transform,opacity] duration-320 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"
         }`}
       >
-        <header className="shrink-0 bg-transparent px-4 pb-2 pt-2 sm:px-6">
+        <header className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-transparent px-4 pb-2 pt-2 sm:px-6">
           <div className="flex items-center justify-center">
             <button
               type="button"
               onClick={requestClose}
               aria-label="Закрыть детали заказа"
-              className="inline-flex h-12 w-24 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-sm transition-colors hover:bg-slate-100"
+              className="pointer-events-auto inline-flex h-12 w-24 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-sm transition-colors hover:bg-slate-100"
             >
               <IoIosArrowDown size={30} />
             </button>
@@ -418,7 +418,7 @@ export const OrderDetailsFullscreen = ({
         </header>
 
         <div
-          className="flex-1 min-h-0 overflow-y-auto px-3 py-3 overscroll-contain sm:px-5 sm:py-4"
+          className="flex-1 min-h-0 overflow-y-auto bg-white/92 px-3 py-3 overscroll-contain sm:px-5 sm:py-4"
           onTouchStart={handleContentTouchStart}
           onTouchMove={handleContentTouchMove}
           onTouchEnd={handleContentTouchEnd}
