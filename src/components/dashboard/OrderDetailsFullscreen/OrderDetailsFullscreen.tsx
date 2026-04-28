@@ -493,7 +493,7 @@ export const OrderDetailsFullscreen = ({
 
         {shouldShowActionBar && (
           <footer
-            className={`shrink-0 border-t border-slate-200/80 bg-white/80 px-3 py-3 backdrop-blur sm:px-5 sm:py-4 ${
+            className={`shrink-0 bg-transparent px-3 py-3 sm:px-5 sm:py-4 ${
               isProcessing ? "pointer-events-none opacity-70" : ""
             }`}
           >
