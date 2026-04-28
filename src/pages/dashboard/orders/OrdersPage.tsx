@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from "react"
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate, useOutletContext } from "react-router-dom"
 import { OrderSkeleton } from "@/components/Skeleton/components"
 import { OrderDetailsFullscreen } from "@/components/dashboard/OrderDetailsFullscreen/OrderDetailsFullscreen"
@@ -37,6 +37,9 @@ const OrdersPage = () => {
     baseOrdersPath,
     locationSearch,
   } = useOrderStatusRouting()
+
+  const [openedOrderId, setOpenedOrderId] = useState<number | null>(null)
+  const detailsOrderId = routeOrderId ?? openedOrderId
 
   const preloadOrdersSection = useCallback(() => {
     void loadOrdersSection()
@@ -114,7 +117,7 @@ const OrdersPage = () => {
     isDetailsOpen,
     isDetailsLoading,
   } = useOrderDetailsState({
-    routeOrderId,
+    routeOrderId: detailsOrderId,
     orders,
     activeTab,
     ordersLoading,
@@ -167,21 +170,32 @@ const OrdersPage = () => {
   })
 
   const handleViewDetails = useCallback((nextOrderId: number) => {
-    if (routeOrderId === nextOrderId) {
-      navigate(baseOrdersPath, { replace: true })
+    if (detailsOrderId === nextOrderId) {
+      setOpenedOrderId(null)
+
+      if (routeOrderId !== null) {
+        navigate(baseOrdersPath, { replace: true })
+      }
+
       return
     }
 
-    navigate(`/dashboard/orders/${nextOrderId}${locationSearch}`)
-  }, [baseOrdersPath, locationSearch, navigate, routeOrderId])
+    setOpenedOrderId(nextOrderId)
+    navigate(`/dashboard/orders/${nextOrderId}${locationSearch}`, {
+      replace: routeOrderId !== null,
+    })
+  }, [baseOrdersPath, detailsOrderId, locationSearch, navigate, routeOrderId])
 
   const handleCloseDetails = useCallback(() => {
-    if (routeOrderId !== null) {
-      handleConfirmAction(routeOrderId, "")
+    if (detailsOrderId !== null) {
+      handleConfirmAction(detailsOrderId, "")
+      setOpenedOrderId(null)
     }
 
-    navigate(baseOrdersPath, { replace: true })
-  }, [baseOrdersPath, handleConfirmAction, navigate, routeOrderId])
+    if (routeOrderId !== null) {
+      navigate(baseOrdersPath, { replace: true })
+    }
+  }, [baseOrdersPath, detailsOrderId, handleConfirmAction, navigate, routeOrderId])
 
   const handleStatusUpdateFromDetails = useCallback(async (
     orderId: number,
@@ -192,6 +206,8 @@ const OrdersPage = () => {
     if (!isUpdated) {
       return
     }
+
+    setOpenedOrderId(null)
 
     if (routeOrderId === orderId) {
       navigate(baseOrdersPath, { replace: true })
