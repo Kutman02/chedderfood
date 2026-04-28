@@ -54,7 +54,6 @@ export interface OrderTypeBadgeProps {
 
 export interface OrderAddressProps {
   order: Order
-  activeTabData?: TabConfig
 }
 
 

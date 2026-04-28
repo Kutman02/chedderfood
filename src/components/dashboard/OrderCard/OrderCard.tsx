@@ -1,8 +1,7 @@
-import { FaChevronRight, FaSpinner } from "react-icons/fa"
+import { FaSpinner } from "react-icons/fa"
 
 import {
   OrderCardHeader,
-  OrderTypeBadge,
   OrderAddress
 } from "./components"
 
@@ -16,10 +15,48 @@ export const OrderCard = ({
   onViewDetails
 }: OrderCardProps) => {
 
+  const shouldIgnoreCardActivation = (target: EventTarget | null) => {
+    if (!(target instanceof Element)) {
+      return false
+    }
+
+    return Boolean(target.closest("a, button, input, textarea, select, label, [data-order-card-interactive='true']"))
+  }
+
+  const handleCardClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (shouldIgnoreCardActivation(event.target)) {
+      return
+    }
+
+    onViewDetails(order.id)
+  }
+
+  const handleCardKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return
+    }
+
+    if (shouldIgnoreCardActivation(event.target)) {
+      return
+    }
+
+    if (event.key === " ") {
+      event.preventDefault()
+    }
+
+    onViewDetails(order.id)
+  }
+
   return (
 
     <div
+      role="button"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
+      aria-label={`Открыть заказ #${order.number ?? order.id}`}
       className={`relative w-full overflow-visible border-y bg-white px-4 py-4 shadow-md transition-all duration-300 sm:overflow-hidden sm:rounded-2xl sm:border-2 sm:p-5 ${activeTabData?.borderColor}
+      hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300
       ${isProcessing ? "opacity-75 pointer-events-none" : ""}
       ${isRemoving ? "animate-slide-out-up opacity-0" : ""}`}
     >
@@ -38,29 +75,11 @@ export const OrderCard = ({
         activeTabData={activeTabData}
       />
 
-      <div className="mb-4 space-y-3">
-
-        <OrderTypeBadge order={order} />
-
+      <div className="mb-4">
         <OrderAddress
           order={order}
-          activeTabData={activeTabData}
         />
-
       </div>
-
-      {/* 🔥 ВАЖНО: передаём как есть (уже нормализован) */}
-      <button
-        type="button"
-        onClick={() => onViewDetails(order.id)}
-        className="group mb-4 flex min-h-14 w-full touch-manipulation select-none items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-black text-slate-700 shadow-xs transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 active:translate-y-0 active:scale-[0.99] sm:min-h-12 sm:py-2 sm:text-sm"
-      >
-        <span>Посмотреть</span>
-        <FaChevronRight
-          size={14}
-          className="transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:text-orange-600"
-        />
-      </button>
 
     </div>
   )
