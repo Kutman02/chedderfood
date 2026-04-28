@@ -1,5 +1,5 @@
-const PRIMARY_TAB_SKELETON_WIDTHS = ["w-24", "w-36", "w-28"]
-const MORE_TAB_SKELETON_WIDTH = "w-16"
+const PRIMARY_TAB_SKELETON_WIDTHS = ["w-28", "w-40", "w-32"]
+const MORE_TAB_SKELETON_WIDTH = "w-20"
 
 export const OrderTabsSkeleton = () => {
   return (
@@ -9,13 +9,13 @@ export const OrderTabsSkeleton = () => {
           {PRIMARY_TAB_SKELETON_WIDTHS.map((widthClass, index) => (
             <div
               key={`order-tabs-skeleton-primary-${index}`}
-              className={`h-8 animate-pulse rounded-lg bg-slate-100 ${widthClass}`}
+              className={`h-11 animate-pulse rounded-xl bg-slate-100 ${widthClass}`}
             />
           ))}
         </div>
 
         <div
-          className={`h-8 animate-pulse rounded-lg bg-slate-100 ${MORE_TAB_SKELETON_WIDTH}`}
+          className={`h-11 animate-pulse rounded-xl bg-slate-100 ${MORE_TAB_SKELETON_WIDTH}`}
         />
       </div>
     </div>
