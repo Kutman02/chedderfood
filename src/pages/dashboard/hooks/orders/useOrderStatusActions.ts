@@ -58,9 +58,13 @@ export const useOrderStatusActions = () => {
         orderId: null,
         action: null,
       })
+
+      return true
     } catch (error) {
       console.error("❌ Status update error:", error)
       addToast("Ошибка обновления статуса", "error", 4000)
+
+      return false
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev)
@@ -92,7 +96,7 @@ export const useOrderStatusActions = () => {
     orderId: number,
     status: string
   ) => {
-    await handleStatusUpdate(orderId, status as OrderStatus)
+    return handleStatusUpdate(orderId, status as OrderStatus)
   }
 
   return {

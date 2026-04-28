@@ -37,7 +37,16 @@ export const useOrderDetailsState = ({
       skip: routeOrderId === null || hasOrderInList,
     })
 
-  const lookupOrder = orderLookupResponse?.data?.[0] ?? null
+  const lookupOrder = useMemo(() => {
+    if (routeOrderId === null) {
+      return null
+    }
+
+    return (
+      orderLookupResponse?.data?.find((order) => order.id === routeOrderId) ??
+      null
+    )
+  }, [orderLookupResponse?.data, routeOrderId])
 
   const selectedOrder = useMemo(() => {
     if (routeOrderId === null) return null

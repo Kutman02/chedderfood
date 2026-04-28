@@ -40,7 +40,7 @@ export const OrderReceipt: FC<OrderReceiptProps> = ({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
         <div className="bg-white p-6 rounded-xl">
-          <p className="text-slate-600">Загрузка заказа...</p>
+          <p className="text-slate-600">Загрузка...</p>
         </div>
       </div>
     )

@@ -183,6 +183,21 @@ const OrdersPage = () => {
     navigate(baseOrdersPath, { replace: true })
   }, [baseOrdersPath, handleConfirmAction, navigate, routeOrderId])
 
+  const handleStatusUpdateFromDetails = useCallback(async (
+    orderId: number,
+    status: string
+  ) => {
+    const isUpdated = await handleConfirmStatusUpdate(orderId, status)
+
+    if (!isUpdated) {
+      return
+    }
+
+    if (routeOrderId === orderId) {
+      navigate(baseOrdersPath, { replace: true })
+    }
+  }, [baseOrdersPath, handleConfirmStatusUpdate, navigate, routeOrderId])
+
   if (ordersError) {
     return (
       <div className="py-20 text-center">
@@ -194,13 +209,15 @@ const OrdersPage = () => {
 
   return (
     <>
-      <OrderTabs
-        activeTab={activeTab}
-        setActiveTab={handleTabClick}
-        counts={counts}
-      />
+      {!isDetailsOpen && (
+        <OrderTabs
+          activeTab={activeTab}
+          setActiveTab={handleTabClick}
+          counts={counts}
+        />
+      )}
 
-      {showTabSkeleton && <OrderTabsSkeleton />}
+      {showTabSkeleton && !isDetailsOpen && <OrderTabsSkeleton />}
 
       <OrdersDateFilters
         showHeaderSkeleton={showHeaderSkeleton}
@@ -237,12 +254,12 @@ const OrdersPage = () => {
                   : ""
               }
               onConfirmAction={handleConfirmAction}
-              onStatusUpdate={handleConfirmStatusUpdate}
+              onStatusUpdate={handleStatusUpdateFromDetails}
               onClose={handleCloseDetails}
             />
           ) : isDetailsLoading ? (
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-8 text-center text-slate-600">
-              Загрузка заказа...
+              Загрузка...
             </div>
           ) : (
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-8 text-center text-slate-600">
